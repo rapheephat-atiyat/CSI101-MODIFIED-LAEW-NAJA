@@ -1,5 +1,5 @@
 class ProductRequestManager {
-    static BASE_API_URL = window.APP_CONFIG.API_BASE_URL;
+    static BASE_API_URL = window.APP_CONFIG.BASE_URL;
 
     static _getHeaders(contentType = "application/json") {
         const token = localStorage.getItem("jwt");

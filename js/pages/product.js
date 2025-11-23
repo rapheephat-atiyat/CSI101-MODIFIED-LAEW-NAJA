@@ -90,10 +90,10 @@ class ProductDetailManager {
 
         this.elements.mainGrid.innerHTML = `
             <section class="bg-white rounded-[14px] p-[22px] shadow-[0_8px_28px_rgba(18,30,45,0.06)]" aria-labelledby="product-gallery">
-                <div class="w-full h-[480px] bg-white rounded-xl flex items-center justify-center overflow-hidden relative" id="hero">
+                <div class="w-full h-[600px] bg-white rounded-xl flex items-center justify-center overflow-hidden relative" id="hero">
                     ${primaryIsVideo
-                ? `<video id="mainImg" src="${primaryImage}" controls autoplay muted loop class="max-w-full max-h-full block transition-transform duration-300"></video>`
-                : `<img id="mainImg" src="${primaryImage}" alt="${product.title}" class="max-w-full max-h-full object-contain block transition-transform duration-300">`}
+                        ? `<video id="mainImg" src="${primaryImage}" autoplay muted loop class="w-full h-full object-cover block transition-transform duration-300"></video>`
+                        : `<img id="mainImg" src="${primaryImage}" alt="${product.title}" class="w-full h-full object-cover block transition-transform duration-300">`}
                 </div>
 
                 <div class="flex gap-3 mt-[18px] items-center flex-wrap" aria-hidden="false">
@@ -183,9 +183,9 @@ class ProductDetailManager {
                 </div>
             </aside>
             
-            <div class="bg-white rounded-[14px] p-[22px] shadow-[0_8px_28px_rgba(18,30,45,0.06)] mt-7 col-span-full">
-                <h2 class="text-xl font-bold mb-3 border-l-4 border-blue-600 pl-2.5">สินค้าที่คุณอาจสนใจ</h2>
-                <div id="related-products-container">
+                 <div class="bg-white rounded-[14px] p-[22px] shadow-[0_8px_28px_rgba(18,30,45,0.06)] mt-7 col-span-full">
+                    <h2 class="text-xl font-bold mb-3 border-l-4 border-blue-600 pl-2.5">สินค้าที่คุณอาจสนใจ</h2>
+                    <div id="related-products-container">
                 </div>
             </div>
         `;
@@ -218,17 +218,17 @@ class ProductDetailManager {
                     const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
                     const isVideo = this.isVideoUrl(image);
                     return `
-                                        <a href="/product.html?id=${p.id}" class="bg-white rounded-xl shadow-sm overflow-hidden transition-transform duration-200 hover:shadow-lg hover:-translate-y-[2px] flex flex-col h-full no-underline text-inherit">
-                                            <div class="w-full aspect-square relative overflow-hidden rounded-t-xl">
-                                                ${isVideo ? `<video src="${image}" preload="metadata" muted loop class="w-full h-full object-cover block" onmouseenter="this.play()" onmouseleave="this.pause()"></video>` : `<img src="${image}" class="w-full h-full object-cover block"/>`}
-                                                ${isVideo ? `<div class="absolute top-2 right-2 bg-red-700/90 text-white px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 leading-none"><i data-lucide="video" class="w-4 h-4"></i> VIDEO</div>` : ''}
-                                            </div>
-                                            <div class="p-2.5 flex flex-col gap-1 flex-grow">
-                                                <span class="text-sm font-semibold text-gray-800 min-h-8 leading-snug overflow-hidden text-ellipsis block line-clamp-2">${p.title}</span>
-                                                <span class="text-red-700 font-extrabold text-base mt-auto">฿${this.formatNumber(displayPrice)}</span>
-                                            </div>
-                                        </a>
-                                    `;
+                                            <a href="/product.html?id=${p.id}" class="bg-white rounded-xl shadow-sm overflow-hidden transition-transform duration-200 hover:shadow-lg hover:-translate-y-[2px] flex flex-col h-full no-underline text-inherit">
+                                                <div class="w-full aspect-square relative overflow-hidden rounded-t-xl">
+                                                    ${isVideo ? `<video src="${image}" preload="metadata" muted loop class="w-full h-full object-cover block" onmouseenter="this.play()" onmouseleave="this.pause()"></video>` : `<img src="${image}" class="w-full h-full object-cover block"/>`}
+                                                    ${isVideo ? `<div class="absolute top-2 right-2 bg-red-700/90 text-white px-2 py-1 rounded-md text-xs font-bold flex items-center gap-1 leading-none"><i data-lucide="video" class="w-4 h-4"></i> VIDEO</div>` : ''}
+                                                </div>
+                                                <div class="p-2.5 flex flex-col gap-1 flex-grow">
+                                                    <span class="text-sm font-semibold text-gray-800 min-h-8 leading-snug overflow-hidden text-ellipsis block line-clamp-2">${p.title}</span>
+                                                    <span class="text-red-700 font-extrabold text-base mt-auto">฿${this.formatNumber(displayPrice)}</span>
+                                                </div>
+                                            </a>
+                                        `;
                 }).join('')}
                         </div>
                     </div>
@@ -290,13 +290,13 @@ class ProductDetailManager {
         if (heroContainer) {
             heroContainer.innerHTML = '';
             if (isVideo) {
-                heroContainer.innerHTML = `<video id="mainImg" src="${url}" controls autoplay muted loop class="max-w-full max-h-full block transition-transform duration-300"></video>`;
+                heroContainer.innerHTML = `<video id="mainImg" src="${url}" autoplay muted loop class="w-full h-full object-cover block transition-transform duration-300"></video>`;
             } else {
-                heroContainer.innerHTML = `<img id="mainImg" src="${url}" alt="Product Image" class="max-w-full max-h-full object-contain block transition-transform duration-300">`;
+                heroContainer.innerHTML = `<img id="mainImg" src="${url}" alt="Product Image" class="w-full h-full object-cover block transition-transform duration-300">`;
             }
         }
 
-        document.querySelectorAll('.thumbs button').forEach(b => b.classList.remove('active', 'border-red-600'));
+        document.querySelectorAll('.image-thumbnail').forEach(b => b.classList.remove('active', 'border-red-600'));
         if (element) {
             element.classList.add('active', 'border-red-600');
         }
@@ -515,21 +515,21 @@ class ProductDetailManager {
             let content;
             if (relatedProducts.length === 0) {
                 content = `<div class="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3 mt-5">
-                        <div class="bg-[#f8fafc] p-3 rounded-lg font-bold text-sm col-span-full text-gray-600">
-                            <i data-lucide="package-x" class="w-5 h-5 inline"></i> ไม่พบสินค้าใกล้เคียงในหมวดหมู่เดียวกัน
+                            <div class="bg-[#f8fafc] p-3 rounded-lg font-bold text-sm col-span-full text-gray-600">
+                                <i data-lucide="package-x" class="w-5 h-5 inline"></i> ไม่พบสินค้าใกล้เคียงในหมวดหมู่เดียวกัน
+                            </div>
                         </div>
-                    </div>
-                 `;
+                    `;
 
             } else {
                 content = `
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mt-5">
                         ${relatedProducts.map(p => {
-                        const displayPrice = this.formatPrice(p.discountPrice || p.price);
-                        const imageArray = this.parseImages(p.images);
-                        const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
-                        const isVideo = this.isVideoUrl(image);
-                        return `
+                                const displayPrice = this.formatPrice(p.discountPrice || p.price);
+                                const imageArray = this.parseImages(p.images);
+                                const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
+                                const isVideo = this.isVideoUrl(image);
+                                return `
                                     <a href="/product.html?id=${p.id}" class="bg-white rounded-xl shadow-sm overflow-hidden transition-transform duration-200 hover:shadow-lg hover:-translate-y-0.5 flex flex-col h-full no-underline text-inherit">
                                         <div class="w-full aspect-square relative overflow-hidden rounded-t-xl">
                                             ${isVideo ? `<video src="${image}" preload="metadata" muted loop class="w-full h-full object-cover block" onmouseenter="this.play()" onmouseleave="this.pause()"></video>` : `<img src="${image}" class="w-full h-full object-cover block"/>`}
@@ -541,7 +541,7 @@ class ProductDetailManager {
                                         </div>
                                     </a>
                                 `;
-                    }).join('')}
+                        }).join('')}
                     </div>
                 `;
             }

@@ -4,11 +4,10 @@ class ShopManager {
         this.currentUserId = null;
         this.isShopOwner = false;
         
-        // Assume services are available globally
-        this.auth = new AuthManager(); 
+        // Ensure Services exist before instantiating
+        this.auth = typeof AuthManager !== 'undefined' ? new AuthManager() : null; 
         this.navbarEl = document.querySelector('navbar-eiei');
 
-        // Note: document.getElementById() is safe to call here even if parent is hidden
         this.elements = {
             loadingState: document.getElementById('loading-state'),
             errorState: document.getElementById('error-state'),
@@ -55,6 +54,11 @@ class ShopManager {
         this.toggleDisplay('loading');
 
         try {
+            // CRITICAL FIX: Check dependencies before executing the Promise.all
+            if (typeof VendorProfileManager === 'undefined' || !this.auth) {
+                 throw new Error("ไม่สามารถโหลดไฟล์บริการหลัก (Service Manager files missing).");
+            }
+            
             const [shopResponse, userResponse] = await Promise.all([
                 VendorProfileManager.getShopProfile(this.shopId),
                 this.auth.getProfile().catch(() => ({ user: { id: null } }))
@@ -84,51 +88,52 @@ class ShopManager {
     // --- UI Logic & Event Setup ---
 
     setupGeneralEventListeners() {
-        // เพิ่มการตรวจสอบ null ให้ปลอดภัยก่อนผูก Listener
-        if (this.elements.followBtn) {
-            // Note: HTML already has inline onclick="shopManager.toggleFollow()"
-        }
-        
-        // Fix: ใช้ if (this.elements.addProductForm) เพื่อป้องกัน crash หาก element เป็น null 
-        if (this.elements.addProductForm) {
-            // Note: HTML already has inline onsubmit="shopManager.addProduct(event)"
-            // เราไม่ต้องผูก Event Listener ซ้ำตรงนี้ แต่ต้องมั่นใจว่าไม่มีโค้ดอื่นที่พยายามผูก Listener แล้ว crash
-        }
+        // No explicit DOM binding needed here as HTML uses inline `onclick="shopManager.methodName()"`
     }
 
     async updateUIBasedOnUserRole(shopData) {
+        const getEl = (key) => this.elements[key];
+        
         if (this.isShopOwner) {
-            this.elements.addProductBtn?.classList.remove('hidden');
-            this.elements.viewWishlistRequestsBtn?.classList.remove('hidden');
+            getEl('addProductBtn')?.classList.remove('hidden');
+            getEl('viewWishlistRequestsBtn')?.classList.remove('hidden');
 
-            this.elements.followBtn?.classList.add('hidden');
-            this.elements.chatBtn?.classList.add('hidden');
-            this.elements.wishlistRequestBtn?.classList.add('hidden');
+            getEl('followBtn')?.classList.add('hidden');
+            getEl('chatBtn')?.classList.add('hidden');
+            getEl('wishlistRequestBtn')?.classList.add('hidden');
 
             await this.updateWishlistRequestCount();
         } else {
             // Customer/Guest view
-            this.elements.addProductBtn?.classList.add('hidden');
-            this.elements.viewWishlistRequestsBtn?.classList.add('hidden');
+            getEl('addProductBtn')?.classList.add('hidden');
+            getEl('viewWishlistRequestsBtn')?.classList.add('hidden');
 
-            this.elements.followBtn?.classList.remove('hidden');
-            this.elements.chatBtn?.classList.remove('hidden');
-            this.elements.wishlistRequestBtn?.classList.remove('hidden');
+            const followBtn = getEl('followBtn');
+            const chatBtn = getEl('chatBtn');
+            const wishlistRequestBtn = getEl('wishlistRequestBtn');
+
+            followBtn?.classList.remove('hidden');
+            chatBtn?.classList.remove('hidden');
+            wishlistRequestBtn?.classList.remove('hidden');
             
-            // Set initial fake follow state
-            this.elements.followBtn?.classList.remove('following');
-            this.elements.followBtn?.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
-            this.elements.followBtn?.querySelector('.follow-text').textContent = 'ติดตาม';
-            this.elements.followBtn?.querySelector('i').setAttribute('data-lucide', 'user-plus');
+            if (followBtn) {
+                followBtn.classList.remove('following');
+                
+                followBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
+                followBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
+                
+                followBtn.querySelector('.follow-text').textContent = 'ติดตาม';
+                followBtn.querySelector('i').setAttribute('data-lucide', 'user-plus');
+            }
         }
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
 
     async updateWishlistRequestCount() {
         const btn = this.elements.viewWishlistRequestsBtn;
-        if (!btn) return;
+        if (!btn || typeof ProductRequestManager === 'undefined') return;
         
-        if (typeof ProductRequestManager !== 'undefined' && ProductRequestManager.getRequestsByVendorId) {
+        if (ProductRequestManager.getRequestsByVendorId) {
             try {
                 const requestsResponse = await ProductRequestManager.getRequestsByVendorId(this.shopId);
                 const count = requestsResponse.data.length || 0;
@@ -275,7 +280,7 @@ class ShopManager {
     }
 
     async openWishlistRequestModal() {
-        if (!this.auth.isLoggedIn()) {
+        if (!this.auth?.isLoggedIn()) {
             Swal.fire({
                 icon: 'warning',
                 title: 'เข้าสู่ระบบก่อน',
@@ -419,6 +424,7 @@ class ShopManager {
         });
 
         try {
+            if (typeof ProductManager === 'undefined') throw new Error("ProductManager is not loaded.");
             await ProductManager.addProduct(payload);
 
             Swal.fire({
@@ -441,7 +447,6 @@ class ShopManager {
         }
     }
 
-    // --- Utility Methods ---
 
     toggleDisplay(state) {
         this.elements.loadingState?.classList.add('hidden');
@@ -470,10 +475,5 @@ class ShopManager {
     }
 }
 
-// Global binding and initialization
 const shopManager = new ShopManager();
 window.shopManager = shopManager;
-
-document.addEventListener("DOMContentLoaded", () => {
-    // Note: init() is called via DOMContentLoaded setup in the constructor.
-});

@@ -18,7 +18,7 @@ class Navbar extends HTMLElement {
         await this.fetchCartCount();
 
         this.render();
-        this.bindEvents();
+        this.bindEvents(); // Event binding runs AFTER rendering
         this.updateAuthUI();
 
         if (window.lucide) window.lucide.createIcons();
@@ -72,7 +72,6 @@ class Navbar extends HTMLElement {
         const lastname = user?.lastname || '';
         const email = user?.email || '';
 
-        // 🎯 FIX: ตรวจสอบ image URL อย่างเข้มงวด
         const image = user?.image && user.image !== 'null' && user.image !== 'undefined' ? user.image : null;
 
         const initial = firstname.charAt(0).toUpperCase();
@@ -87,7 +86,6 @@ class Navbar extends HTMLElement {
         const navLinkClasses = "flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-500 rounded-lg transition-colors hover:bg-gray-100 hover:text-gray-900";
         const mobileNavLinkClasses = "flex items-center gap-3 px-4 py-3 text-base text-gray-700 rounded-lg transition-colors hover:bg-gray-50 w-full";
 
-
         let adminDashboardLink = user?.role === 'ADMIN' ?
             `<a href="/dashboard.html" class="${dropdownItemClasses}">
                 <i data-lucide="shield" class="w-4 h-4 text-red-500"></i>
@@ -96,12 +94,12 @@ class Navbar extends HTMLElement {
 
 
         this.innerHTML = `
-        <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
+        <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-gray-100">
             <div class="max-w-7xl mx-auto px-6">
                 <div class="flex items-center justify-between h-16">
                     <a href="/" id="navbar-logo-link" class="flex items-center gap-2.5 group">
                         <div class="w-20 flex-shrink-0">
-                            <img src="http://localhost:5500/public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
+                            <img src="./public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
                         </div>
                     </a>
 
@@ -157,7 +155,7 @@ class Navbar extends HTMLElement {
                                 <i data-lucide="chevron-down" id="desktop-dropdown-icon" class="w-4 h-4 text-gray-400 transition-transform"></i>
                             </button>
                             
-                            <div id="desktop-user-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg border border-gray-100 py-1 overflow-hidden">
+                            <div id="desktop-user-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg border border-gray-100 py-1 overflow-hidden z-[1000]">
                                 <div class="px-4 py-3 border-b border-gray-50">
                                     <p class="font-medium text-sm text-gray-900">${firstname} ${lastname}</p>
                                     <p class="text-xs text-gray-500 truncate mt-0.5">${email}</p>
@@ -291,7 +289,7 @@ class Navbar extends HTMLElement {
         if (desktopUserMenu) desktopUserMenu.style.display = loggedIn ? "block" : "none";
 
         if (mobileLoginBtn) mobileLoginBtn.style.display = loggedIn ? "none" : "flex";
-        if (mobileUserMenu) mobileUserMenu.style.display = loggedIn ? "block" : "none";
+        if (mobileUserMenu) mobileUserMenu.style.display = loggedIn ? "none" : "block"; // FIX: Mobile user menu is hidden by default, show it when logged in
     }
 
     loadDependencies() {
@@ -310,7 +308,7 @@ class Navbar extends HTMLElement {
                 });
 
             Promise.all([
-                !window.jQuery && load("https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"),
+                // NOTE: Removed jQuery dependency load
                 !window.lucide && load("https://unpkg.com/lucide@latest"),
                 !document.getElementById("tw") && load("https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4")
             ]).then(resolve);
@@ -318,57 +316,62 @@ class Navbar extends HTMLElement {
     }
 
     bindEvents() {
-        if (window.jQuery) {
-            const $mobileMenuToggle = $(this).find("#mobile-menu-toggle");
-            const $mobileMenu = $(this).find("#mobile-menu");
-            const $mobileMenuIcon = $mobileMenuToggle.find("i");
+        // --- Mobile Menu Toggle (Hamburger) ---
+        const mobileMenuToggle = this.querySelector("#mobile-menu-toggle");
+        const mobileMenu = this.querySelector("#mobile-menu");
+        const mobileMenuIcon = mobileMenuToggle?.querySelector("i");
+        
+        if (mobileMenuToggle && mobileMenu) {
+            mobileMenuToggle.addEventListener("click", () => {
+                mobileMenu.classList.toggle("hidden");
+                
+                if (mobileMenuIcon) {
+                    // Find the current icon source, which might be the SVG element Lucide created
+                    const iconEl = mobileMenuToggle.querySelector('[data-lucide]') || mobileMenuToggle.querySelector('svg');
 
-            // 🎯 FIX: ลบโค้ดที่ทำให้เกิดบัค jQuery/Hidden conflict (Mobile Menu)
-
-            $mobileMenuToggle.on("click", () => {
-                // jQuery slideToggle จะจัดการ display/hidden ให้อัตโนมัติ
-                $mobileMenu.slideToggle(250, () => {
-                    if (window.lucide) window.lucide.createIcons();
-                });
-                const currentIcon = $mobileMenuIcon.attr("data-lucide");
-                $mobileMenuIcon.attr("data-lucide", currentIcon === "menu" ? "x" : "menu");
+                    if (iconEl) {
+                        const currentIcon = iconEl.getAttribute("data-lucide");
+                        iconEl.setAttribute("data-lucide", currentIcon === "menu" ? "x" : "menu");
+                    }
+                }
                 if (window.lucide) window.lucide.createIcons();
             });
         }
-
+        
+        // --- Desktop User Menu Dropdown ---
         const desktopUserMenuBtn = this.querySelector("#desktop-user-menu-btn");
         const desktopUserDropdown = this.querySelector("#desktop-user-dropdown");
         const desktopDropdownIcon = this.querySelector("#desktop-dropdown-icon");
 
         if (desktopUserMenuBtn && desktopUserDropdown) {
+            
+            // Helper function to find the rotatable element (the SVG)
+            const getRotatableIcon = () => desktopUserMenuBtn.querySelector('[data-lucide="chevron-down"]') || desktopUserMenuBtn.querySelector('svg[data-lucide="chevron-down"]');
+            
             desktopUserMenuBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
 
-                // ตรวจสอบสถานะโดยใช้คลาส 'hidden'
                 const isHidden = desktopUserDropdown.classList.contains("hidden");
+                const iconEl = getRotatableIcon();
 
                 if (isHidden) {
-                    // เปิด dropdown
                     desktopUserDropdown.classList.remove("hidden");
-                    desktopUserDropdown.classList.add("show");
-                    if (desktopDropdownIcon) desktopDropdownIcon.classList.add("rotate");
+                    if (iconEl) iconEl.classList.add("rotate-180");
                 } else {
-                    // ปิด dropdown
                     desktopUserDropdown.classList.add("hidden");
-                    desktopUserDropdown.classList.remove("show");
-                    if (desktopDropdownIcon) desktopDropdownIcon.classList.remove("rotate");
+                    if (iconEl) iconEl.classList.remove("rotate-180");
                 }
-                setTimeout(() => {
-                    if (window.lucide) window.lucide.createIcons();
-                }, 10);
+                if (window.lucide) window.lucide.createIcons();
             });
 
+            // Global click listener to close dropdown when clicking outside
             document.addEventListener("click", (e) => {
-                if (!this.contains(e.target)) {
+                const iconEl = getRotatableIcon();
+
+                if (!this.contains(e.target) && !desktopUserDropdown.classList.contains("hidden")) {
                     desktopUserDropdown.classList.add("hidden");
-                    desktopUserDropdown.classList.remove("show");
-                    if (desktopDropdownIcon) desktopDropdownIcon.classList.remove("rotate");
+                    if (iconEl) iconEl.classList.remove("rotate-180");
                 }
             });
 
@@ -377,6 +380,7 @@ class Navbar extends HTMLElement {
             });
         }
 
+        // --- Logout Handling ---
         const handleLogout = (e) => {
             e.preventDefault();
             if (this.auth) {
