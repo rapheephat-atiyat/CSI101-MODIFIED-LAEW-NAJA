@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>แผงควบคุมผู้ดูแลระบบ - HiewHub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+</head>
+
+<body class="bg-gray-100 text-gray-900 min-h-screen flex flex-col">
+
+    <navbar-eiei></navbar-eiei>
+
+    <div class="max-w-7xl mx-auto px-4 py-12 flex-grow w-full">
+        <header class="mb-8 border-b border-gray-200 pb-4 flex items-center justify-between">
+            <h1 class="text-3xl font-extrabold text-gray-800 flex items-center gap-3">
+                <i data-lucide="shield-check" class="w-8 h-8 text-red-600"></i>
+                แผงควบคุมผู้ดูแลระบบ
+            </h1>
+            <span id="pending-count" class="text-lg font-medium text-red-600"></span>
+        </header>
+
+        <main class="bg-white rounded-2xl shadow-xl overflow-hidden">
+            <nav class="flex border-b border-gray-200 bg-gray-50">
+                <button
+                    class="tab-button px-6 py-3 font-semibold cursor-pointer border-b-4 border-red-500 text-red-600 transition"
+                    data-tab="vendor">
+                    <i data-lucide="store" class="w-5 h-5 inline mr-2"></i> คำขอผู้หิ้ว
+                </button>
+                <button
+                    class="tab-button px-6 py-3 font-semibold cursor-pointer border-b-4 border-transparent text-gray-600 hover:border-gray-300 transition"
+                    data-tab="user">
+                    <i data-lucide="users" class="w-5 h-5 inline mr-2"></i> จัดการผู้ใช้งาน
+                </button>
+            </nav>
+
+            <div id="vendor-tab" class="p-6">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-700">รายการคำขอเป็นผู้หิ้ว</h2>
+
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search"
+                                class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="vendor-search" placeholder="ค้นหาร้านค้า, ผู้สมัคร..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm">
+                        </div>
+
+                        <select id="vendor-status-filter"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm">
+                            <option value="">ทุกสถานะ</option>
+                            <option value="PENDING">รอดำเนินการ</option>
+                            <option value="APPROVED">อนุมัติแล้ว</option>
+                            <option value="REJECTED">ปฏิเสธแล้ว</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="vendor-requests-container">
+                    <div id="requests-loading" class="text-center py-20 text-gray-500">
+                        <i data-lucide="loader-circle" class="w-8 h-8 animate-spin mx-auto mb-3"></i>
+                        กำลังโหลดรายการคำขอ...
+                    </div>
+                    <div id="requests-list" class="hidden overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        ร้านค้า</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        ผู้สมัคร</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        วันที่ขอ</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        สถานะ</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        การดำเนินการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="requests-tbody" class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                    <div id="requests-empty" class="hidden text-center py-20 text-gray-500">
+                        <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3"></i>
+                        <p class="text-lg">ไม่พบรายการที่ค้นหา</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="user-tab" class="p-6 hidden">
+                <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
+                    <h2 class="text-xl font-semibold text-gray-700">จัดการบัญชีผู้ใช้งานทั้งหมด</h2>
+
+                    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+                        <div class="relative flex-1 md:w-64">
+                            <i data-lucide="search"
+                                class="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+                            <input type="text" id="user-search" placeholder="ค้นหาชื่อ, อีเมล..."
+                                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm">
+                        </div>
+
+                        <select id="user-role-filter"
+                            class="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent text-sm">
+                            <option value="">ทุก Role</option>
+                            <option value="CUSTOMER">Customer</option>
+                            <option value="VENDOR">Vendor</option>
+                            <option value="ADMIN">Admin</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="user-management-container">
+                    <div id="users-loading" class="text-center py-20 text-gray-500">
+                        <i data-lucide="loader-circle" class="w-8 h-8 animate-spin mx-auto mb-3"></i>
+                        กำลังโหลดข้อมูลผู้ใช้งาน...
+                    </div>
+                    <div id="users-list" class="hidden overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        ชื่อ / อีเมล</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        เบอร์/บัตร ปชช.</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        วันที่สมัคร</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Role</th>
+                                    <th
+                                        class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="users-tbody" class="bg-white divide-y divide-gray-200"></tbody>
+                        </table>
+                    </div>
+                    <div id="users-empty" class="hidden text-center py-20 text-gray-500">
+                        <i data-lucide="alert-triangle" class="w-10 h-10 mx-auto mb-3"></i>
+                        <p class="text-lg">ไม่พบรายการที่ค้นหา</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <footer-eiei></footer-eiei>
+
+    <script src="js/config.js"></script>
+    <script src="js/services/AuthManager.js"></script>
+    <script src="js/services/AdminManager.js"></script>
+    <script src="js/services/VendorManager.js"></script>
+    <script src="js/components/Navbar.js"></script>
+    <script src="js/components/Footer.js"></script>
+    <script src="js/pages/dashboard.js"></script>
+</body>
+
+</html>

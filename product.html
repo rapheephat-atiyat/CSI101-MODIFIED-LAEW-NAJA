@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title id="page-title">สินค้า - HiewHub</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    </head>
+
+<body class="bg-[#f6f8fa] text-[#0f1720] min-h-screen flex flex-col font-[Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial]">
+    <navbar-eiei></navbar-eiei>
+
+    <div class="max-w-[1200px] mx-auto px-5 py-7 lg:pb-[60px] flex-grow w-full">
+        <div id="product-container">
+            <div id="loading-state" class="text-center py-20 text-gray-500">
+                <i data-lucide="package" class="w-12 h-12 animate-pulse mx-auto mb-3 text-blue-600"></i>
+                <p class="text-xl font-medium">กำลังโหลด...</p>
+            </div>
+
+            <div id="error-state" class="hidden text-center py-20 text-red-600">
+                <i data-lucide="alert-circle" class="w-12 h-12 mx-auto mb-3"></i>
+                <p id="error-message" class="text-xl font-medium">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
+            </div>
+
+            <main class="grid lg:grid-cols-[1fr_420px] gap-7 items-start mt-[18px] md:grid-cols-1 hidden" id="main-product-grid" role="main">
+            </main>
+
+            <div id="fallback-list-area" class="hidden">
+                <h2
+                    class="text-2xl font-extrabold mb-5 flex items-center gap-2">
+                    <i data-lucide="compass" class="w-7 h-7 text-blue-600"></i>
+                    สำรวจสินค้าจากนักหิ้ว
+                </h2>
+                <div id="vendor-product-list">
+                </div>
+            </div>
+        </div>
+
+        <div id="toast" class="fixed right-5 bottom-5 bg-gray-900 text-white p-3 rounded-xl shadow-xl hidden z-[2000] font-bold" role="status" aria-live="polite"></div>
+    </div>
+
+    <footer-eiei></footer-eiei>
+
+    <script src="js/config.js"></script>
+    <script src="js/services/AuthManager.js"></script>
+    <script src="js/services/ProductManager.js"></script>
+    <script src="js/services/CartManager.js"></script>
+    <script src="js/services/VendorProfileManager.js"></script>
+    <script src="js/components/Navbar.js"></script>
+    <script src="js/components/Footer.js"></script>
+    <script src="js/pages/product.js"></script>
+</body>
+
+</html>
