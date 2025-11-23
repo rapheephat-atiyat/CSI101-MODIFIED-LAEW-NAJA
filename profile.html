@@ -6,18 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>โปรไฟล์ของฉัน - HiewHub</title>
 
-    <link rel="stylesheet" href="css/global.css"> 
-
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-['Prompt',sans-serif']">
 
     <navbar-eiei></navbar-eiei>
 
-    <div class="max-w-6xl mx-auto px-4 py-10 flex-1">
+    <div class="max-w-6xl mx-auto px-4 py-10 flex-1 w-full">
 
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
             <div>
@@ -39,7 +37,7 @@
                         <img id="profile-img" src=""
                             class="w-32 h-32 rounded-full object-cover border-4 border-white shadow-md ring-1 ring-gray-100">
                         <div
-                            class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                            class="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 cursor-pointer">
                             <i data-lucide="camera" class="text-white w-8 h-8"></i>
                         </div>
                     </div>
@@ -65,36 +63,55 @@
                         ข้อมูลส่วนตัว
                     </h3>
                     <form id="profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-5">
-                        <div><label class="form-label">ชื่อจริง <span class="text-red-500">*</span></label><input
-                                type="text" id="firstname" class="form-input"></div>
-                        <div><label class="form-label">นามสกุล <span class="text-red-500">*</span></label><input
-                                type="text" id="lastname" class="form-input"></div>
-                        <div><label class="form-label">เบอร์โทรศัพท์</label><input type="tel" id="phone"
-                                class="form-input" placeholder="08x-xxx-xxxx"></div>
-                        <div><label class="form-label">เลขบัตรประชาชน</label><input type="text" id="nationalId"
-                                class="form-input" maxlength="13"></div>
-                        <div><label class="form-label">วันเกิด</label><input type="date" id="birthdate"
-                                class="form-input text-gray-600"></div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อจริง <span class="text-red-500">*</span></label>
+                            <input type="text" id="firstname" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">นามสกุล <span class="text-red-500">*</span></label>
+                            <input type="text" id="lastname" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                            <input type="tel" id="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="08x-xxx-xxxx">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">เลขบัตรประชาชน</label>
+                            <input type="text" id="nationalId" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" maxlength="13">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">วันเกิด</label>
+                            <input type="date" id="birthdate" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-600">
+                        </div>
                         
                         <div class="md:col-span-2">
-                            <label class="form-label">รูปโปรไฟล์ (URL)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">รูปโปรไฟล์ (URL)</label>
                             <div class="flex gap-2">
-                                <input type="text" id="image-url" class="form-input">
+                                <input type="text" id="image-url" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                                 <button type="button" id="preview-btn"
                                     class="px-4 py-2 bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 text-sm font-medium whitespace-nowrap">ดูรูป</button>
                             </div>
                         </div>
                         
                         <div class="md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-5 pt-4 border-t border-gray-100">
-                            <div><label class="text-xs text-gray-400 mb-1 block">ชื่อผู้ใช้</label><input type="text"
-                                    id="username" class="form-input bg-gray-100 text-gray-600 cursor-default border-gray-200" readonly></div>
-                            <div><label class="text-xs text-gray-400 mb-1 block">อีเมล</label><input type="text"
-                                    id="email" class="form-input bg-gray-100 text-gray-600 cursor-default border-gray-200" readonly></div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">ชื่อผู้ใช้</label>
+                                <input type="text" id="username" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-base outline-none bg-gray-100 text-gray-600 cursor-default" readonly>
+                            </div>
+                            <div>
+                                <label class="text-xs text-gray-400 mb-1 block">อีเมล</label>
+                                <input type="text" id="email" class="w-full px-3 py-2 border border-gray-200 rounded-lg text-base outline-none bg-gray-100 text-gray-600 cursor-default" readonly>
+                            </div>
                         </div>
                         
                         <div class="md:col-span-2 flex justify-end mt-4">
                             <button type="submit"
-                                class="bg-gray-900 text-white px-6 py-2.5 rounded-xl font-medium hover:bg-gray-800 transition shadow-sm hover:shadow-md flex items-center gap-2">
+                                class="bg-[#367DE7] text-white px-6 py-2.5 rounded-xl font-medium 
+                                flex items-center gap-2
+                                hover:bg-gray-800 
+                                transition-all duration-200 
+                                shadow-sm hover:shadow-lg
+                                hover:scale-[1.03] hover:-translate-y-[2px]">
                                 <i data-lucide="save" class="w-4 h-4"></i> บันทึกการเปลี่ยนแปลง
                             </button>
                         </div>
@@ -108,7 +125,7 @@
                                     class="w-5 h-5"></i></div>
                             สมุดที่อยู่
                         </h3>
-                        <button onclick="openAddressModal()"
+                        <button onclick="window.profilePage.showAddressModal()"
                             class="text-sm text-blue-600 font-medium hover:text-blue-800 flex items-center gap-1 hover:underline transition cursor-pointer">
                             <i data-lucide="plus-circle" class="w-4 h-4"></i> เพิ่มที่อยู่ใหม่
                         </button>
@@ -125,15 +142,15 @@
     </div>
 
     <div id="address-modal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 modal">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden modal-content">
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 hidden">
+        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
 
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                     <i data-lucide="map-pin" class="w-5 h-5 text-blue-600"></i>
                     <span id="modal-title">เพิ่มที่อยู่ใหม่</span>
                 </h3>
-                <button onclick="closeAddressModal()" class="text-gray-400 hover:text-gray-600 transition">
+                <button onclick="window.profilePage.closeAddressModal()" class="text-gray-400 hover:text-gray-600 transition">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
@@ -142,46 +159,46 @@
                 <input type="hidden" id="addr-id">
 
                 <div>
-                    <label class="form-label">ชื่อสถานที่ (เช่น บ้าน, ที่ทำงาน)</label>
-                    <input type="text" id="addr-title" class="form-input" placeholder="ระบุชื่อสถานที่">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อสถานที่ (เช่น บ้าน, ที่ทำงาน)</label>
+                    <input type="text" id="addr-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="ระบุชื่อสถานที่">
                 </div>
 
                 <div>
-                    <label class="form-label">บ้านเลขที่ / หมู่บ้าน / ซอย / ถนน</label>
-                    <input type="text" id="addr-home" class="form-input" placeholder="รายละเอียดที่อยู่">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">บ้านเลขที่ / หมู่บ้าน / ซอย / ถนน</label>
+                    <input type="text" id="addr-home" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="รายละเอียดที่อยู่">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 md:col-span-1">
-                        <label class="form-label">จังหวัด</label>
-                        <select id="addr-province" class="form-select cursor-pointer">
+                        <label class="block text-sm font-medium text-gray-700 mb-1">จังหวัด</label>
+                        <select id="addr-province" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer">
                             <option value="">เลือกจังหวัด</option>
                         </select>
                     </div>
                     <div class="col-span-2 md:col-span-1">
-                        <label class="form-label">อำเภอ/เขต</label>
-                        <select id="addr-district" class="form-select cursor-pointer" disabled>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">อำเภอ/เขต</label>
+                        <select id="addr-district" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer" disabled>
                             <option value="">เลือกอำเภอ</option>
                         </select>
                     </div>
                     <div class="col-span-2 md:col-span-1">
-                        <label class="form-label">ตำบล/แขวง</label>
-                        <select id="addr-subdistrict" class="form-select cursor-pointer" disabled>
+                        <label class="block text-sm font-medium text-gray-700 mb-1">ตำบล/แขวง</label>
+                        <select id="addr-subdistrict" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer" disabled>
                             <option value="">เลือกตำบล</option>
                         </select>
                     </div>
                     <div class="col-span-2 md:col-span-1">
-                        <label class="form-label">รหัสไปรษณีย์</label>
-                        <input type="text" id="addr-zipcode" class="form-input bg-gray-100 text-gray-600" readonly
+                        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสไปรษณีย์</label>
+                        <input type="text" id="addr-zipcode" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-gray-100 text-gray-600" readonly
                             placeholder="-">
                     </div>
                 </div>
             </div>
 
             <div class="px-6 py-4 bg-gray-50 flex justify-end gap-3 border-t border-gray-100">
-                <button onclick="closeAddressModal()"
+                <button onclick="window.profilePage.closeAddressModal()"
                     class="px-4 py-2 text-gray-600 font-medium hover:bg-gray-200 rounded-lg transition">ยกเลิก</button>
-                <button onclick="saveAddress()"
+                <button onclick="window.profilePage.handleSaveAddressModal()"
                     class="px-6 py-2 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 shadow-md transition">บันทึกที่อยู่</button>
             </div>
         </div>

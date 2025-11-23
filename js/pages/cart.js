@@ -60,17 +60,17 @@ class CartPage {
 
         let total = 0;
         const html = items.map(item => {
-            const itemTotal = item.quantity * item.product.price;
+            const itemTotal = item.quantity * item.vendorProduct.price;
             total += itemTotal;
             return `
                 <div class="flex items-center gap-4 py-4 border-b border-gray-100 last:border-b-0">
-                    <img src="${item.product.image || '/images/assets/default-product.png'}" alt="${item.product.name}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
+                    <img src="${item.vendorProduct.images[0] || '/images/assets/default-product.png'}" alt="${item.vendorProduct.name}" class="w-16 h-16 object-cover rounded-lg flex-shrink-0">
                     <div class="flex-1 min-w-0">
-                        <p class="text-sm font-semibold truncate">${item.product.name}</p>
-                        <p class="text-xs text-gray-500">ร้าน: ${item.vendor.shopName}</p>
+                        <p class="text-sm font-semibold truncate">${item.vendorProduct.title}</p>
+                        <p class="text-xs text-gray-500">รหัส: ${item.vendorProduct.id}</p>
                     </div>
                     <div class="text-right flex-shrink-0">
-                        <p class="text-sm font-medium text-gray-800">${window.formatCurrency(item.product.price)} x ${item.quantity}</p>
+                        <p class="text-sm font-medium text-gray-800">${window.formatCurrency(item.vendorProduct.price)} x ${item.quantity}</p>
                         <p class="text-xs font-bold text-blue-600 mt-0.5">${window.formatCurrency(itemTotal)}</p>
                     </div>
                     <button class="remove-item-btn p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors flex-shrink-0" data-product-id="${item.vendorProductId}">

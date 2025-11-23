@@ -1,16 +1,14 @@
-// js/pages/profile.js
-
 class ProfilePage {
     constructor() {
-        // NOTE: AuthManager, UserManager, and VendorManager must be loaded
+
         this.auth = new AuthManager();
         this.userManger = UserManager;
         this.currentUser = null;
         this.addresses = [];
-        this.thaiHierarchy = {}; // สำหรับข้อมูลจังหวัด/อำเภอ
+        this.thaiHierarchy = {}; 
         this.editingAddressId = null; 
         
-        this.init();
+        document.addEventListener("DOMContentLoaded", () => this.init());
         if (window.lucide) window.lucide.createIcons();
     }
 
@@ -32,32 +30,29 @@ class ProfilePage {
         }
     }
     
-    // --- Render Methods ---
     renderProfileData() {
         const u = this.currentUser;
         if (!u) return;
         
-        // จัดการภาพ Profile 
         const profileImage = u.image || `https://ui-avatars.com/api/?name=${u.firstname || 'User'}`;
 
         document.getElementById('profile-img').src = profileImage;
         document.getElementById('display-name').textContent = u.firstname || u.username || 'User';
         document.getElementById('display-email').textContent = u.email;
 
-        // Role Badge
         const roleBadge = document.getElementById('role-badge');
         roleBadge.textContent = u.role;
-        if (u.role === 'VENDOR') roleBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-700";
-        if (u.role === 'ADMIN') roleBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700";
+        roleBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold";
+        if (u.role === 'VENDOR') roleBadge.classList.add("bg-purple-100", "text-purple-700");
+        else if (u.role === 'ADMIN') roleBadge.classList.add("bg-red-100", "text-red-700");
+        else roleBadge.classList.add("bg-gray-100", "text-gray-600");
         
-        // Metadata
         if (u.createdAt) document.getElementById('created-at').textContent = new Date(u.createdAt).toLocaleDateString('th-TH');
         if (u.updatedAt) document.getElementById('updated-at').textContent = new Date(u.updatedAt).toLocaleDateString('th-TH');
         
-        // Populate Form
         document.getElementById('firstname').value = u.firstname || '';
         document.getElementById('lastname').value = u.lastname || '';
-        document.getElementById('username').value = u.username || '-';
+        document.getElementById('username').value = u.username || '';
         document.getElementById('email').value = u.email || '';
         document.getElementById('image-url').value = u.image || '';
         if (u.birthdate) document.getElementById('birthdate').value = u.birthdate.split('T')[0];
@@ -107,14 +102,34 @@ class ProfilePage {
         if (window.lucide) window.lucide.createIcons();
     }
 
-    // --- Data and Event Handlers (Partial implementations for brevity) ---
-
     async loadThailandData() { 
-        // NOTE: Logic for loading Thai address hierarchy is assumed to be fully defined here
+        try {
+            const res = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district_with_district_and_province.json');
+            const flatData = await res.json();
+            this.processDataToHierarchy(flatData);
+
+            const provinceSelect = document.getElementById('addr-province');
+            if (provinceSelect) {
+                provinceSelect.innerHTML = '<option value="">เลือกจังหวัด</option>'; 
+                Object.keys(this.thaiHierarchy).sort((a, b) => a.localeCompare(b, 'th')).forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p; option.textContent = p;
+                    provinceSelect.appendChild(option);
+                });
+            }
+        } catch (e) { console.error("Failed to load address data", e); }
     }
 
     processDataToHierarchy(data) {
-        // NOTE: Logic for processing Thai address hierarchy is assumed to be fully defined here
+        data.forEach(item => {
+            const p = item.district.province.name_th;
+            const d = item.district.name_th;
+            const s = item.name_th;
+            const z = item.zip_code;
+            if (!this.thaiHierarchy[p]) this.thaiHierarchy[p] = {};
+            if (!this.thaiHierarchy[p][d]) this.thaiHierarchy[p][d] = [];
+            this.thaiHierarchy[p][d].push({ name: s, zip: z });
+        });
     }
 
     async updateVendorActionButton() {
@@ -122,23 +137,28 @@ class ProfilePage {
         const button = document.getElementById('vendor-action-btn');
         const user = this.currentUser;
 
+        if (!actionArea || !button || !user) return;
+
         const getShopLink = (u) => u.vendorProfile?.id ? `/shop.html?id=${u.vendorProfile.id}` : '/shop.html';
 
         if (user.role === 'VENDOR') {
             actionArea.classList.remove('hidden');
+            button.removeAttribute('onclick');
             button.setAttribute('href', getShopLink(user));
             button.className = 'flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
             button.innerHTML = '<i data-lucide="package" class="w-5 h-5"></i> เยี่ยมชมร้านค้าของคุณ';
         } else if (user.role === 'CUSTOMER') {
             actionArea.classList.remove('hidden');
+            button.setAttribute('href', '#');
             try {
                 const statusData = await VendorManager.getRequestStatus();
                 const status = statusData.status;
 
                 if (status === 'PENDING') {
+                    button.removeAttribute('onclick');
                     button.className = 'flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl shadow-md cursor-not-allowed font-medium';
                     button.innerHTML = '<i data-lucide="clock" class="w-5 h-5"></i> รอการอนุมัติ';
-                } else { // NOT_APPLIED / REJECTED / No data
+                } else {
                     button.className = 'flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
                     button.setAttribute('onclick', 'window.profilePage.checkVendorRequirements(event)');
                     button.innerHTML = '<i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว';
@@ -152,37 +172,221 @@ class ProfilePage {
         if (window.lucide) window.lucide.createIcons();
     }
 
-
     bindEvents() {
-        document.getElementById('profile-form').addEventListener('submit', this.handleProfileUpdate.bind(this));
-        document.getElementById('preview-btn').addEventListener('click', this.handlePreviewImage.bind(this));
+        document.getElementById('profile-form')?.addEventListener('submit', this.handleProfileUpdate.bind(this));
+        document.getElementById('preview-btn')?.addEventListener('click', this.handlePreviewImage.bind(this));
         
-        // Map original global functions to instance methods
+        document.getElementById('addr-province')?.addEventListener('change', this.handleProvinceChange.bind(this));
+        document.getElementById('addr-district')?.addEventListener('change', this.handleDistrictChange.bind(this));
+        document.getElementById('addr-subdistrict')?.addEventListener('change', this.handleSubdistrictChange.bind(this));
+        
         window.openAddressModal = (addr = null) => this.showAddressModal(addr);
-        window.closeAddressModal = () => document.getElementById('address-modal').classList.remove('active');
-        window.saveAddress = this.handleSaveAddressModal.bind(this);
-        window.deleteAddress = this.handleDeleteAddress.bind(this); 
-        window.checkVendorRequirements = this.checkVendorRequirements.bind(this);
+        window.closeAddressModal = () => this.closeAddressModal();
+        window.saveAddress = () => this.handleSaveAddressModal();
+        window.deleteAddress = (id) => this.handleDeleteAddress(id);
+        window.checkVendorRequirements = (e) => this.checkVendorRequirements(e);
     }
     
-    // NOTE: Implementations for all handlers are required for full functionality but omitted here for brevity.
-    handleProfileUpdate(e) { /* ... */ }
-    handlePreviewImage() { /* ... */ }
-    handleProvinceChange() { /* ... */ }
-    handleDistrictChange() { /* ... */ }
-    handleSubdistrictChange() { /* ... */ }
-    checkVendorRequirements(e) { /* ... */ }
-    showAddressModal(addr = null) { /* ... */ }
-    handleSaveAddressModal() { /* ... */ }
-    handleDeleteAddress(id) { /* ... */ }
+    handleProvinceChange() {
+        const selProvince = document.getElementById('addr-province');
+        const selDistrict = document.getElementById('addr-district');
+        const selSubdistrict = document.getElementById('addr-subdistrict');
+        const inpZipcode = document.getElementById('addr-zipcode');
 
+        if (!selProvince || !selDistrict || !selSubdistrict || !inpZipcode) return;
+
+        selDistrict.innerHTML = '<option value="">เลือกอำเภอ</option>'; selDistrict.disabled = true;
+        selSubdistrict.innerHTML = '<option value="">เลือกตำบล</option>'; selSubdistrict.disabled = true;
+        inpZipcode.value = '';
+
+        if (selProvince.value && this.thaiHierarchy[selProvince.value]) {
+            selDistrict.disabled = false;
+            Object.keys(this.thaiHierarchy[selProvince.value]).sort((a, b) => a.localeCompare(b, 'th')).forEach(d => {
+                selDistrict.innerHTML += `<option value="${d}">${d}</option>`;
+            });
+        }
+    }
+
+    handleDistrictChange() {
+        const selProvince = document.getElementById('addr-province');
+        const selDistrict = document.getElementById('addr-district');
+        const selSubdistrict = document.getElementById('addr-subdistrict');
+        const inpZipcode = document.getElementById('addr-zipcode');
+
+        if (!selProvince || !selDistrict || !selSubdistrict || !inpZipcode) return;
+
+        selSubdistrict.innerHTML = '<option value="">เลือกตำบล</option>'; selSubdistrict.disabled = true;
+        inpZipcode.value = '';
+
+        if (selDistrict.value && this.thaiHierarchy[selProvince.value] && this.thaiHierarchy[selProvince.value][selDistrict.value]) {
+            selSubdistrict.disabled = false;
+            const subs = this.thaiHierarchy[selProvince.value][selDistrict.value].sort((a, b) => a.name.localeCompare(b.name, 'th'));
+            subs.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.name; opt.textContent = s.name; opt.dataset.zip = s.zip;
+                selSubdistrict.appendChild(opt);
+            });
+        }
+    }
+
+    handleSubdistrictChange() {
+        const selSubdistrict = document.getElementById('addr-subdistrict');
+        const inpZipcode = document.getElementById('addr-zipcode');
+        
+        if (!selSubdistrict || !inpZipcode) return;
+
+        const opt = selSubdistrict.options[selSubdistrict.selectedIndex];
+        inpZipcode.value = opt.value ? opt.dataset.zip : '';
+    }
+
+    handlePreviewImage() {
+        const url = document.getElementById('image-url')?.value;
+        if (url) document.getElementById('profile-img').src = url;
+    }
+
+    async handleProfileUpdate(e) {
+        e.preventDefault();
+        
+        const phoneEl = document.getElementById('phone');
+        const nationalIdEl = document.getElementById('nationalId');
+        const firstnameEl = document.getElementById('firstname');
+        const lastnameEl = document.getElementById('lastname');
+        const imageUrlEl = document.getElementById('image-url');
+        const birthdateEl = document.getElementById('birthdate');
+
+        if (!phoneEl || !nationalIdEl || !firstnameEl || !lastnameEl || !imageUrlEl || !birthdateEl) {
+             Swal.fire('ข้อผิดพลาด', 'ไม่พบองค์ประกอบฟอร์มทั้งหมด', 'error');
+             return;
+        }
+
+        const personalData = {
+            phone: phoneEl.value.trim(),
+            nationalId: nationalIdEl.value.trim(),
+        };
+
+        const payload = {
+            firstname: firstnameEl.value.trim(),
+            lastname: lastnameEl.value.trim(),
+            image: imageUrlEl.value.trim() || null,
+            birthdate: birthdateEl.value ? new Date(birthdateEl.value).toISOString() : null,
+            personalData: personalData 
+        };
+        
+        try {
+            Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
+            await this.userManger.update(this.currentUser.id, payload); // Assume userManager is global
+            
+            Swal.fire('สำเร็จ', 'บันทึกข้อมูลเรียบร้อย', 'success').then(() => location.reload());
+        } catch (error) {
+            Swal.fire('Error', error.message, 'error');
+        }
+    }
+    
+    checkVendorRequirements(e) {
+        e.preventDefault();
+        const u = this.currentUser;
+        
+        if (!u.firstname || !u.lastname || !u.personalData?.phone || !u.personalData?.nationalId || !this.addresses?.length) {
+            Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกชื่อ, นามสกุล, เบอร์โทร, เลขบัตร และที่อยู่ให้ครบถ้วนก่อนสมัคร', 'warning');
+        } else {
+            window.location.href = '/vendor-register.html';
+        }
+    }
+    
+    showAddressModal(addr = null) {
+        const modal = document.getElementById('address-modal');
+        if (!modal) return;
+        
+        modal.classList.remove('hidden');
+        
+        const isEdit = !!addr;
+        
+        document.getElementById('modal-title').innerText = isEdit ? "แก้ไขที่อยู่" : "เพิ่มที่อยู่ใหม่";
+        document.getElementById('addr-id').value = addr?.id || "";
+        document.getElementById('addr-title').value = addr?.title || "";
+        document.getElementById('addr-home').value = addr?.homeNumero || "";
+        document.getElementById('addr-province').value = addr?.city || "";
+        
+        if (isEdit) {
+            document.getElementById('addr-district').value = addr?.district || "";
+            document.getElementById('addr-subdistrict').value = addr?.subdistrict || "";
+            document.getElementById('addr-zipcode').value = addr?.zipcode || "";
+
+            document.getElementById('addr-province').dispatchEvent(new Event('change'));
+            
+            setTimeout(() => {
+                document.getElementById('addr-district').value = addr?.district || "";
+                document.getElementById('addr-district').dispatchEvent(new Event('change'));
+                
+                setTimeout(() => {
+                    document.getElementById('addr-subdistrict').value = addr?.subdistrict || "";
+                }, 50);
+            }, 50);
+
+        } else {
+            document.getElementById('addr-district').innerHTML = '<option value="">เลือกอำเภอ</option>';
+            document.getElementById('addr-district').disabled = true;
+            document.getElementById('addr-subdistrict').innerHTML = '<option value="">เลือกตำบล</option>';
+            document.getElementById('addr-subdistrict').disabled = true;
+            document.getElementById('addr-zipcode').value = '';
+            document.getElementById('addr-province').dispatchEvent(new Event('change'));
+        }
+
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    closeAddressModal() {
+        document.getElementById('address-modal')?.classList.add('hidden');
+    }
+
+    async handleSaveAddressModal() {
+        const id = document.getElementById('addr-id').value;
+        const payload = {
+            title: document.getElementById('addr-title').value || "ที่อยู่",
+            homeNumero: document.getElementById('addr-home').value,
+            city: document.getElementById('addr-province').value,
+            district: document.getElementById('addr-district').value,
+            subdistrict: document.getElementById('addr-subdistrict').value,
+            zipcode: document.getElementById('addr-zipcode').value
+        };
+
+        if (!payload.homeNumero || !payload.city || !payload.district || !payload.subdistrict) {
+            return Swal.fire('ข้อมูลไม่ครบ', 'กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วน', 'error');
+        }
+
+        try {
+            Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
+
+            if (id) { 
+                await this.userManger.updateAddress(id, payload); 
+            } else {
+                 await this.userManger.addAddress(payload); 
+            }
+
+            this.closeAddressModal();
+            Swal.fire({ icon: 'success', title: 'สำเร็จ', text: 'บันทึกข้อมูลเรียบร้อยแล้ว', timer: 1500, showConfirmButton: false })
+                .then(() => this.init());
+        } catch (err) {
+            Swal.fire('Error', err.message, 'error');
+        }
+    }
+
+    async handleDeleteAddress(id) {
+        const result = await Swal.fire({
+            title: 'ลบที่อยู่?', text: "คุณต้องการลบที่อยู่นี้ใช่หรือไม่", icon: 'warning',
+            showCancelButton: true, confirmButtonColor: '#ef4444', confirmButtonText: 'ลบเลย', cancelButtonText: 'ยกเลิก'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                await this.userManger.deleteAddress(id);
+                Swal.fire('ลบสำเร็จ', 'ที่อยู่ถูกลบเรียบร้อยแล้ว', 'success').then(() => this.init());
+            } catch (err) {
+                Swal.fire('Error', err.message, 'error');
+            }
+        }
+    }
 }
 
-document.addEventListener("DOMContentLoaded", () => { 
-    // NOTE: This assumes that all necessary Manager classes (AuthManager, UserManager, VendorManager) are loaded via HTML <script> tags
-    if (typeof AuthManager !== 'undefined' && typeof UserManager !== 'undefined') {
-        window.profilePage = new ProfilePage(); 
-    } else {
-        console.error("Dependencies (AuthManager/UserManager) not loaded.");
-    }
-});
+const profilePage = new ProfilePage();
+window.profilePage = profilePage;

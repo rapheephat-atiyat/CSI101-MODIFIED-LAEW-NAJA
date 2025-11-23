@@ -5,23 +5,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>HiuHub - บริการรับหิ้วสินค้า</title>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-    
-    <link rel="stylesheet" href="css/global.css">
-    
+
+    <link rel="icon" type="image/x-icon" href="/public/images/logoi.png">
+
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
 </head>
 
 <body class="m-0 overflow-x-hidden text-[#333] leading-[1.5]">
     <navbar-eiei></navbar-eiei>
 
-    <section class="hero grid lg:grid-cols-2 grid-cols-1 gap-[50px] items-center px-5 py-[80px] max-w-[1200px] mx-auto min-h-[85vh] text-center lg:text-left">
+    <section
+        class="hero grid lg:grid-cols-2 grid-cols-1 gap-[50px] items-center px-5 py-[80px] max-w-[1200px] mx-auto min-h-[85vh] text-center lg:text-left">
         <div class="hero-text">
             <h1 class="hero-anim" style="font-size: 3rem; font-weight: 800; line-height: 1.2; margin: 0;">
                 รับหิ้วสินค้า<br>จากต่างประเทศ
@@ -29,12 +29,14 @@
             <h1 class="hero-anim" style="font-size: 2rem; font-weight: 700; color: #2563eb; margin: 10px 0;">
                 ของแท้ ส่งตรงถึงมือคุณ
             </h1>
-            <p class="hero-anim" style="font-size: 1.1rem; margin: 25px 0; color: #555; max-width: 500px; margin-left: auto; margin-right: auto; @media (min-width: 1024px) { margin-left: 0; margin-right: 0; }">
+            <p class="hero-anim"
+                style="font-size: 1.1rem; margin: 25px 0; color: #555; max-width: 500px; margin-left: auto; margin-right: auto; @media (min-width: 1024px) { margin-left: 0; margin-right: 0; }">
                 ไม่ต้องบินเองก็ได้ของแท้! เรารับหิ้วสินค้าแบรนด์ดังและของหายากจากทั่วโลก
                 บริการส่งด่วน มั่นใจได้รับของครบ ถูกต้อง และปลอดภัยทุกออเดอร์
             </p>
             <button
-                style="display: flex; gap: 8px; padding: 14px 30px; background: #10b981; color: #fff; border: none; border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: 600; align-items: center; transition: 0.3s; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); margin: 0 auto;" class="lg:ml-0">
+                style="display: flex; gap: 8px; padding: 14px 30px; background: #10b981; color: #fff; border: none; border-radius: 50px; cursor: pointer; font-size: 1.1rem; font-weight: 600; align-items: center; transition: 0.3s; box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3); margin: 0 auto;"
+                class="lg:ml-0">
                 <i data-lucide="shopping-cart" style="width: 1.2rem;"></i> สั่งหิ้วสินค้าตอนนี้
             </button>
         </div>
@@ -66,7 +68,7 @@
 
     <section class="story-section relative h-[350vh] bg-white">
         <div class="story-sticky h-screen w-full flex flex-col items-center justify-center overflow-hidden">
-            
+
             <div class="story-title absolute top-[50px] w-full z-10 text-center mb-5" style="margin-top: 30px;">
                 <h2 class="font-bold text-[40px] m-0">วิธีการใช้งาน</h2>
                 <p class="text-[18px] text-[#666] m-0">ง่ายๆ เพียง 3 ขั้นตอน</p>
@@ -81,7 +83,8 @@
 
                 <div class="scene scene-2 absolute flex flex-col items-center justify-center">
                     <div class="card-group relative scale-125">
-                        <div class="credit-card w-[220px] h-[140px] bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-[15px] text-white p-5 shadow-xl relative z-10 flex flex-col justify-between">
+                        <div
+                            class="credit-card w-[220px] h-[140px] bg-gradient-to-br from-[#2563eb] to-[#1d4ed8] rounded-[15px] text-white p-5 shadow-xl relative z-10 flex flex-col justify-between">
                             <div style="font-size: 12px; opacity: 0.8;">Credit Card</div>
                             <div style="display: flex; gap: 10px;">
                                 <div
@@ -90,7 +93,8 @@
                             </div>
                             <div style="font-size: 18px; letter-spacing: 2px;">•••• •••• •••• 8888</div>
                         </div>
-                        <div class="check-circle absolute top-[-20px] right-[-20px] w-[60px] h-[60px] bg-[#10b981] rounded-full flex items-center justify-center text-white shadow-lg z-20 transform scale-0">
+                        <div
+                            class="check-circle absolute top-[-20px] right-[-20px] w-[60px] h-[60px] bg-[#10b981] rounded-full flex items-center justify-center text-white shadow-lg z-20 transform scale-0">
                             <i data-lucide="check" style="width: 32px; height: 32px; stroke-width: 4px;"></i>
                         </div>
                     </div>
@@ -100,11 +104,13 @@
                 <div class="scene scene-3 absolute flex flex-col items-center justify-center">
                     <lottie-player src="public/assets/delivery-boy.json" background="transparent" speed="1" loop
                         autoplay class="w-[350px] h-[350px]"></lottie-player>
-                    <div class="scene-caption mt-5 font-bold text-2xl text-[#333] text-center">3. รอรับของที่หน้าบ้าน</div>
+                    <div class="scene-caption mt-5 font-bold text-2xl text-[#333] text-center">3. รอรับของที่หน้าบ้าน
+                    </div>
                 </div>
             </div>
 
-            <div class="story-progress-container absolute bottom-[50px] w-[200px] h-[6px] bg-[#e5e7eb] rounded-xl overflow-hidden z-10">
+            <div
+                class="story-progress-container absolute bottom-[50px] w-[200px] h-[6px] bg-[#e5e7eb] rounded-xl overflow-hidden z-10">
                 <div class="story-progress-bar w-0 h-full bg-[#2563eb] rounded-xl"></div>
             </div>
         </div>
@@ -117,38 +123,38 @@
         </div>
         <div class="omg-category-grid grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-[25px] max-w-[1200px] mx-auto">
             <div class="omg-category-card bg-white p-[30px] rounded-[16px] text-left shadow-md">
-                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5" style="background: #fce7f3;"><i data-lucide="shirt"
-                        style="color: #db2777;"></i></div>
+                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5"
+                    style="background: #fce7f3;"><i data-lucide="shirt" style="color: #db2777;"></i></div>
                 <h3 class="text-lg m-0 mb-[5px] font-semibold">เสื้อผ้า</h3>
                 <p class="text-sm text-[#666] m-0">Streetwear & Fashion</p>
             </div>
             <div class="omg-category-card bg-white p-[30px] rounded-[16px] text-left shadow-md">
-                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5" style="background: #dbeafe;"><i data-lucide="footprints"
-                        style="color: #2563eb;"></i></div>
+                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5"
+                    style="background: #dbeafe;"><i data-lucide="footprints" style="color: #2563eb;"></i></div>
                 <h3 class="text-lg m-0 mb-[5px] font-semibold">รองเท้า</h3>
                 <p class="text-sm text-[#666] m-0">Sneaker Limited</p>
             </div>
             <div class="omg-category-card bg-white p-[30px] rounded-[16px] text-left shadow-md">
-                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5" style="background: #e9d5ff;"><i data-lucide="shopping-bag"
-                        style="color: #9333ea;"></i></div>
+                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5"
+                    style="background: #e9d5ff;"><i data-lucide="shopping-bag" style="color: #9333ea;"></i></div>
                 <h3>กระเป๋า</h3>
                 <p class="text-sm text-[#666] m-0">Brandname & Daily Use</p>
             </div>
             <div class="omg-category-card bg-white p-[30px] rounded-[16px] text-left shadow-md">
-                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5" style="background: #fee2e2;"><i data-lucide="sparkles"
-                        style="color: #dc2626;"></i></div>
+                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5"
+                    style="background: #fee2e2;"><i data-lucide="sparkles" style="color: #dc2626;"></i></div>
                 <h3>เครื่องสำอาง</h3>
                 <p class="text-sm text-[#666] m-0">Skincare & Makeup</p>
             </div>
             <div class="omg-category-card bg-white p-[30px] rounded-[16px] text-left shadow-md">
-                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5" style="background: #d1fae5;"><i data-lucide="smartphone"
-                        style="color: #059669;"></i></div>
+                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5"
+                    style="background: #d1fae5;"><i data-lucide="smartphone" style="color: #059669;"></i></div>
                 <h3>อิเล็กทรอนิกส์</h3>
                 <p class="text-sm text-[#666] m-0">Tech & Accessories</p>
             </div>
             <div class="omg-category-card bg-white p-[30px] rounded-[16px] text-left shadow-md">
-                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5" style="background: #fef3c7;"><i data-lucide="watch"
-                        style="color: #d97706;"></i></div>
+                <div class="omg-category-icon w-[50px] h-[50px] rounded-[10px] flex items-center justify-center mb-5"
+                    style="background: #fef3c7;"><i data-lucide="watch" style="color: #d97706;"></i></div>
                 <h3>นาฬิกา</h3>
                 <p class="text-sm text-[#666] m-0">Luxury & Smartwatch</p>
             </div>
@@ -162,42 +168,74 @@
         </div>
         <div class="marquee-wrapper w-full overflow-hidden mb-[30px] flex">
             <div class="country-track track-1 flex gap-[30px] w-max pl-[30px]">
-                <img src="https://flagcdn.com/w320/jp.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/kr.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/cn.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/sg.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/th.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/vn.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/my.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/tw.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/jp.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/kr.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/cn.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/sg.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/th.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/vn.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/my.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/tw.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/jp.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/kr.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/cn.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/sg.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/th.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/vn.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/my.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/tw.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/jp.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/kr.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/cn.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/sg.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/th.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/vn.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/my.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/tw.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
             </div>
         </div>
         <div class="marquee-wrapper w-full overflow-hidden mb-[30px] flex">
             <div class="country-track track-2  flex gap-[30px] w-max pl-[30px]">
-                 <img src="https://flagcdn.com/w320/us.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/gb.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/fr.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/it.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/de.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/au.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/ca.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/ch.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/us.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/gb.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/fr.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/it.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/de.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/au.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/ca.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
-                <img src="https://flagcdn.com/w320/ch.png" class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/us.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/gb.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/fr.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/it.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/de.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/au.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/ca.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/ch.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/us.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/gb.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/fr.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/it.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/de.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/au.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/ca.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
+                <img src="https://flagcdn.com/w320/ch.png"
+                    class="flag-img object-cover rounded-xl shadow-xl transition-all duration-300 flex-shrink-0 lg:w-[180px] lg:h-[110px] w-[120px] h-[80px]">
             </div>
         </div>
     </section>

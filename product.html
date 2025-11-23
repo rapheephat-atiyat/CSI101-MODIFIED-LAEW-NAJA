@@ -11,10 +11,10 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
-    </head>
+</head>
 
-<body class="bg-[#f6f8fa] text-[#0f1720] min-h-screen flex flex-col font-[Inter,system-ui,Segoe UI,Roboto,'Helvetica Neue',Arial]">
+<body
+    class="bg-[#f6f8fa] text-[#0f1720] min-h-screen flex flex-col font-['Inter',system-ui,Segoe_UI,Roboto,'Helvetica_Neue',Arial']">
     <navbar-eiei></navbar-eiei>
 
     <div class="max-w-[1200px] mx-auto px-5 py-7 lg:pb-[60px] flex-grow w-full">
@@ -29,12 +29,12 @@
                 <p id="error-message" class="text-xl font-medium">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
             </div>
 
-            <main class="grid lg:grid-cols-[1fr_420px] gap-7 items-start mt-[18px] md:grid-cols-1 hidden" id="main-product-grid" role="main">
+            <main class="grid lg:grid-cols-[1fr_420px] gap-7 items-start mt-[18px] md:grid-cols-1 hidden"
+                id="main-product-grid" role="main">
             </main>
 
             <div id="fallback-list-area" class="hidden">
-                <h2
-                    class="text-2xl font-extrabold mb-5 flex items-center gap-2">
+                <h2 class="text-2xl font-extrabold mb-5 flex items-center gap-2">
                     <i data-lucide="compass" class="w-7 h-7 text-blue-600"></i>
                     สำรวจสินค้าจากนักหิ้ว
                 </h2>
@@ -43,7 +43,9 @@
             </div>
         </div>
 
-        <div id="toast" class="fixed right-5 bottom-5 bg-gray-900 text-white p-3 rounded-xl shadow-xl hidden z-[2000] font-bold" role="status" aria-live="polite"></div>
+        <div id="toast"
+            class="fixed right-5 bottom-5 bg-gray-900 text-white p-3 rounded-xl shadow-xl hidden z-[2000] font-bold"
+            role="status" aria-live="polite"></div>
     </div>
 
     <footer-eiei></footer-eiei>
