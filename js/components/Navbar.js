@@ -18,7 +18,7 @@ class Navbar extends HTMLElement {
         await this.fetchCartCount();
 
         this.render();
-        this.bindEvents(); // Event binding runs AFTER rendering
+        this.bindEvents();
         this.updateAuthUI();
 
         if (window.lucide) window.lucide.createIcons();
@@ -289,7 +289,7 @@ class Navbar extends HTMLElement {
         if (desktopUserMenu) desktopUserMenu.style.display = loggedIn ? "block" : "none";
 
         if (mobileLoginBtn) mobileLoginBtn.style.display = loggedIn ? "none" : "flex";
-        if (mobileUserMenu) mobileUserMenu.style.display = loggedIn ? "none" : "block"; // FIX: Mobile user menu is hidden by default, show it when logged in
+        if (mobileUserMenu) mobileUserMenu.style.display = loggedIn ? "none" : "block";
     }
 
     loadDependencies() {
@@ -308,7 +308,6 @@ class Navbar extends HTMLElement {
                 });
 
             Promise.all([
-                // NOTE: Removed jQuery dependency load
                 !window.lucide && load("https://unpkg.com/lucide@latest"),
                 !document.getElementById("tw") && load("https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4")
             ]).then(resolve);
@@ -316,7 +315,6 @@ class Navbar extends HTMLElement {
     }
 
     bindEvents() {
-        // --- Mobile Menu Toggle (Hamburger) ---
         const mobileMenuToggle = this.querySelector("#mobile-menu-toggle");
         const mobileMenu = this.querySelector("#mobile-menu");
         const mobileMenuIcon = mobileMenuToggle?.querySelector("i");
@@ -326,7 +324,6 @@ class Navbar extends HTMLElement {
                 mobileMenu.classList.toggle("hidden");
                 
                 if (mobileMenuIcon) {
-                    // Find the current icon source, which might be the SVG element Lucide created
                     const iconEl = mobileMenuToggle.querySelector('[data-lucide]') || mobileMenuToggle.querySelector('svg');
 
                     if (iconEl) {
@@ -338,14 +335,12 @@ class Navbar extends HTMLElement {
             });
         }
         
-        // --- Desktop User Menu Dropdown ---
         const desktopUserMenuBtn = this.querySelector("#desktop-user-menu-btn");
         const desktopUserDropdown = this.querySelector("#desktop-user-dropdown");
         const desktopDropdownIcon = this.querySelector("#desktop-dropdown-icon");
 
         if (desktopUserMenuBtn && desktopUserDropdown) {
             
-            // Helper function to find the rotatable element (the SVG)
             const getRotatableIcon = () => desktopUserMenuBtn.querySelector('[data-lucide="chevron-down"]') || desktopUserMenuBtn.querySelector('svg[data-lucide="chevron-down"]');
             
             desktopUserMenuBtn.addEventListener("click", (e) => {
@@ -365,7 +360,6 @@ class Navbar extends HTMLElement {
                 if (window.lucide) window.lucide.createIcons();
             });
 
-            // Global click listener to close dropdown when clicking outside
             document.addEventListener("click", (e) => {
                 const iconEl = getRotatableIcon();
 
@@ -380,7 +374,6 @@ class Navbar extends HTMLElement {
             });
         }
 
-        // --- Logout Handling ---
         const handleLogout = (e) => {
             e.preventDefault();
             if (this.auth) {
