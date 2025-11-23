@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ตะกร้าสินค้า - HiewHub</title>
+    
+    <link rel="stylesheet" href="css/global.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="min-h-screen flex flex-col">
+    <navbar-eiei></navbar-eiei>
+
+    <main class="flex-1 py-10 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-6">
+            <h1 class="text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
+                <i data-lucide="shopping-cart" class="w-8 h-8 text-blue-600"></i> ตะกร้าสินค้าของคุณ
+            </h1>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 bg-white rounded-xl shadow-lg border border-gray-200 p-6">
+                    <div id="cart-items-container" class="divide-y divide-gray-100">
+                        <div class="text-center py-10 text-gray-500">
+                            <i data-lucide="loader-circle" class="w-8 h-8 mx-auto animate-spin"></i>
+                            <p class="mt-2">กำลังโหลดตะกร้าสินค้า...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-xl shadow-lg border border-gray-200 p-6 sticky top-20">
+                        <h2 class="text-xl font-bold text-gray-900 mb-5 border-b pb-3">สรุปคำสั่งซื้อ</h2>
+                        
+                        <div class="space-y-3 mb-6">
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>ราคาสินค้าทั้งหมด:</span>
+                                <span><span id="subtotal-price">฿0.00</span></span>
+                            </div>
+                            <div class="flex justify-between text-sm text-gray-600">
+                                <span>ค่าจัดส่ง (โดยประมาณ):</span>
+                                <span>฿0.00</span>
+                            </div>
+                        </div>
+                        
+                        <div class="flex justify-between text-lg font-bold text-gray-900 border-t pt-4">
+                            <span>ยอดรวมทั้งหมด:</span>
+                            <span id="total-price" class="text-red-600">฿0.00</span>
+                        </div>
+                        
+                        <button id="checkout-button" 
+                            class="w-full mt-6 py-3 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors disabled:bg-gray-400" 
+                            disabled>
+                            ดำเนินการชำระเงิน
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer-eiei></footer-eiei>
+
+    <script src="js/config.js"></script>
+    <script src="js/services/AuthManager.js"></script>
+    <script src="js/services/CartManager.js"></script>
+    <script src="js/services/ProductManager.js"></script>
+    <script src="js/components/Navbar.js"></script>
+    <script src="js/components/Footer.js"></script>
+    <script src="js/pages/cart.js"></script>
+</body>
+</html>

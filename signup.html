@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก - HiewHub</title>
+    
+    <link rel="stylesheet" href="css/global.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+<body class="min-h-screen flex flex-col">
+    <navbar-eiei></navbar-eiei>
+
+    <div class="flex-1 flex items-center justify-center p-4 py-10">
+        <div class="w-full max-w-2xl">
+            <div class="bg-white/80 backdrop-blur-md rounded-3xl shadow-2xl p-8 md:p-10 border border-gray-300">
+                <div class="text-center mb-8">
+                    <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-green-600 shadow-inner">
+                        <i data-lucide="user-plus" class="w-8 h-8"></i>
+                    </div>
+                    <h2 class="text-3xl font-bold text-gray-800">สร้างบัญชีใหม่</h2>
+                    <p class="text-gray-500 mt-2 text-sm">เริ่มต้นการใช้งาน HiewHub ในไม่กี่ขั้นตอน</p>
+                </div>
+
+                <form id="signupForm" class="space-y-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700 ml-1">ชื่อจริง</label>
+                            <input type="text" id="firstname" required 
+                                class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder-gray-400" 
+                                placeholder="ชื่อจริง">
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700 ml-1">นามสกุล</label>
+                            <input type="text" id="lastname" required 
+                                class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder-gray-400" 
+                                placeholder="นามสกุล">
+                        </div>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="text-sm font-medium text-gray-700 ml-1">อีเมล</label>
+                        <input type="email" id="email" required 
+                            class="w-full p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder-gray-400" 
+                            placeholder="name@example.com">
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700 ml-1">รหัสผ่าน (อย่างน้อย 8 ตัว)</label>
+                            <div class="relative">
+                                <input type="password" id="password" required minlength="8" 
+                                    class="w-full pr-12 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder-gray-400" 
+                                    placeholder="••••••••">
+                                <button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer transition-colors outline-none">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <p id="password-feedback" class="text-xs text-red-500 mt-1"></p>
+                        </div>
+                        <div class="space-y-1">
+                            <label class="text-sm font-medium text-gray-700 ml-1">ยืนยันรหัสผ่าน</label>
+                            <div class="relative">
+                                <input type="password" id="cpassword" required 
+                                    class="w-full pr-12 p-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition-all placeholder-gray-400" 
+                                    placeholder="••••••••">
+                                <button type="button" class="toggle-password absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer transition-colors outline-none">
+                                    <i data-lucide="eye" class="w-5 h-5"></i>
+                                </button>
+                            </div>
+                            <p id="cpassword-feedback" class="text-xs text-red-500 mt-1"></p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-3.5 px-4 bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700 text-white font-bold rounded-xl shadow-lg hover:shadow-green-500/30 transform hover:-translate-y-0.5 transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer">
+                        สมัครสมาชิก
+                    </button>
+                </form>
+
+                <div class="relative my-8">
+                    <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-gray-200"></div></div>
+                    <div class="relative flex justify-center text-sm"><span class="px-4 bg-white/80 text-gray-500 font-medium backdrop-blur-sm rounded-full">หรือ</span></div>
+                </div>
+
+                <button id="google-button" class="w-full py-3 px-4 bg-white border border-gray-200 rounded-xl text-gray-700 font-semibold hover:bg-gray-50 hover:border-gray-300 transition-all duration-200 flex items-center justify-center gap-3 shadow-sm cursor-pointer">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path fill="#4285F4" d="M22.5 12.5C22.5 11.75 22.43 11.02 22.31 10.33H12V14.51H18.78C18.46 16.27 17.51 17.75 16.14 18.77L16.1 19.05L19.46 21.65L19.66 21.84C21.65 19.9 22.5 17.3 22.5 12.5Z"/><path fill="#34A853" d="M12 23C14.94 23 17.49 22.01 19.46 20.35L16.14 17.77C15.22 18.45 13.78 19 12 19C10.02 19 8.35 18.25 7.15 16.94L6.96 16.78L3.58 19.38L3.48 19.45C5.46 21.46 8.56 23 12 23Z"/><path fill="#FBBC05" d="M4.65 14.51C4.41 13.82 4.28 13.11 4.28 12.42C4.28 11.73 4.41 11.02 4.65 10.33L4.63 10.22L1.11 7.42L1 7.5C1.61 9.38 2.5 11.13 4.28 12.42C4.28 12.46 4.65 14.51 4.65 14.51Z"/><path fill="#EA4335" d="M12 4C13.83 4 15.42 4.66 16.7 5.89L19.5 3.09C17.46 1.15 14.93 0 12 0C8.56 0 5.46 1.54 3.48 3.55L6.96 6.15C8.35 4.84 10.02 4 12 4Z"/></svg>
+                    สมัครสมาชิกด้วย Google
+                </button>
+
+                <div class="mt-8 text-center">
+                    <p class="text-sm text-gray-500">
+                        มีบัญชีอยู่แล้ว?
+                        <a href="/signIn.html" class="text-blue-600 hover:text-blue-700 font-bold hover:underline transition-colors ml-1">
+                            เข้าสู่ระบบ
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <footer-eiei></footer-eiei>
+
+    <script src="js/config.js"></script>
+    <script src="js/services/AuthManager.js"></script>
+    <script src="js/components/Navbar.js"></script>
+    <script src="js/components/Footer.js"></script>
+    <script src="js/pages/signUp.js"></script>
+</body>
+</html>
