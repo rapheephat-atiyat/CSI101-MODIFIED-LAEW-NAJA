@@ -10,7 +10,6 @@
 
 class AuthManager {
     BASE_URL = window.APP_CONFIG.BASE_URL;
-    API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
 
     constructor() {
         this.tokenKey = "jwt";
@@ -75,7 +74,7 @@ class AuthManager {
     async getProfile() {
         if (!this.isLoggedIn()) return null;
         try {
-            const res = await fetch(`${this.API_BASE_URL}/api/profile`, {
+            const res = await fetch(`${this.BASE_URL}/api/profile`, {
                 headers: { "Authorization": `Bearer ${this.token}` }
             });
             if (res.ok) return await res.json();
@@ -87,7 +86,7 @@ class AuthManager {
     }
 
     async requestPasswordReset(email) {
-        const res = await fetch(`${this.API_BASE_URL}/api/users/forgot-password`, {
+        const res = await fetch(`${this.BASE_URL}/api/users/forgot-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email })
@@ -98,7 +97,7 @@ class AuthManager {
     }
 
     async confirmResetPassword(token, newPassword) {
-        const res = await fetch(`${this.API_BASE_URL}/api/users/reset-password`, {
+        const res = await fetch(`${this.BASE_URL}/api/users/reset-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, newPassword })
@@ -119,7 +118,7 @@ class AuthManager {
         }
 
         try {
-            const res = await fetch(`${this.API_BASE_URL}/api/profile`, {
+            const res = await fetch(`${this.BASE_URL}/api/profile`, {
                 headers: { "Authorization": `Bearer ${this.token}` }
             });
 

@@ -71,7 +71,10 @@ class Navbar extends HTMLElement {
         const firstname = user?.firstname || 'ผู้ใช้';
         const lastname = user?.lastname || '';
         const email = user?.email || '';
-        const image = user?.image;
+
+        // 🎯 FIX: ตรวจสอบ image URL อย่างเข้มงวด
+        const image = user?.image && user.image !== 'null' && user.image !== 'undefined' ? user.image : null;
+
         const initial = firstname.charAt(0).toUpperCase();
         const cartCount = this.cartItemCount;
 
@@ -98,7 +101,7 @@ class Navbar extends HTMLElement {
                 <div class="flex items-center justify-between h-16">
                     <a href="/" id="navbar-logo-link" class="flex items-center gap-2.5 group">
                         <div class="w-20 flex-shrink-0">
-                            <img src="http://127.0.0.1:5500/public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
+                            <img src="http://localhost:5500/public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
                         </div>
                     </a>
 
@@ -140,7 +143,7 @@ class Navbar extends HTMLElement {
                             <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full"></span>
                         </button>
 
-                        <a href="/signIn.html" id="desktop-login-btn" class="hidden lg:flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
+                        <a href="/signin.html" id="desktop-login-btn" class="hidden lg:flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
                             <span>เข้าสู่ระบบ</span>
                         </a>
 
@@ -154,7 +157,7 @@ class Navbar extends HTMLElement {
                                 <i data-lucide="chevron-down" id="desktop-dropdown-icon" class="w-4 h-4 text-gray-400 transition-transform"></i>
                             </button>
                             
-                            <div id="desktop-user-dropdown" class="absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg border border-gray-100 py-1 overflow-hidden">
+                            <div id="desktop-user-dropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-xl shadow-lg border border-gray-100 py-1 overflow-hidden">
                                 <div class="px-4 py-3 border-b border-gray-50">
                                     <p class="font-medium text-sm text-gray-900">${firstname} ${lastname}</p>
                                     <p class="text-xs text-gray-500 truncate mt-0.5">${email}</p>
@@ -320,10 +323,10 @@ class Navbar extends HTMLElement {
             const $mobileMenu = $(this).find("#mobile-menu");
             const $mobileMenuIcon = $mobileMenuToggle.find("i");
 
-            $mobileMenu.hide();
-            $mobileMenu.removeClass('hidden');
+            // 🎯 FIX: ลบโค้ดที่ทำให้เกิดบัค jQuery/Hidden conflict (Mobile Menu)
 
             $mobileMenuToggle.on("click", () => {
+                // jQuery slideToggle จะจัดการ display/hidden ให้อัตโนมัติ
                 $mobileMenu.slideToggle(250, () => {
                     if (window.lucide) window.lucide.createIcons();
                 });
@@ -341,14 +344,20 @@ class Navbar extends HTMLElement {
             desktopUserMenuBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                const isShown = desktopUserDropdown.classList.contains("show");
 
-                if (isShown) {
-                    desktopUserDropdown.classList.remove("show");
-                    if (desktopDropdownIcon) desktopDropdownIcon.classList.remove("rotate");
-                } else {
+                // ตรวจสอบสถานะโดยใช้คลาส 'hidden'
+                const isHidden = desktopUserDropdown.classList.contains("hidden");
+
+                if (isHidden) {
+                    // เปิด dropdown
+                    desktopUserDropdown.classList.remove("hidden");
                     desktopUserDropdown.classList.add("show");
                     if (desktopDropdownIcon) desktopDropdownIcon.classList.add("rotate");
+                } else {
+                    // ปิด dropdown
+                    desktopUserDropdown.classList.add("hidden");
+                    desktopUserDropdown.classList.remove("show");
+                    if (desktopDropdownIcon) desktopDropdownIcon.classList.remove("rotate");
                 }
                 setTimeout(() => {
                     if (window.lucide) window.lucide.createIcons();
@@ -357,6 +366,7 @@ class Navbar extends HTMLElement {
 
             document.addEventListener("click", (e) => {
                 if (!this.contains(e.target)) {
+                    desktopUserDropdown.classList.add("hidden");
                     desktopUserDropdown.classList.remove("show");
                     if (desktopDropdownIcon) desktopDropdownIcon.classList.remove("rotate");
                 }

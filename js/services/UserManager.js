@@ -14,7 +14,7 @@
  */
 
 class UserManager {
-    static API_URL = window.APP_CONFIG.API_BASE_URL;
+    static API_URL = window.APP_CONFIG.BASE_URL;
 
     static _getHeaders() {
         const token = localStorage.getItem("jwt");

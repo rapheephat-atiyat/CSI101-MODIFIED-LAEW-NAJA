@@ -1,10 +1,7 @@
-// js/pages/signIn.js (Final Refined Logic)
-
 class SignInPage {
     constructor(authManager) {
         this.manager = authManager;
         this.bindEvents();
-        if (window.lucide) window.lucide.createIcons();
     }
 
     togglePass() {
@@ -60,31 +57,25 @@ class SignInPage {
     }
 }
 
-// 🎯 โครงสร้าง Asynchronous หลัก: รอการตรวจสอบสิทธิ์ก่อนแสดงผล
 async function initSignInPage() {
     const manager = new AuthManager();
     const signinContainer = document.getElementById('signin-container');
 
-    // 1. ตรวจสอบสถานะการ Login อย่างเข้มงวด
     if (manager.isLoggedIn()) {
         try {
-            // หาก Token ใช้ได้จริง: Redirect ทันที (Browser จะไม่เรนเดอร์ส่วนที่ถูกซ่อน)
             await manager.getProfile();
             window.location.href = "/";
-            return; // หยุดการทำงาน
-        } catch (e) {
-            // หาก Token เสีย/หมดอายุ: ล้าง Token ออก
-            manager.clearToken();
-        }
+            return;
+        } catch (e) { }
     }
 
-    // 2. Token ไม่มี / ถูกล้างแล้ว: โหลด UI และผูก Event Handlers
     window.signInPage = new SignInPage(manager);
 
-    // 3. 🎯 แสดงฟอร์มเมื่อแน่ใจว่าจะไม่ Redirect แล้ว (แก้ปัญหาการกระพริบ)
     if (signinContainer) {
         signinContainer.classList.remove('hidden');
     }
+
+    if (window.lucide) window.lucide.createIcons();
 }
 
 document.addEventListener("DOMContentLoaded", initSignInPage);
