@@ -75,7 +75,7 @@ class AuthManager {
     async getProfile() {
         if (!this.isLoggedIn()) return null;
         try {
-            const res = await fetch(`${this.API_BASE_URL}/profile`, {
+            const res = await fetch(`${this.API_BASE_URL}/api/profile`, {
                 headers: { "Authorization": `Bearer ${this.token}` }
             });
             if (res.ok) return await res.json();
@@ -87,7 +87,7 @@ class AuthManager {
     }
 
     async requestPasswordReset(email) {
-        const res = await fetch(`${this.API_BASE_URL}/users/forgot-password`, {
+        const res = await fetch(`${this.API_BASE_URL}/api/users/forgot-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ email })
@@ -98,7 +98,7 @@ class AuthManager {
     }
 
     async confirmResetPassword(token, newPassword) {
-        const res = await fetch(`${this.API_BASE_URL}/users/reset-password`, {
+        const res = await fetch(`${this.API_BASE_URL}/api/users/reset-password`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, newPassword })
@@ -119,7 +119,7 @@ class AuthManager {
         }
 
         try {
-            const res = await fetch(`${this.API_BASE_URL}/profile`, {
+            const res = await fetch(`${this.API_BASE_URL}/api/profile`, {
                 headers: { "Authorization": `Bearer ${this.token}` }
             });
 

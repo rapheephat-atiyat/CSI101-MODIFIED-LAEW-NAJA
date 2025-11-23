@@ -21,14 +21,14 @@ class ProductManager {
     }
 
     static async getProduct(productId) {
-        const res = await fetch(`${this.BASE_API_URL}/products/${productId}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/products/${productId}`, {
             method: "GET"
         });
         return this._handleResponse(res);
     }
 
     static async getLatestProducts() {
-        const res = await fetch(`${this.BASE_API_URL}/products/latest`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/products/latest`, {
             method: "GET"
         });
 
@@ -42,7 +42,7 @@ class ProductManager {
     }
 
     static async getRelatedProducts(productId) {
-        const res = await fetch(`${this.BASE_API_URL}/products/related/${productId}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/products/related/${productId}`, {
             method: "GET"
         });
 
@@ -58,7 +58,7 @@ class ProductManager {
     }
 
     static async addProduct(payload) {
-        const res = await fetch(`${this.BASE_API_URL}/products`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/products`, {
             method: "POST",
             headers: this._getHeaders(),
             body: JSON.stringify(payload)
@@ -67,7 +67,7 @@ class ProductManager {
     }
 
     static async updateProduct(productId, payload) {
-        const res = await fetch(`${this.BASE_API_URL}/products/${productId}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/products/${productId}`, {
             method: "PATCH",
             headers: this._getHeaders(),
             body: JSON.stringify(payload)
@@ -76,7 +76,7 @@ class ProductManager {
     }
 
     static async deleteProduct(productId) {
-        const res = await fetch(`${this.BASE_API_URL}/products/${productId}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/products/${productId}`, {
             method: "DELETE",
             headers: this._getHeaders(),
         });

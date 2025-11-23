@@ -21,7 +21,7 @@ class ProductRequestManager {
     }
 
     static async createRequest(payload) {
-        const res = await fetch(`${this.BASE_API_URL}/vendor/product-request`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/vendor/product-request`, {
             method: "POST",
             headers: this._getHeaders(),
             body: JSON.stringify(payload)
@@ -31,7 +31,7 @@ class ProductRequestManager {
 
 
     static async getRequestsByVendorId(vendorId) {
-        const res = await fetch(`${this.BASE_API_URL}/vendor/product-requests/${vendorId}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/vendor/product-requests/${vendorId}`, {
             method: "GET",
             headers: this._getHeaders(),
         });

@@ -22,7 +22,7 @@ class AdminManager {
     }
 
     static async getVendorRequests() {
-        const res = await fetch(`${this.BASE_API_URL}/admin/vendor-requests`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/admin/vendor-requests`, {
             method: "GET",
             headers: this._getHeaders(),
         });
@@ -30,7 +30,7 @@ class AdminManager {
     }
 
     static async updateVendorRequestStatus(id, action) {
-        const res = await fetch(`${this.BASE_API_URL}/admin/vendor-requests/${id}/status`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/admin/vendor-requests/${id}/status`, {
             method: "POST",
             headers: this._getHeaders(),
             body: JSON.stringify({ action })
@@ -39,7 +39,7 @@ class AdminManager {
     }
 
     static async getUsers() {
-        const res = await fetch(`${this.BASE_API_URL}/admin/users`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/admin/users`, {
             method: "GET",
             headers: this._getHeaders(),
         });
@@ -47,7 +47,7 @@ class AdminManager {
     }
 
     static async updateUserRole(id, newRole) {
-        const res = await fetch(`${this.BASE_API_URL}/admin/users/${id}/role`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/admin/users/${id}/role`, {
             method: "PATCH",
             headers: this._getHeaders(),
             body: JSON.stringify({ role: newRole })
@@ -56,7 +56,7 @@ class AdminManager {
     }
 
     static async deleteUser(id) {
-        const res = await fetch(`${this.BASE_API_URL}/admin/users/${id}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/admin/users/${id}`, {
             method: "DELETE",
             headers: this._getHeaders(),
         });

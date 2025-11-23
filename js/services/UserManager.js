@@ -31,7 +31,7 @@ class UserManager {
     }
 
     static async update(id, data) {
-        const res = await fetch(`${this.API_URL}/users/${id}`, {
+        const res = await fetch(`${this.API_URL}/api/users/${id}`, {
             method: "PATCH",
             headers: this._getHeaders(),
             body: JSON.stringify(data)
@@ -40,7 +40,7 @@ class UserManager {
     }
 
     static async updateAddress(id, data) {
-        const res = await fetch(`${this.API_URL}/addresses/${id}`, {
+        const res = await fetch(`${this.API_URL}/api/addresses/${id}`, {
             method: "PATCH",
             headers: this._getHeaders(),
             body: JSON.stringify(data)
@@ -52,7 +52,7 @@ class UserManager {
         const headers = this._getHeaders();
         delete headers["Content-Type"];
 
-        const res = await fetch(`${this.API_URL}/addresses/${id}`, {
+        const res = await fetch(`${this.API_URL}/api/addresses/${id}`, {
             method: "DELETE",
             headers: headers
         });

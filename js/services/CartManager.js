@@ -21,7 +21,7 @@ class CartManager {
     }
 
     static async getCart() {
-        const res = await fetch(`${this.BASE_API_URL}/cart`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/cart`, {
             method: "GET",
             headers: this._getHeaders(),
         });
@@ -30,7 +30,7 @@ class CartManager {
 
     static async addItemToCart(vendorProductId, quantity) {
         const payload = { vendorProductId, quantity };
-        const res = await fetch(`${this.BASE_API_URL}/cart`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/cart`, {
             method: "POST",
             headers: this._getHeaders(),
             body: JSON.stringify(payload)
@@ -41,7 +41,7 @@ class CartManager {
     static async removeItem(vendorProductId) {
         const headers = this._getHeaders();
         delete headers["Content-Type"];
-        const res = await fetch(`${this.BASE_API_URL}/cart/${vendorProductId}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/cart/${vendorProductId}`, {
             method: "DELETE",
             headers: headers
         });

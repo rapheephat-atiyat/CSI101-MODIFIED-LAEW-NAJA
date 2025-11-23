@@ -10,7 +10,7 @@ class VendorProfileManager {
     }
 
     static async getShopProfile(vendorId) {
-        const res = await fetch(`${this.BASE_API_URL}/shop/${vendorId}`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/shop/${vendorId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json"

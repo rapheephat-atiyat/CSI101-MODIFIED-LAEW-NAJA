@@ -21,7 +21,7 @@ class VendorManager {
     }
 
     static async register(payload) {
-        const res = await fetch(`${this.BASE_API_URL}/vendor/register`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/vendor/register`, {
             method: "POST",
             headers: this._getHeaders(),
             body: JSON.stringify(payload)
@@ -30,7 +30,7 @@ class VendorManager {
     }
 
     static async getRequestStatus() {
-        const res = await fetch(`${this.BASE_API_URL}/vendor/request-status`, {
+        const res = await fetch(`${this.BASE_API_URL}/api/vendor/request-status`, {
             method: "GET",
             headers: this._getHeaders(),
         });

@@ -1,15 +1,11 @@
-// js/pages/signIn.js (แก้ไขเพื่อป้องกันการกระพริบ/Loop)
+// js/pages/signIn.js (Final Refined Logic)
 
 class SignInPage {
     constructor(authManager) {
-        // รับ instance ของ AuthManager ที่ผ่านการตรวจสอบแล้ว
         this.manager = authManager;
-
         this.bindEvents();
         if (window.lucide) window.lucide.createIcons();
     }
-
-    // ... (togglePass, bindEvents, handleSignIn, handleGoogleSignIn methods remain identical) ...
 
     togglePass() {
         const input = document.getElementById('password');
@@ -64,25 +60,31 @@ class SignInPage {
     }
 }
 
-// 🎯 โครงสร้างใหม่: ฟังก์ชันหลักแบบ Asynchronous เพื่อป้องกัน Race Condition/Flicker
+// 🎯 โครงสร้าง Asynchronous หลัก: รอการตรวจสอบสิทธิ์ก่อนแสดงผล
 async function initSignInPage() {
     const manager = new AuthManager();
+    const signinContainer = document.getElementById('signin-container');
 
-    // 1. ตรวจสอบสถานะการ Login อย่างเข้มงวด (รอจนกว่าจะรู้ผล)
+    // 1. ตรวจสอบสถานะการ Login อย่างเข้มงวด
     if (manager.isLoggedIn()) {
         try {
-            // หาก Token ใช้ได้จริง: Redirect ทันที (หยุดการโหลดหน้า Login)
+            // หาก Token ใช้ได้จริง: Redirect ทันที (Browser จะไม่เรนเดอร์ส่วนที่ถูกซ่อน)
             await manager.getProfile();
             window.location.href = "/";
             return; // หยุดการทำงาน
         } catch (e) {
-            // หาก Token เสีย/หมดอายุ: ล้าง Token ออก และปล่อยให้โหลดหน้า Login
+            // หาก Token เสีย/หมดอายุ: ล้าง Token ออก
             manager.clearToken();
         }
     }
 
     // 2. Token ไม่มี / ถูกล้างแล้ว: โหลด UI และผูก Event Handlers
     window.signInPage = new SignInPage(manager);
+
+    // 3. 🎯 แสดงฟอร์มเมื่อแน่ใจว่าจะไม่ Redirect แล้ว (แก้ปัญหาการกระพริบ)
+    if (signinContainer) {
+        signinContainer.classList.remove('hidden');
+    }
 }
 
 document.addEventListener("DOMContentLoaded", initSignInPage);
