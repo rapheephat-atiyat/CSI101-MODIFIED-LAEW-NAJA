@@ -10,7 +10,6 @@ class Navbar extends HTMLElement {
     }
 
     async connectedCallback() {
-        // รอโหลดไฟล์จำเป็นให้ครบก่อนทำงาน
         await this.loadDependencies();
 
         if (typeof AuthManager !== 'undefined') {
@@ -30,6 +29,9 @@ class Navbar extends HTMLElement {
         this.bindEvents();
         this.updateAuthUI();
 
+        // [เพิ่มใหม่] เริ่มระบบค้นหา
+        this.bindSearchEvents();
+
         if (window.lucide) window.lucide.createIcons();
     }
 
@@ -39,7 +41,6 @@ class Navbar extends HTMLElement {
 
     startPolling() {
         this.stopPolling();
-        // เช็คข้อมูลใหม่ทุก 3 วินาที (ลดลงจาก 5 เพื่อความไวขึ้น)
         this.pollInterval = setInterval(() => {
             this.refreshUI(true);
         }, 3000);
@@ -52,14 +53,56 @@ class Navbar extends HTMLElement {
         }
     }
 
-    // [แก้ไขใหม่] โหลดไฟล์ Services อัตโนมัติถ้าหน้าเว็บลืมใส่
+    async refreshUI(isPolling = false) {
+        const prevNotifCount = this.notificationCount;
+        const prevCartCount = this.cartItemCount;
+
+        await this.fetchCartCount();
+        await this.fetchNotificationCount();
+
+        if (prevNotifCount !== this.notificationCount || prevCartCount !== this.cartItemCount) {
+            this.updateBadges();
+        }
+
+        if (!isPolling) {
+            this.updateAuthUI();
+        }
+    }
+
+    updateBadges() {
+        const cartBadges = this.querySelectorAll('#cart-btn span, #mobile-cart-btn span');
+        cartBadges.forEach(badge => {
+            badge.textContent = this.cartItemCount;
+            badge.style.display = this.cartItemCount > 0 ? 'flex' : 'none';
+        });
+
+        const notifBadges = this.querySelectorAll('#notifications-btn span, #mobile-notifications-btn span');
+        notifBadges.forEach(badge => {
+            badge.textContent = this.notificationCount;
+            badge.style.display = this.notificationCount > 0 ? 'flex' : 'none';
+        });
+    }
+
+    // [เพิ่มใหม่] ฟังก์ชันจัดการการค้นหา
+    bindSearchEvents() {
+        const desktopSearch = this.querySelector('#desktop-search-input');
+        const mobileSearch = this.querySelector('#mobile-search-input');
+
+        const handleSearch = (e) => {
+            const query = e.target.value.trim();
+            // ส่ง Custom Event ชื่อ 'search-action' พร้อมข้อความที่พิมพ์
+            window.dispatchEvent(new CustomEvent('search-action', { detail: query }));
+        };
+
+        if (desktopSearch) desktopSearch.addEventListener('input', handleSearch);
+        if (mobileSearch) mobileSearch.addEventListener('input', handleSearch);
+    }
+
     loadDependencies() {
         return new Promise((resolve) => {
             const loadScript = (src) => {
                 return new Promise((res) => {
-                    // ถ้ามีอยู่แล้วไม่ต้องโหลดซ้ำ
                     if (document.querySelector(`script[src="${src}"]`)) { res(); return; }
-
                     const script = document.createElement("script");
                     script.src = src;
                     script.onload = res;
@@ -73,12 +116,19 @@ class Navbar extends HTMLElement {
                 !document.getElementById("tw") && loadScript("https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4")
             ];
 
-            // โหลด Manager ที่จำเป็นสำหรับ Navbar
             if (typeof AuthManager === 'undefined') libs.push(loadScript("js/services/AuthManager.js"));
             if (typeof CartManager === 'undefined') libs.push(loadScript("js/services/CartManager.js"));
             if (typeof NotificationManager === 'undefined') libs.push(loadScript("js/services/NotificationManager.js"));
+            if (typeof ChatManager === 'undefined') libs.push(loadScript("js/services/ChatManager.js"));
+            libs.push(loadScript("js/components/ChatWidget.js"));
 
-            Promise.all(libs).then(resolve);
+            Promise.all(libs).then(() => {
+                if (!document.querySelector('chat-widget')) {
+                    const chatWidget = document.createElement('chat-widget');
+                    document.body.appendChild(chatWidget);
+                }
+                resolve();
+            });
         });
     }
 
@@ -159,7 +209,9 @@ class Navbar extends HTMLElement {
                 return `
                 <div class="notification-item px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors ${isUnread ? 'bg-blue-50/50' : ''}" 
                      data-id="${n.id}" 
-                     data-status="${n.status}">
+                     data-status="${n.status}"
+                     data-type="${n.type}"
+                     data-content='${JSON.stringify(n.content || {}).replace(/'/g, "&apos;")}'>
                     <div class="flex gap-3">
                         <div class="flex-shrink-0 mt-1">
                             <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
@@ -181,7 +233,8 @@ class Navbar extends HTMLElement {
 
             listContainer.querySelectorAll('.notification-item').forEach(item => {
                 item.addEventListener('click', (e) => {
-                    this.handleNotificationClick(item.dataset.id, item.dataset.status);
+                    const content = JSON.parse(item.dataset.content || '{}');
+                    this.handleNotificationClick(item.dataset.id, item.dataset.status, item.dataset.type, content);
                 });
             });
         }
@@ -194,6 +247,7 @@ class Navbar extends HTMLElement {
             case 'NEW_ORDER': return 'shopping-bag';
             case 'REQUEST_APPROVED': return 'check-circle';
             case 'REQUEST_REJECTED': return 'x-circle';
+            case 'NEW_MESSAGE': return 'message-square';
             case 'ADMIN_ALERT': return 'shield-alert';
             default: return 'bell';
         }
@@ -205,6 +259,7 @@ class Navbar extends HTMLElement {
             'NEW_ORDER': 'มีคำสั่งซื้อใหม่',
             'REQUEST_APPROVED': 'คำขอสินค้าได้รับการอนุมัติ',
             'REQUEST_REJECTED': 'คำขอสินค้าถูกปฏิเสธ',
+            'NEW_MESSAGE': 'ข้อความใหม่',
             'ADMIN_ALERT': 'ข้อความจากผู้ดูแลระบบ'
         };
         return titles[type] || 'การแจ้งเตือน';
@@ -220,7 +275,7 @@ class Navbar extends HTMLElement {
         return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
     }
 
-    async handleNotificationClick(id, status) {
+    async handleNotificationClick(id, status, type, content) {
         if (status === 'UNREAD') {
             try {
                 await NotificationManager.markAsRead(id);
@@ -232,37 +287,33 @@ class Navbar extends HTMLElement {
                 console.error("Failed to mark as read", e);
             }
         }
-        window.location.href = '/notifications.html';
-    }
 
-    async refreshUI(isPolling = false) {
-        const prevNotifCount = this.notificationCount;
-        const prevCartCount = this.cartItemCount;
-
-        await this.fetchCartCount();
-        await this.fetchNotificationCount();
-
-        if (prevNotifCount !== this.notificationCount || prevCartCount !== this.cartItemCount) {
-            this.updateBadges();
+        switch (type) {
+            case 'NEW_MESSAGE':
+                if (content && content.roomId) {
+                    window.location.href = `/chat.html?roomId=${content.roomId}`;
+                } else {
+                    window.location.href = '/chat.html';
+                }
+                break;
+            case 'NEW_ORDER':
+            case 'ORDER_STATUS_UPDATE':
+                const userRole = this.profile?.user?.role;
+                if (userRole === 'VENDOR' && type === 'NEW_ORDER') {
+                    window.location.href = '/vendor-orders.html';
+                } else {
+                    window.location.href = '/orders.html';
+                }
+                break;
+            case 'REQUEST_APPROVED':
+                window.location.href = '/cart.html';
+                break;
+            case 'REQUEST_REJECTED':
+                window.location.href = '/shop/product-request.html';
+                break;
+            default:
+                window.location.href = '/notifications.html';
         }
-
-        if (!isPolling) {
-            this.updateAuthUI();
-        }
-    }
-
-    updateBadges() {
-        const cartBadges = this.querySelectorAll('#cart-btn span, #mobile-cart-btn span');
-        cartBadges.forEach(badge => {
-            badge.textContent = this.cartItemCount;
-            badge.style.display = this.cartItemCount > 0 ? 'flex' : 'none';
-        });
-
-        const notifBadges = this.querySelectorAll('#notifications-btn span, #mobile-notifications-btn span');
-        notifBadges.forEach(badge => {
-            badge.textContent = this.notificationCount;
-            badge.style.display = this.notificationCount > 0 ? 'flex' : 'none';
-        });
     }
 
     render() {
@@ -326,7 +377,7 @@ class Navbar extends HTMLElement {
                         <div id="desktop-search-bar" class="hidden md:block">
                             <div class="relative">
                                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none"></i>
-                                <input type="text" placeholder="ค้นหา..." 
+                                <input type="text" id="desktop-search-input" placeholder="ค้นหา..." 
                                     class="w-56 lg:w-72 pl-9 pr-4 py-2 text-sm bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-gray-200 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200" />
                             </div>
                         </div>
@@ -347,8 +398,7 @@ class Navbar extends HTMLElement {
                                     <h4 class="font-bold text-gray-900 text-sm">การแจ้งเตือน (${notificationCount})</h4>
                                     <a href="/notifications.html" class="text-xs text-blue-600 hover:underline">ดูทั้งหมด</a>
                                 </div>
-                                <div id="notification-list" class="max-h-96 overflow-y-auto scrollbar-thin">
-                                    </div>
+                                <div id="notification-list" class="max-h-96 overflow-y-auto scrollbar-thin"></div>
                             </div>
                         </div>
 
@@ -407,7 +457,7 @@ class Navbar extends HTMLElement {
                     <div class="mb-4">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none"></i>
-                            <input type="text" placeholder="ค้นหา..." 
+                            <input type="text" id="mobile-search-input" placeholder="ค้นหา..." 
                                 class="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-gray-200 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                         </div>
                     </div>
@@ -511,7 +561,16 @@ class Navbar extends HTMLElement {
             mobileMenuToggle.addEventListener("click", (e) => {
                 e.preventDefault();
                 mobileMenu.classList.toggle("hidden");
-                // ... (Logic toggle icon)
+                const iconContainer = mobileMenuToggle;
+                const iconEl = iconContainer.querySelector('[data-lucide]') || iconContainer.querySelector('svg');
+                if (iconEl) {
+                    const currentIcon = iconEl.getAttribute("data-lucide");
+                    const targetEl = iconEl.tagName === 'SVG' ? iconEl : iconContainer.querySelector('i');
+                    if (targetEl) {
+                        const newIcon = currentIcon === "menu" ? "x" : "menu";
+                        targetEl.setAttribute("data-lucide", newIcon);
+                    }
+                }
                 if (window.lucide) window.lucide.createIcons();
             });
         }
@@ -529,7 +588,6 @@ class Navbar extends HTMLElement {
                 const isHidden = desktopUserDropdown.classList.contains("hidden");
                 const iconEl = getRotatableIcon();
 
-                // ปิด Notification dropdown ถ้าเปิดอยู่
                 const notificationDropdown = this.querySelector("#notification-dropdown");
                 if (notificationDropdown && !notificationDropdown.classList.contains("hidden")) {
                     notificationDropdown.classList.add("hidden");
@@ -554,7 +612,6 @@ class Navbar extends HTMLElement {
             });
         }
 
-        // Notification Toggle Event
         const notificationsBtn = this.querySelector("#notifications-btn");
         const notificationDropdown = this.querySelector("#notification-dropdown");
 

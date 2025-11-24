@@ -5,6 +5,7 @@ class ProductDetailManager {
         this.productData = null;
         this.auth = new AuthManager();
         this.navbarEl = document.querySelector('navbar-eiei');
+        this.allVendorData = []; // [เพิ่ม] เก็บข้อมูลดิบไว้กรอง
 
         this.elements = {
             loadingState: document.getElementById('loading-state'),
@@ -21,6 +22,9 @@ class ProductDetailManager {
             lucide.createIcons();
         }
 
+        // [เพิ่ม] เริ่มดักฟังการค้นหา
+        this.setupSearchListener();
+
         const urlParams = new URLSearchParams(window.location.search);
         const productId = urlParams.get('id');
 
@@ -31,50 +35,80 @@ class ProductDetailManager {
 
         await this.fetchProductData(productId);
 
-        // [สำคัญ] เช็คสถานะ Favorite เมื่อโหลดหน้าเสร็จ
         if (this.auth.isLoggedIn() && this.productData) {
             await this.checkFavoriteStatus(this.productData.id);
         }
     }
 
+    // [เพิ่ม] ฟังก์ชันดักฟัง Event
+    setupSearchListener() {
+        window.addEventListener('search-action', (e) => {
+            this.handleSearch(e.detail);
+        });
+    }
+
+    // [เพิ่ม] ฟังก์ชันกรองข้อมูล
+    handleSearch(query) {
+        // ถ้ากำลังดูสินค้าเดี่ยวอยู่ ไม่ต้องทำอะไร (หรือจะ redirect ก็ได้)
+        if (this.productData) return;
+
+        if (!query) {
+            // ถ้าลบคำค้นหา ให้แสดงทั้งหมด
+            this.renderFallbackPage(this.allVendorData);
+            return;
+        }
+
+        const lowerQuery = query.toLowerCase();
+
+        // กรองร้านค้าและสินค้า
+        const filteredData = this.allVendorData.map(vendor => {
+            const isShopMatch = vendor.shopName.toLowerCase().includes(lowerQuery);
+            const matchingProducts = vendor.products.filter(p =>
+                p.title.toLowerCase().includes(lowerQuery)
+            );
+
+            if (isShopMatch) return vendor; // ถ้าร้านตรง แสดงหมด
+            if (matchingProducts.length > 0) return { ...vendor, products: matchingProducts }; // ถ้าสินค้าตรง แสดงเฉพาะสินค้านั้น
+            return null;
+        }).filter(item => item !== null);
+
+        this.renderFallbackPage(filteredData);
+    }
+
     async fetchProductData(productId) {
         this.toggleDisplay('loading');
-
         try {
             const response = await ProductManager.getProduct(productId);
             const fetchedProductData = response.data;
-
-            if (!fetchedProductData) {
-                throw new Error("ไม่พบสินค้าที่ระบุ");
-            }
+            if (!fetchedProductData) throw new Error("ไม่พบสินค้าที่ระบุ");
 
             this.productData = fetchedProductData;
             this.renderProductDetail(fetchedProductData);
             this.toggleDisplay('main');
-
         } catch (error) {
             this.showError(error.message || 'ไม่สามารถโหลดข้อมูลสินค้าได้');
-            console.error("Product Load Error:", error);
         }
     }
 
     async fetchFallbackData() {
         this.toggleDisplay('loading');
-
         try {
             const response = await ProductManager.getLatestProducts();
             const latestProducts = response.data || [];
             const vendorData = this.groupProductsByVendor(latestProducts);
 
+            this.allVendorData = vendorData; // [เพิ่ม] เก็บค่าลงตัวแปร
+
             this.renderFallbackPage(vendorData);
             this.toggleDisplay('fallback');
             document.getElementById('page-title').textContent = 'สำรวจสินค้าล่าสุด - HiewHub';
-
         } catch (error) {
             this.showError(error.message || 'ไม่สามารถโหลดข้อมูลล่าสุดจากร้านค้าได้');
-            console.error("Fallback Load Error:", error);
         }
     }
+
+    // ... (ส่วน renderProductDetail, renderFallbackPage, และอื่นๆ เหมือนเดิม ไม่ต้องแก้) ...
+    // (คงฟังก์ชัน checkFavoriteStatus, toggleWishlist, setupEventListeners, ฯลฯ ไว้เหมือนเดิม)
 
     async renderProductDetail(product) {
         const isDiscount = product.discountPrice && product.discountPrice < product.price;
@@ -203,8 +237,6 @@ class ProductDetailManager {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
 
-    // ---- จัดการสถานะ Favorite ----
-
     async checkFavoriteStatus(productId) {
         try {
             const res = await FavoriteManager.checkIsFavorite(productId);
@@ -224,7 +256,6 @@ class ProductDetailManager {
 
         if (isActive) {
             btn.classList.add('active');
-            // เปลี่ยนสีปุ่มเป็นแดง (Active)
             btn.classList.remove('text-red-700', 'bg-white');
             btn.classList.add('text-white', 'bg-red-600', 'border-red-600');
 
@@ -233,7 +264,6 @@ class ProductDetailManager {
             }
         } else {
             btn.classList.remove('active');
-            // คืนค่าเป็นขาว (Inactive)
             btn.classList.add('text-red-700', 'bg-white');
             btn.classList.remove('text-white', 'bg-red-600', 'border-red-600');
 
@@ -252,7 +282,6 @@ class ProductDetailManager {
         const btn = document.getElementById('wishlist-btn');
         const isActive = btn.classList.contains('active');
 
-        // อัปเดต UI ทันทีเพื่อให้รู้ว่ากดแล้ว (Optimistic UI)
         this.setWishlistButtonState(!isActive);
 
         try {
@@ -263,19 +292,16 @@ class ProductDetailManager {
             }
         } catch (error) {
             console.error("Toggle favorite error", error);
-            // หาก Error ให้คืนค่าปุ่มกลับ
             this.setWishlistButtonState(isActive);
         }
     }
-
-    // ... (ส่วนอื่นๆ ของคลาส เหมือนเดิมทั้งหมด) ...
 
     renderFallbackPage(vendorData) {
         const container = document.getElementById('vendor-product-list');
         let html = '';
 
         if (vendorData.length === 0) {
-            html = `<div class="bg-white rounded-[14px] shadow-sm p-4 flex flex-col gap-4"><div class="text-gray-600"><i data-lucide="package-x" class="w-5 h-5 inline mr-1"></i> ไม่พบสินค้าล่าสุดจากร้านค้าใดๆ</div></div>`;
+            html = `<div class="bg-white rounded-[14px] shadow-sm p-4 flex flex-col gap-4"><div class="text-gray-600"><i data-lucide="package-x" class="w-5 h-5 inline mr-1"></i> ไม่พบสินค้าตามคำค้นหา</div></div>`;
         } else {
             vendorData.forEach(vendor => {
                 html += `
