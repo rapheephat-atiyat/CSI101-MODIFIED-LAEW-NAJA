@@ -69,7 +69,6 @@ class ProductRequestManagerPage {
             const statusColor = this.getStatusColor(req.status);
             const statusText = this.getStatusText(req.status);
             
-            // Get necessary IDs for action buttons
             const userId = req.user?.id;
             const productId = req.approvedProductId || 'MOCK_PRODUCT_ID_XYZ'; 
 
