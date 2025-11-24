@@ -1,52 +1,49 @@
-document.addEventListener("DOMContentLoaded", () => {
+const orderData = JSON.parse(localStorage.getItem("checkout_data"));
+const cartData = JSON.parse(localStorage.getItem("cart_items")); // รายการสินค้าในตะกร้า
 
-    const orderSummaryBox = document.getElementById("order-summary");
-    const orderItemsBox = document.getElementById("order-items");
+// อ้างอิง element
+const orderSummaryEl = document.getElementById("order-summary");
+const orderItemsEl = document.getElementById("order-items");
 
-    // โหลดข้อมูลจาก localStorage
-    const summary = JSON.parse(localStorage.getItem("checkout_data"));
-    const items = JSON.parse(localStorage.getItem("order_items")) || [];
+// ฟังก์ชันฟอร์แมทเงิน
+function formatCurrency(num) {
+    return "฿" + num.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, "$&,");
+}
 
-    // --------------------------
-    // แสดงสรุปยอดสั่งซื้อ
-    // --------------------------
-    if (summary) {
-        orderSummaryBox.innerHTML = `
-            <div class="flex justify-between py-1">
-                <span>ราคาสินค้า:</span>
-                <strong>${summary.subtotal.toLocaleString()} บาท</strong>
-            </div>
-            <div class="flex justify-between py-1">
-                <span>ค่าธรรมเนียม:</span>
-                <strong>${summary.fee.toLocaleString()} บาท</strong>
-            </div>
-            <div class="flex justify-between py-1 text-xl border-t mt-2 pt-3 font-bold">
-                <span>รวมทั้งหมด:</span>
-                <span class="text-blue-600">${summary.total.toLocaleString()} บาท</span>
+// แสดงสรุปคำสั่งซื้อ
+if (orderData) {
+    orderSummaryEl.innerHTML = `
+        <p class="text-lg"><strong>ยอดรวมสินค้า:</strong> ${formatCurrency(orderData.subtotal)}</p>
+        <p class="text-lg"><strong>ค่าธรรมเนียม:</strong> ${formatCurrency(orderData.fee)}</p>
+        <p class="text-xl font-bold mt-2"><strong>ยอดสุทธิ:</strong> ${formatCurrency(orderData.total)}</p>
+    `;
+} else {
+    orderSummaryEl.innerHTML = `<p class="text-red-500 text-center">ไม่พบข้อมูลคำสั่งซื้อ</p>`;
+}
+
+// แสดงรายการสินค้า
+if (cartData && cartData.length > 0) {
+    cartData.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "p-4 bg-white rounded-xl shadow";
+
+        div.innerHTML = `
+            <div class="flex items-center gap-4">
+                <img src="${item.image}" alt="product" class="w-20 h-20 object-cover rounded-lg border" />
+                
+                <div>
+                    <p class="font-semibold text-lg">${item.name}</p>
+                    <p class="text-gray-700">ราคา: ${formatCurrency(item.price)}</p>
+                    <p class="text-gray-700">จำนวน: ${item.quantity}</p>
+                    <p class="text-blue-600 font-semibold">รวม: ${formatCurrency(item.price * item.quantity)}</p>
+                </div>
             </div>
         `;
-    }
 
-    // --------------------------
-    // แสดงรายการสินค้า
-    // --------------------------
-    if (items.length === 0) {
-        orderItemsBox.innerHTML = `
-            <div class="text-center text-gray-500 py-8">ไม่มีรายการสินค้า</div>
-        `;
-        return;
-    }
-
-    orderItemsBox.innerHTML = items.map(item => `
-        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl shadow">
-            <img src="${item.vendorProduct.images[0]}" class="w-16 h-16 rounded object-cover">
-            <div class="flex-1">
-                <p class="font-semibold">${item.vendorProduct.title}</p>
-                <p class="text-sm text-gray-500">จำนวน: ${item.quantity}</p>
-            </div>
-            <p class="font-bold text-blue-600">
-                ${(item.vendorProduct.price * item.quantity).toLocaleString()} บาท
-            </p>
-        </div>
-    `).join("");
-});
+        orderItemsEl.appendChild(div);
+    });
+} else {
+    orderItemsEl.innerHTML = `
+        <p class="text-red-500">ไม่พบสินค้าที่สั่งซื้อ</p>
+    `;
+}
