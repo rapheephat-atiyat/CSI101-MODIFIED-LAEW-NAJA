@@ -71,7 +71,7 @@ class ProductDetailManager {
         }
     }
 
-    renderProductDetail(product) {
+    async renderProductDetail(product) {
         const isDiscount = product.discountPrice && product.discountPrice < product.price;
         const displayPrice = this.formatPrice(isDiscount ? product.discountPrice : product.price);
         const oldPrice = isDiscount ? this.formatPrice(product.price) : null;
@@ -79,15 +79,17 @@ class ProductDetailManager {
         const validImageArray = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray.filter(url => url && url.length > 0) : [];
         const primaryImage = validImageArray.length > 0 ? validImageArray[0] : this.DEFAULT_IMAGE;
         const primaryIsVideo = this.isVideoUrl(primaryImage);
-
-        const mockVendorName = "Hiew Hub Official Shop";
-        const mockSku = product.id;
-        const mockTags = product.hashtag && Array.isArray(product.hashtag) ? product.hashtag : ["#สินค้าใหม่", `#${product.category || 'ทั่วไป'}`];
+        const res = await VendorProfileManager.getShopProfile(product.vendorId);
+        const shop = res.data;
+        console.log(shop);
+        
+        const Tags = product.hashtag && Array.isArray(product.hashtag) ? product.hashtag : ["#สินค้าใหม่", `#${product.category || 'ทั่วไป'}`];
         const mockRating = 4.5;
         const mockReviewsCount = 32;
         const productUrl = `${this.BASE_FRONTEND_URL}/product.html?id=${product.id}`;
         const creationDate = this.formatDate(product.createdAt);
-
+        console.log(product);
+        
         this.elements.mainGrid.innerHTML = `
             <section class="bg-white rounded-[14px] p-[22px] shadow-[0_8px_28px_rgba(18,30,45,0.06)]" aria-labelledby="product-gallery">
                 <div class="w-full h-[600px] bg-white rounded-xl flex items-center justify-center overflow-hidden relative" id="hero">
@@ -97,7 +99,7 @@ class ProductDetailManager {
                 </div>
 
                 <div class="flex gap-3 mt-[18px] items-center flex-wrap" aria-hidden="false">
-                    <div class="bg-red-50 text-red-700 py-2 px-[14px] font-bold text-[15px] rounded-[12px] flex gap-2 items-center">⭐️ ${mockRating} | ${mockReviewsCount} รีวิว</div>
+                    <div class="bg-red-50 text-red-700 py-2 px-[14px] font-bold text-[15px] rounded-[12px] flex gap-2 items-center">⭐️ ${shop.rating} | ${mockReviewsCount} รีวิว</div>
                     <div class="bg-white p-2.5 px-[14px] rounded-[12px] shadow-[0_6px_18px_rgba(18,30,45,0.04)] font-bold flex gap-2 items-center text-sm">ขายแล้ว ${this.formatNumber(product.orderCount || 0)} ชิ้น</div>
                 </div>
 
@@ -132,9 +134,9 @@ class ProductDetailManager {
                 <span class="inline-block bg-green-100 text-green-700 px-2.5 py-1 rounded-full font-bold text-sm">มีสินค้า</span>
                 <h1 id="product-title" class="m-2.5 mt-2 mb-2 text-2xl leading-snug font-extrabold">${product.title}</h1>
                 <div class="text-[#7b8894] text-[13px] mb-3 flex gap-4 items-center">
-                    <span class="shop-name">ร้านค้า: <a href="/shop.html?id=${product.vendorId}" class="text-blue-600 no-underline hover:underline">${mockVendorName}</a></span>
+                    <span class="shop-name">ร้านค้า: <a href="/shop.html?id=${product.vendorId}" class="text-blue-600 no-underline hover:underline">${shop.shopName}</a></span>
                     &middot; 
-                    <span class="sales">รหัสสินค้า: ${mockSku}</span>
+                    <span class="sales">รหัสสินค้า: ${product.id}</span>
                 </div>
                 
                 <div class="bg-[#fdf3f3] p-4 md:px-5 md:py-4 rounded-xl flex items-baseline gap-4 -mx-[22px] mb-[22px] mt-[18px]">
@@ -175,7 +177,7 @@ class ProductDetailManager {
                 <hr class="border-none h-[1px] bg-[#f1f5f8] -mx-[22px] my-[18px]">
 
                 <div class="flex gap-2 mt-[18px] flex-wrap pt-2.5" id="product-tags">
-                    ${mockTags.map(tag => `<div class="bg-white border border-red-200 text-red-600 p-2 px-3 rounded-full font-bold text-[13px]">${tag}</div>`).join('')}
+                    ${Tags.map(tag => `<div class="bg-white border border-red-200 text-red-600 p-2 px-3 rounded-full font-bold text-[13px]">${tag}</div>`).join('')}
                 </div>
 
                 <div class="grid grid-cols-[repeat(auto-fit,minmax(130px,1fr))] gap-3 mt-[22px]" id="detail-features">

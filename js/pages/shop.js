@@ -39,8 +39,6 @@ class ShopManager {
         document.addEventListener("DOMContentLoaded", () => this.init());
     }
 
-    // --- Core Initialization & Data Fetching ---
-
     async init() {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
         this.setupGeneralEventListeners();

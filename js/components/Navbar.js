@@ -137,7 +137,7 @@ class Navbar extends HTMLElement {
                             <i data-lucide="store" class="w-4 h-4"></i>
                             <span>ร้านค้า</span>
                         </a>
-                        <a href="#" class="${navLinkClasses}">
+                        <a href="/aboutme.html" class="${navLinkClasses}">
                             <i data-lucide="info" class="w-4 h-4"></i>
                             <span>เกี่ยวกับเรา</span>
                         </a>
@@ -246,7 +246,7 @@ class Navbar extends HTMLElement {
                             <i data-lucide="store" class="w-5 h-5"></i>
                             <span>ร้านค้า</span>
                         </a>
-                        <a href="#" class="${mobileNavLinkClasses}">
+                        <a href="/aboutme.html" class="${mobileNavLinkClasses}">
                             <i data-lucide="info" class="w-5 h-5"></i>
                             <span>เกี่ยวกับเรา</span>
                         </a>
