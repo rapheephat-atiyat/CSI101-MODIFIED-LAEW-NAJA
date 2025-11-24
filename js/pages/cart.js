@@ -89,13 +89,9 @@ class CartPage {
     }
 
     updateTotalPrice(total) {
-        
         if (this.totalPriceElement && this.subtotalPriceElement) {
-
-            const randomCarry = Math.floor(Math.random() * (400 - 300 + 1)) + 100;
-
+            const randomCarry = Math.floor(Math.random() * (600 - 300 + 1)) + 300;
             this.subtotalPriceElement.textContent = window.formatCurrency(total);
-
             this.carryPriceElement.textContent = window.formatCurrency(randomCarry)
             this.freePriceElement.textContent = window.formatCurrency(total * 0.025);
             this.totalPriceElement.textContent = window.formatCurrency(total * 1.025 + randomCarry);
@@ -113,8 +109,15 @@ class CartPage {
                 Swal.fire({ title: 'กำลังลบ...', didOpen: () => Swal.showLoading() });
                 await CartManager.removeItem(vendorProductId);
                 Swal.fire({ icon: 'success', title: 'ลบสำเร็จ!', text: 'สินค้านี้ถูกนำออกจากตะกร้าแล้ว', showConfirmButton: false, timer: 1000 });
+
                 await this.loadCartData();
-                // document.querySelector('navbar-eiei')?.refreshCart();
+
+                // Update Navbar
+                const navbar = document.querySelector('navbar-eiei');
+                if (navbar && navbar.refreshUI) {
+                    navbar.refreshUI();
+                }
+
             } catch (error) {
                 Swal.fire('ลบไม่สำเร็จ', error.message, 'error');
             }
@@ -122,31 +125,20 @@ class CartPage {
     }
 
     handleCheckout() {
-        window.location.href = "pay.html"
-        Swal.fire({
-            icon: 'info', title: 'ยังไม่พร้อมใช้งาน', text: 'ระบบชำระเงินกำลังอยู่ในระหว่างการพัฒนา', confirmButtonText: 'ตกลง'
-        });
+        // Get prices from elements
+        const subtotalText = this.subtotalPriceElement.textContent.replace(/[^0-9.-]+/g, "");
+        const feeText = this.freePriceElement.textContent.replace(/[^0-9.-]+/g, "");
+        const totalText = this.totalPriceElement.textContent.replace(/[^0-9.-]+/g, "");
+
+        const checkoutData = {
+            subtotal: parseFloat(subtotalText),
+            fee: parseFloat(feeText),
+            total: parseFloat(totalText)
+        };
+
+        localStorage.setItem("checkout_data", JSON.stringify(checkoutData));
+        window.location.href = "pay.html";
     }
-
-    handleCheckout() {
-    // ดึงยอดเงินจาก element
-    const subtotalText = this.subtotalPriceElement.textContent.replace(/[^0-9.-]+/g,"");
-    const feeText = this.freePriceElement.textContent.replace(/[^0-9.-]+/g,"");
-    const totalText = this.totalPriceElement.textContent.replace(/[^0-9.-]+/g,"");
-
-    const checkoutData = {
-        subtotal: parseFloat(subtotalText),
-        fee: parseFloat(feeText),
-        total: parseFloat(totalText)
-    };
-
-    // เก็บยอดเงินลง localStorage
-    localStorage.setItem("checkout_data", JSON.stringify(checkoutData));
-
-    // ไปยังหน้าชำระเงิน
-    window.location.href = "pay.html";
-}
-
 
     getLoadingHTML(message) {
         return `<div class="text-center py-10 text-gray-500">

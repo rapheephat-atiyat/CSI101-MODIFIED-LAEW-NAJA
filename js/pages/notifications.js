@@ -12,8 +12,7 @@ class NotificationPage {
             tabUnread: document.getElementById('tab-unread'),
             unreadCountBadge: document.getElementById('unread-count-badge'),
             mainContent: document.getElementById('main-content'),
-            // FIX: Ensure errorMessage element is collected
-            errorMessage: document.getElementById('error-message') 
+            errorMessage: document.getElementById('error-message')
         };
         this.currentFilter = 'ALL';
 
@@ -27,11 +26,11 @@ class NotificationPage {
             this.showAccessDenied();
             return;
         }
-        
+
         this.setupTabs();
         this.setupMarkAllButton();
         await this.fetchAndRenderNotifications();
-        this.updateTabStyles(); 
+        this.updateTabStyles();
     }
 
     showAccessDenied() {
@@ -55,13 +54,13 @@ class NotificationPage {
         this.updateTabStyles();
         this.renderNotificationList();
     }
-    
+
     updateTabStyles() {
         [this.elements.tabAll, this.elements.tabUnread].forEach(tab => {
             if (!tab) return;
             const isActive = tab.dataset.filter === this.currentFilter;
             tab.classList.remove('border-blue-500', 'text-blue-600', 'border-gray-200', 'text-gray-600', 'font-semibold', 'font-medium');
-            
+
             if (isActive) {
                 tab.classList.add('border-blue-500', 'text-blue-600', 'font-semibold');
             } else {
@@ -69,7 +68,7 @@ class NotificationPage {
             }
         });
     }
-    
+
     setupMarkAllButton() {
         this.elements.markAllBtn?.addEventListener('click', () => this.handleMarkAllAsRead());
     }
@@ -77,13 +76,12 @@ class NotificationPage {
     async fetchAndRenderNotifications() {
         this.toggleDisplay('loading');
         try {
-            // NOTE: The API call here is likely failing with 404 (Route Not Found)
             const response = await NotificationManager.getNotifications();
             this.allNotifications = response.data || [];
-            
+
             this.renderNotificationList();
             this.toggleDisplay('list');
-            
+
         } catch (error) {
             this.showError(error.message || 'ไม่สามารถโหลดรายการแจ้งเตือนได้');
         }
@@ -92,7 +90,7 @@ class NotificationPage {
     renderNotificationList() {
         const container = this.elements.notificationList;
         if (!container) return;
-        
+
         let filtered = this.allNotifications;
         if (this.currentFilter === 'UNREAD') {
             filtered = this.allNotifications.filter(n => n.status === 'UNREAD');
@@ -115,7 +113,7 @@ class NotificationPage {
 
             const card = document.createElement('div');
             card.className = `p-4 flex gap-4 rounded-xl transition-colors border border-gray-100 cursor-pointer ${isUnread ? 'bg-blue-50 hover:bg-blue-100 border-blue-200' : 'bg-white hover:bg-gray-50'}`;
-            
+
             card.innerHTML = `
                 <div class="flex-shrink-0 p-3 rounded-full ${isUnread ? 'bg-blue-200 text-blue-800' : 'bg-gray-100 text-gray-500'}">
                     <i data-lucide="${icon}" class="w-5 h-5"></i>
@@ -125,23 +123,23 @@ class NotificationPage {
                     <p class="text-sm text-gray-700">${n.content?.message || n.type}</p>
                     <p class="text-xs text-gray-500 mt-1">${this.formatDate(n.createdAt)}</p>
                 </div>
-                ${isUnread ? 
+                ${isUnread ?
                     `<button class="mark-read-btn flex-shrink-0 text-blue-600 hover:text-blue-800" data-id="${n.id}" title="ทำเครื่องหมายว่าอ่านแล้ว">
                         <i data-lucide="check-circle" class="w-5 h-5"></i>
-                    </button>` 
-                    : `<div class="flex-shrink-0 w-5 h-5"></div>` 
+                    </button>`
+                    : `<div class="flex-shrink-0 w-5 h-5"></div>`
                 }
             `;
             container.appendChild(card);
         });
-        
+
         container.querySelectorAll('.mark-read-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleMarkAsRead(e.currentTarget.dataset.id));
         });
 
         if (window.lucide) window.lucide.createIcons();
     }
-    
+
     renderEmptyState() {
         const isUnread = this.currentFilter === 'UNREAD';
         const message = isUnread ? 'ไม่มีการแจ้งเตือนที่ยังไม่ได้อ่าน' : 'ไม่พบรายการแจ้งเตือนทั้งหมด';
@@ -155,20 +153,22 @@ class NotificationPage {
         `;
     }
 
-    // --- Action Handlers (Omitted for brevity) ---
     async handleMarkAsRead(notificationId) {
         try {
             await NotificationManager.markAsRead(notificationId);
             const item = this.allNotifications.find(n => n.id === notificationId);
             if (item) item.status = 'READ';
-            this.renderNotificationList(); 
-            if (window.navbar && window.navbar.refreshUI) window.navbar.refreshUI(); 
-            
+
+            this.renderNotificationList();
+
+            const navbar = document.querySelector('navbar-eiei');
+            if (navbar && navbar.refreshUI) navbar.refreshUI();
+
         } catch (e) {
             Swal.fire('ข้อผิดพลาด', 'ไม่สามารถทำเครื่องหมายว่าอ่านแล้ว', 'error');
         }
     }
-    
+
     async handleMarkAllAsRead() {
         const unreadIds = this.allNotifications.filter(n => n.status === 'UNREAD').map(n => n.id);
 
@@ -176,23 +176,23 @@ class NotificationPage {
             Swal.fire('แจ้งเตือน', 'ไม่มีรายการที่ยังไม่ได้อ่าน', 'info');
             return;
         }
-        
+
         Swal.fire({ title: 'กำลังดำเนินการ...', didOpen: () => Swal.showLoading() });
-        
+
         try {
             await Promise.all(unreadIds.map(id => NotificationManager.markAsRead(id)));
-            
+
             this.allNotifications.forEach(n => n.status = 'READ');
             this.renderNotificationList();
-            
+
+            const navbar = document.querySelector('navbar-eiei');
+            if (navbar && navbar.refreshUI) navbar.refreshUI();
+
             Swal.fire('สำเร็จ', 'ทำเครื่องหมายทั้งหมดว่าอ่านแล้ว', 'success');
-            if (window.navbar && window.navbar.refreshUI) window.navbar.refreshUI();
         } catch (e) {
             Swal.fire('ข้อผิดพลาด', 'ไม่สามารถทำเครื่องหมายทั้งหมดว่าอ่านแล้ว', 'error');
         }
     }
-
-    // --- Utility Methods ---
 
     toggleDisplay(state) {
         [this.elements.loading, this.elements.error, this.elements.mainContent].forEach(el => el?.classList.add('hidden'));
@@ -200,12 +200,11 @@ class NotificationPage {
         if (state === 'loading') this.elements.loading?.classList.remove('hidden');
         else if (state === 'error') this.elements.error?.classList.remove('hidden');
         else if (state === 'list' || state === 'empty') this.elements.mainContent?.classList.remove('hidden');
-        
+
         if (window.lucide) window.lucide.createIcons();
     }
-    
+
     showError(message) {
-        // FIX: Safely access errorMessage element
         if (this.elements.errorMessage) {
             this.elements.errorMessage.textContent = message;
         }
@@ -223,7 +222,7 @@ class NotificationPage {
             default: return 'bell';
         }
     }
-    
+
     getNotificationTitle(type) {
         const titles = {
             'ORDER_STATUS_UPDATE': 'อัปเดตสถานะคำสั่งซื้อ',
@@ -235,7 +234,7 @@ class NotificationPage {
         };
         return titles[type] || 'การแจ้งเตือนทั่วไป';
     }
-    
+
     formatDate(dateString) {
         const date = new Date(dateString);
         return date.toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });

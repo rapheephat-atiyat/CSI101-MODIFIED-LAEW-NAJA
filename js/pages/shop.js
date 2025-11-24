@@ -37,7 +37,7 @@ class ShopManager {
         };
 
         if (!this.shopId) {
-            document.addEventListener("DOMContentLoaded", () => this.showError('ไม่พบ ID ร้านค้า'));
+            document.addEventListener("DOMContentLoaded", () => this.showError('Shop ID not found'));
             return;
         }
 
@@ -55,7 +55,7 @@ class ShopManager {
 
         try {
             if (typeof VendorProfileManager === 'undefined' || !this.auth) {
-                throw new Error("ไม่สามารถโหลดไฟล์บริการหลัก (Service Manager files missing).");
+                throw new Error("Service Manager files missing.");
             }
 
             const [shopResponse, userResponse] = await Promise.all([
@@ -75,14 +75,12 @@ class ShopManager {
             document.getElementById('page-title').textContent = shopData.shopName + ' - HiewHub';
 
         } catch (error) {
-            this.showError(error.message || 'ไม่สามารถเชื่อมต่อกับร้านค้าได้');
+            this.showError(error.message || 'Failed to connect to shop');
             console.error("Shop Load Error:", error);
         }
     }
 
-    setupGeneralEventListeners() {
-
-    }
+    setupGeneralEventListeners() { }
 
     _setLucideIcon(btn, newIcon) {
         if (!btn) return;
@@ -124,10 +122,10 @@ class ShopManager {
         try {
             const requestsResponse = await ProductRequestManager.getRequestsByVendorId(this.shopId);
             const count = requestsResponse.data?.length || 0;
-            btn.innerHTML = `<i data-lucide="list-checks" class="w-5 h-5"></i> คำขอสินค้า (${count})`;
+            btn.innerHTML = `<i data-lucide="list-checks" class="w-5 h-5"></i> Requests (${count})`;
         } catch (e) {
             console.warn("Failed to fetch request count:", e);
-            btn.innerHTML = `<i data-lucide="list-checks" class="w-5 h-5"></i> คำขอสินค้า (Error)`;
+            btn.innerHTML = `<i data-lucide="list-checks" class="w-5 h-5"></i> Requests (Error)`;
         }
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
@@ -138,7 +136,7 @@ class ShopManager {
 
         this.elements.shopAvatar.src = avatarUrl;
         this.elements.shopName.innerHTML = `<i data-lucide="store" class="w-8 h-8 text-blue-600"></i> ${data.shopName}`;
-        this.elements.shopDetail.textContent = data.shopDetail || 'ยินดีต้อนรับสู่ร้านของเราค่ะ/ครับ';
+        this.elements.shopDetail.textContent = data.shopDetail || 'Welcome to our shop';
         this.elements.shopRating.textContent = (data.rating || 0).toFixed(1);
         this.elements.shopFollowers.textContent = this.formatNumber(data.followers || 0);
         this.elements.shopProductsCount.textContent = this.formatNumber(data.vendorProduct?.length || 0);
@@ -184,12 +182,12 @@ class ShopManager {
                         <button 
                             onclick="shopManager.openEditProductModal('${p.id}')"
                             class="flex-1 flex items-center justify-center gap-1.5 bg-blue-100 text-blue-700 py-2 rounded-lg text-sm font-semibold hover:bg-blue-200 transition">
-                            <i data-lucide="square-pen" class="w-4 h-4"></i> แก้ไข
+                            <i data-lucide="square-pen" class="w-4 h-4"></i> Edit
                         </button>
                         <button 
                             onclick="shopManager.deleteProduct('${p.id}', '${p.title}')"
                             class="flex-1 flex items-center justify-center gap-1.5 bg-red-100 text-red-700 py-2 rounded-lg text-sm font-semibold hover:bg-red-200 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i> ลบ
+                            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
                         </button>
                     </div>
                 `;
@@ -215,7 +213,7 @@ class ShopManager {
                         <div class="flex items-center justify-between text-xs text-gray-500">
                             <span class="flex items-center gap-1">
                                 <i data-lucide="shopping-cart" class="w-3 h-3"></i>
-                                ${this.formatNumber(p.orderCount)} ขายแล้ว
+                                ${this.formatNumber(p.orderCount)} sold
                             </span>
                         </div>
                     </div>
@@ -242,8 +240,8 @@ class ShopManager {
             const response = await ProductManager.getProduct(productId);
             const product = response.data;
 
-            this.elements.modalTitle.innerHTML = `<i data-lucide="square-pen" class="w-6 h-6 text-blue-600"></i> แก้ไขสินค้า: ${product.title}`;
-            this.elements.modalSubmitBtn.textContent = 'บันทึกการแก้ไข';
+            this.elements.modalTitle.innerHTML = `<i data-lucide="square-pen" class="w-6 h-6 text-blue-600"></i> Edit Product: ${product.title}`;
+            this.elements.modalSubmitBtn.textContent = 'Save Changes';
             this.elements.modalSubmitBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'shadow-green-600/30');
             this.elements.modalSubmitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'shadow-blue-600/30');
 
@@ -266,7 +264,7 @@ class ShopManager {
             if (typeof lucide !== 'undefined') { lucide.createIcons(); }
 
         } catch (error) {
-            Swal.fire('ผิดพลาด', error.message || 'ไม่สามารถดึงข้อมูลสินค้าเพื่อแก้ไขได้', 'error');
+            Swal.fire('Error', error.message || 'Failed to fetch product data', 'error');
         }
     }
 
@@ -274,8 +272,8 @@ class ShopManager {
         this.elements.addProductForm?.reset();
         this.elements.productIdToEdit.value = '';
 
-        this.elements.modalTitle.innerHTML = `<i data-lucide="plus-circle" class="w-6 h-6 text-green-600"></i> เพิ่มสินค้าใหม่`;
-        this.elements.modalSubmitBtn.textContent = 'บันทึกสินค้า';
+        this.elements.modalTitle.innerHTML = `<i data-lucide="plus-circle" class="w-6 h-6 text-green-600"></i> Add New Product`;
+        this.elements.modalSubmitBtn.textContent = 'Save Product';
         this.elements.modalSubmitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'shadow-blue-600/30');
         this.elements.modalSubmitBtn.classList.add('bg-green-600', 'hover:bg-green-700', 'shadow-green-600/30');
 
@@ -308,18 +306,18 @@ class ShopManager {
         };
 
         if (!payload.title || isNaN(payload.price) || payload.price <= 0) {
-            Swal.fire('ข้อผิดพลาด', 'กรุณากรอกชื่อสินค้าและราคาปกติให้ถูกต้อง', 'warning');
+            Swal.fire('Error', 'Please enter valid title and price', 'warning');
             return;
         }
 
         if (payload.discountPrice && payload.discountPrice >= payload.price) {
-            Swal.fire('ข้อมูลไม่ถูกต้อง', 'ราคาส่วนลดต้องน้อยกว่าราคาปกติ', 'warning');
+            Swal.fire('Invalid', 'Discount price must be less than regular price', 'warning');
             return;
         }
 
         Swal.fire({
-            title: isEditMode ? 'กำลังบันทึกการแก้ไข...' : 'กำลังบันทึกสินค้าใหม่...',
-            text: 'กรุณารอสักครู่',
+            title: isEditMode ? 'Saving changes...' : 'Saving new product...',
+            text: 'Please wait',
             icon: 'info',
             allowOutsideClick: false,
             showConfirmButton: false,
@@ -331,10 +329,10 @@ class ShopManager {
 
             if (isEditMode) {
                 await ProductManager.updateProduct(productId, payload);
-                Swal.fire('สำเร็จ!', `สินค้า "${payload.title}" ถูกแก้ไขเรียบร้อยแล้ว`, 'success');
+                Swal.fire('Success!', `Product "${payload.title}" updated`, 'success');
             } else {
                 await ProductManager.addProduct(payload);
-                Swal.fire('สำเร็จ!', `สินค้าใหม่ "${payload.title}" ถูกเพิ่มเรียบร้อยแล้ว`, 'success');
+                Swal.fire('Success!', `New product "${payload.title}" added`, 'success');
             }
 
             this.closeAddProductModal();
@@ -342,26 +340,26 @@ class ShopManager {
 
         } catch (error) {
             console.error("Product Save Error:", error);
-            Swal.fire('เกิดข้อผิดพลาด', error.message || 'ไม่สามารถบันทึกสินค้าได้', 'error');
+            Swal.fire('Error', error.message || 'Failed to save product', 'error');
         }
     }
 
     async deleteProduct(productId, productTitle) {
         const result = await Swal.fire({
-            title: 'ยืนยันการลบสินค้า',
-            text: `คุณแน่ใจหรือไม่ที่จะลบสินค้า: "${productTitle}"? การดำเนินการนี้ไม่สามารถย้อนกลับได้`,
+            title: 'Confirm Delete',
+            text: `Are you sure you want to delete "${productTitle}"?`,
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
             cancelButtonColor: '#3085d6',
-            confirmButtonText: 'ใช่, ลบเลย!',
-            cancelButtonText: 'ยกเลิก'
+            confirmButtonText: 'Yes, delete it!',
+            cancelButtonText: 'Cancel'
         });
 
         if (result.isConfirmed) {
             Swal.fire({
-                title: 'กำลังลบสินค้า...',
-                text: 'กรุณารอสักครู่',
+                title: 'Deleting...',
+                text: 'Please wait',
                 icon: 'info',
                 allowOutsideClick: false,
                 showConfirmButton: false,
@@ -372,11 +370,11 @@ class ShopManager {
                 if (typeof ProductManager === 'undefined') throw new Error("ProductManager is not loaded.");
                 await ProductManager.deleteProduct(productId);
 
-                Swal.fire('ลบสำเร็จ!', 'สินค้าถูกลบออกจากร้านค้าแล้ว', 'success');
+                Swal.fire('Deleted!', 'Product has been deleted', 'success');
                 this.fetchShopData();
             } catch (error) {
                 console.error("Delete Product Error:", error);
-                Swal.fire('ผิดพลาด', error.message || 'ไม่สามารถลบสินค้าได้', 'error');
+                Swal.fire('Error', error.message || 'Failed to delete product', 'error');
             }
         }
     }
@@ -392,13 +390,13 @@ class ShopManager {
         if (isFollowing) {
             btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
             btn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
-            btn.querySelector('.follow-text').textContent = 'กำลังติดตาม';
+            btn.querySelector('.follow-text').textContent = 'Following';
 
             this._setLucideIcon(btn, 'user-check');
         } else {
             btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
             btn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
-            btn.querySelector('.follow-text').textContent = 'ติดตาม';
+            btn.querySelector('.follow-text').textContent = 'Follow';
 
             this._setLucideIcon(btn, 'user-plus');
         }
@@ -428,8 +426,8 @@ class ShopManager {
         if (!this.auth?.isLoggedIn()) {
             Swal.fire({
                 icon: 'warning',
-                title: 'เข้าสู่ระบบก่อน',
-                text: 'กรุณาเข้าสู่ระบบเพื่อเสนอสินค้า',
+                title: 'Login Required',
+                text: 'Please login to make a request',
             }).then(() => {
                 window.location.href = "/signIn.html";
             });
@@ -440,29 +438,29 @@ class ShopManager {
         const formLabelStyles = "block text-sm font-medium text-gray-700 mb-1";
 
         const { value: formValues } = Swal.fire({
-            title: 'เสนอสินค้าที่คุณอยากได้',
+            title: 'Request a Product',
             html: `
                 <div class="text-left p-2.5">
-                    <p class="text-xs text-red-500 mb-3">กรุณากรอกข้อมูลให้ละเอียดที่สุด</p>
-                    <label for="swal-title" class="${formLabelStyles}">หัวข้อ/ชื่อสินค้า (Required)</label>
-                    <input id="swal-title" class="${formInputStyles} mb-3" placeholder="เช่น นาฬิกา Seiko รุ่น Turtle">
+                    <p class="text-xs text-red-500 mb-3">Please fill in details</p>
+                    <label for="swal-title" class="${formLabelStyles}">Title (Required)</label>
+                    <input id="swal-title" class="${formInputStyles} mb-3" placeholder="e.g. Seiko Watch">
                     
-                    <label for="swal-details" class="${formLabelStyles}">รายละเอียด/คุณสมบัติ</label>
-                    <textarea id="swal-details" class="${formInputStyles} mb-3" rows="3" placeholder="สี, ขนาด, รุ่น, หรือเหตุผลที่ต้องการ..."></textarea>
+                    <label for="swal-details" class="${formLabelStyles}">Details</label>
+                    <textarea id="swal-details" class="${formInputStyles} mb-3" rows="3" placeholder="Color, size, model..."></textarea>
 
-                    <label for="swal-budget" class="${formLabelStyles}">งบประมาณที่ตั้งไว้ (฿)</label>
-                    <input id="swal-budget" type="number" step="0.01" min="0" class="${formInputStyles} mb-3" placeholder="เช่น 15000">
+                    <label for="swal-budget" class="${formLabelStyles}">Budget (THB)</label>
+                    <input id="swal-budget" type="number" step="0.01" min="0" class="${formInputStyles} mb-3" placeholder="e.g. 15000">
 
-                    <label for="swal-link" class="${formLabelStyles}">ลิงก์อ้างอิง (URL)</label>
-                    <input id="swal-link" class="${formInputStyles} mb-3" placeholder="URL จากร้านค้าอื่น ๆ">
+                    <label for="swal-link" class="${formLabelStyles}">Reference Link</label>
+                    <input id="swal-link" class="${formInputStyles} mb-3" placeholder="URL">
 
-                    <label for="swal-images" class="${formLabelStyles}">รูปภาพอ้างอิง (URL - แยกบรรทัด)</label>
-                    <textarea id="swal-images" class="${formInputStyles}" rows="2" placeholder="ใส่ URL รูปภาพแยกกันคนละบรรทัด"></textarea>
+                    <label for="swal-images" class="${formLabelStyles}">Image URLs (One per line)</label>
+                    <textarea id="swal-images" class="${formInputStyles}" rows="2" placeholder="URL1\nURL2"></textarea>
                 </div>
             `,
             focusConfirm: false,
             showCancelButton: true,
-            confirmButtonText: 'ส่งคำขอเสนอสินค้า',
+            confirmButtonText: 'Submit Request',
             showLoaderOnConfirm: true,
             preConfirm: () => {
                 const title = document.getElementById('swal-title').value;
@@ -472,7 +470,7 @@ class ShopManager {
                 const images = document.getElementById('swal-images').value;
 
                 if (!title.trim()) {
-                    Swal.showValidationMessage('กรุณากรอกหัวข้อ/ชื่อสินค้า');
+                    Swal.showValidationMessage('Title is required');
                     return false;
                 }
 
@@ -494,7 +492,7 @@ class ShopManager {
 
         if (formValues) {
             Swal.fire({
-                title: 'กำลังส่งคำขอ...',
+                title: 'Sending request...',
                 icon: 'info',
                 allowOutsideClick: false,
                 showConfirmButton: false,
@@ -503,20 +501,20 @@ class ShopManager {
 
             try {
                 if (typeof ProductRequestManager === 'undefined' || !window.ProductRequestManager.createRequest) {
-                    throw new Error("ProductRequestManager is not loaded or missing method.");
+                    throw new Error("ProductRequestManager is not loaded.");
                 }
                 ProductRequestManager.createRequest(formValues);
 
                 Swal.fire({
                     icon: 'success',
-                    title: 'ส่งคำขอสำเร็จ!',
-                    text: 'คำขอของคุณถูกส่งไปยังร้านค้าเรียบร้อยแล้ว',
+                    title: 'Sent!',
+                    text: 'Your request has been sent',
                     timer: 2500
                 });
 
             } catch (error) {
                 console.error("Wishlist Request Error:", error);
-                Swal.fire('เกิดข้อผิดพลาด', error.message || 'ไม่สามารถส่งคำขอได้', 'error');
+                Swal.fire('Error', error.message || 'Failed to send request', 'error');
             }
         }
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }

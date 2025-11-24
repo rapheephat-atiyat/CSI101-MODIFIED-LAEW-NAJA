@@ -5,6 +5,8 @@ class Navbar extends HTMLElement {
         this.profile = null;
         this.cartItemCount = 0;
         this.notificationCount = 0;
+        this.notifications = [];
+        this.pollInterval = null;
     }
 
     async connectedCallback() {
@@ -16,14 +18,36 @@ class Navbar extends HTMLElement {
 
         this.handleTokenFromURL();
         await this.loadProfile();
-        await this.fetchCartCount();
-        await this.fetchNotificationCount(); 
+
+        if (this.auth && this.auth.isLoggedIn()) {
+            await this.fetchCartCount();
+            await this.fetchNotificationCount();
+            this.startPolling(); // เริ่มเช็คข้อมูลอัตโนมัติ
+        }
 
         this.render();
         this.bindEvents();
         this.updateAuthUI();
 
         if (window.lucide) window.lucide.createIcons();
+    }
+
+    disconnectedCallback() {
+        this.stopPolling();
+    }
+
+    startPolling() {
+        this.stopPolling();
+        this.pollInterval = setInterval(() => {
+            this.refreshUI(true);
+        }, 5000); // เช็คทุก 5 วินาที
+    }
+
+    stopPolling() {
+        if (this.pollInterval) {
+            clearInterval(this.pollInterval);
+            this.pollInterval = null;
+        }
     }
 
     async loadProfile() {
@@ -56,12 +80,10 @@ class Navbar extends HTMLElement {
             } catch (e) {
                 this.cartItemCount = 0;
             }
-        } else {
-            this.cartItemCount = 0;
         }
     }
-    
-    async fetchNotificationCount() { 
+
+    async fetchNotificationCount() {
         if (this.auth && this.auth.isLoggedIn() && typeof NotificationManager !== 'undefined') {
             try {
                 const countResponse = await NotificationManager.getUnreadCount();
@@ -69,19 +91,146 @@ class Navbar extends HTMLElement {
             } catch (e) {
                 this.notificationCount = 0;
             }
-        } else {
-            this.notificationCount = 0;
         }
     }
 
+    async loadNotifications() {
+        if (typeof NotificationManager === 'undefined') return;
 
-    async refreshUI() { 
+        const listContainer = this.querySelector('#notification-list');
+        if (!listContainer) return;
+
+        listContainer.innerHTML = `<div class="px-4 py-4 text-center text-gray-500"><i data-lucide="loader-circle" class="w-5 h-5 animate-spin mx-auto"></i></div>`;
+        if (window.lucide) window.lucide.createIcons();
+
+        try {
+            const res = await NotificationManager.getNotifications();
+            this.notifications = res.data ? res.data.slice(0, 5) : [];
+            this.renderNotificationsDropdown();
+        } catch (error) {
+            listContainer.innerHTML = `<div class="px-4 py-3 text-sm text-red-500 text-center">โหลดข้อมูลไม่สำเร็จ</div>`;
+        }
+    }
+
+    renderNotificationsDropdown() {
+        const listContainer = this.querySelector('#notification-list');
+        if (!listContainer) return;
+
+        if (this.notifications.length === 0) {
+            listContainer.innerHTML = `<div class="px-4 py-8 text-sm text-gray-500 text-center flex flex-col items-center"><i data-lucide="bell-off" class="w-8 h-8 mb-2 opacity-50"></i>ไม่มีรายการแจ้งเตือน</div>`;
+        } else {
+            listContainer.innerHTML = this.notifications.map(n => {
+                const isUnread = n.status === 'UNREAD';
+                const icon = this.getNotificationIcon(n.type);
+                const title = this.getNotificationTitle(n.type);
+
+                return `
+                <div class="notification-item px-4 py-3 border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition-colors ${isUnread ? 'bg-blue-50/50' : ''}" 
+                     data-id="${n.id}" 
+                     data-status="${n.status}">
+                    <div class="flex gap-3">
+                        <div class="flex-shrink-0 mt-1">
+                            <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+                                <i data-lucide="${icon}" class="w-4 h-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex justify-between items-start">
+                                <p class="text-sm font-semibold text-gray-900 truncate">${title}</p>
+                                ${isUnread ? '<span class="w-2 h-2 bg-red-500 rounded-full mt-1.5"></span>' : ''}
+                            </div>
+                            <p class="text-xs text-gray-600 line-clamp-2 mt-0.5">${n.content?.message || '-'}</p>
+                            <p class="text-[10px] text-gray-400 mt-1">${this.formatDate(n.createdAt)}</p>
+                        </div>
+                    </div>
+                </div>
+                `;
+            }).join('');
+
+            listContainer.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    this.handleNotificationClick(item.dataset.id, item.dataset.status);
+                });
+            });
+        }
+        if (window.lucide) window.lucide.createIcons();
+    }
+
+    getNotificationIcon(type) {
+        switch (type) {
+            case 'ORDER_STATUS_UPDATE': return 'package';
+            case 'NEW_ORDER': return 'shopping-bag';
+            case 'REQUEST_APPROVED': return 'check-circle';
+            case 'REQUEST_REJECTED': return 'x-circle';
+            case 'ADMIN_ALERT': return 'shield-alert';
+            default: return 'bell';
+        }
+    }
+
+    getNotificationTitle(type) {
+        const titles = {
+            'ORDER_STATUS_UPDATE': 'อัปเดตสถานะคำสั่งซื้อ',
+            'NEW_ORDER': 'มีคำสั่งซื้อใหม่',
+            'REQUEST_APPROVED': 'คำขอสินค้าได้รับการอนุมัติ',
+            'REQUEST_REJECTED': 'คำขอสินค้าถูกปฏิเสธ',
+            'ADMIN_ALERT': 'ข้อความจากผู้ดูแลระบบ'
+        };
+        return titles[type] || 'การแจ้งเตือน';
+    }
+
+    formatDate(dateString) {
+        const date = new Date(dateString);
+        const now = new Date();
+        const diff = now - date;
+        if (diff < 86400000) {
+            return date.toLocaleTimeString('th-TH', { hour: '2-digit', minute: '2-digit' });
+        }
+        return date.toLocaleDateString('th-TH', { day: 'numeric', month: 'short' });
+    }
+
+    async handleNotificationClick(id, status) {
+        if (status === 'UNREAD') {
+            try {
+                await NotificationManager.markAsRead(id);
+                if (this.notificationCount > 0) {
+                    this.notificationCount--;
+                    this.updateBadges();
+                }
+            } catch (e) {
+                console.error("Failed to mark as read", e);
+            }
+        }
+        window.location.href = '/notifications.html';
+    }
+
+    async refreshUI(isPolling = false) {
+        const prevNotifCount = this.notificationCount;
+        const prevCartCount = this.cartItemCount;
+
         await this.fetchCartCount();
         await this.fetchNotificationCount();
-        this.render();
-        this.bindEvents();
-        this.updateAuthUI();
-        if (window.lucide) window.lucide.createIcons();
+
+        if (prevNotifCount !== this.notificationCount || prevCartCount !== this.cartItemCount) {
+            this.updateBadges();
+        }
+
+        if (!isPolling) {
+            this.updateAuthUI();
+        }
+    }
+
+    updateBadges() {
+        const cartBadges = this.querySelectorAll('#cart-btn span, #mobile-cart-btn span');
+        cartBadges.forEach(badge => {
+            badge.textContent = this.cartItemCount;
+            badge.style.display = this.cartItemCount > 0 ? 'flex' : 'none';
+        });
+
+        const notifBadges = this.querySelectorAll('#notifications-btn span, #mobile-notifications-btn span');
+        notifBadges.forEach(badge => {
+            badge.textContent = this.notificationCount;
+            badge.style.display = this.notificationCount > 0 ? 'flex' : 'none';
+        });
     }
 
     render() {
@@ -89,12 +238,11 @@ class Navbar extends HTMLElement {
         const firstname = user?.firstname || 'ผู้ใช้';
         const lastname = user?.lastname || '';
         const email = user?.email || '';
-
         const image = user?.image && user.image !== 'null' && user.image !== 'undefined' ? user.image : null;
-
         const initial = firstname.charAt(0).toUpperCase();
+
         const cartCount = this.cartItemCount;
-        const notificationCount = this.notificationCount; 
+        const notificationCount = this.notificationCount;
 
         let shopLink = "/shop.html";
         if (user && user.role === 'VENDOR' && user.vendorProfile?.id) {
@@ -112,7 +260,6 @@ class Navbar extends HTMLElement {
              </a>` : '';
 
         const showNotificationBadge = notificationCount > 0;
-
 
         this.innerHTML = `
         <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-gray-100">
@@ -168,11 +315,11 @@ class Navbar extends HTMLElement {
                                     <h4 class="font-bold text-gray-900 text-sm">การแจ้งเตือน (${notificationCount})</h4>
                                     <a href="/notifications.html" class="text-xs text-blue-600 hover:underline">ดูทั้งหมด</a>
                                 </div>
-                                <div id="notification-list" class="max-h-80 overflow-y-auto">
-                                    <div class="px-4 py-3 text-sm text-gray-500 text-center">ไม่มีรายการแจ้งเตือนใหม่</div>
-                                </div>
+                                <div id="notification-list" class="max-h-96 overflow-y-auto scrollbar-thin">
+                                    </div>
                             </div>
                         </div>
+
                         <a href="/signin.html" id="desktop-login-btn" class="hidden lg:flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
                             <span>เข้าสู่ระบบ</span>
                         </a>
@@ -349,21 +496,16 @@ class Navbar extends HTMLElement {
     bindEvents() {
         const mobileMenuToggle = this.querySelector("#mobile-menu-toggle");
         const mobileMenu = this.querySelector("#mobile-menu");
-        
-        if (mobileMenuToggle && mobileMenu) {
-            mobileMenuToggle.addEventListener("click", (e) => { 
-                e.preventDefault(); 
-                
-                mobileMenu.classList.toggle("hidden");
 
+        if (mobileMenuToggle && mobileMenu) {
+            mobileMenuToggle.addEventListener("click", (e) => {
+                e.preventDefault();
+                mobileMenu.classList.toggle("hidden");
                 const iconContainer = mobileMenuToggle;
                 const iconEl = iconContainer.querySelector('[data-lucide]') || iconContainer.querySelector('svg');
-
                 if (iconEl) {
                     const currentIcon = iconEl.getAttribute("data-lucide");
-
                     const targetEl = iconEl.tagName === 'SVG' ? iconEl : iconContainer.querySelector('i');
-                    
                     if (targetEl) {
                         const newIcon = currentIcon === "menu" ? "x" : "menu";
                         targetEl.setAttribute("data-lucide", newIcon);
@@ -372,19 +514,24 @@ class Navbar extends HTMLElement {
                 if (window.lucide) window.lucide.createIcons();
             });
         }
-        
+
         const desktopUserMenuBtn = this.querySelector("#desktop-user-menu-btn");
         const desktopUserDropdown = this.querySelector("#desktop-user-dropdown");
-        
+
         if (desktopUserMenuBtn && desktopUserDropdown) {
             const getRotatableIcon = () => desktopUserMenuBtn.querySelector('[data-lucide="chevron-down"]') || desktopUserMenuBtn.querySelector('svg[data-lucide="chevron-down"]');
-            
+
             desktopUserMenuBtn.addEventListener("click", (e) => {
-                e.preventDefault(); 
+                e.preventDefault();
                 e.stopPropagation();
 
                 const isHidden = desktopUserDropdown.classList.contains("hidden");
                 const iconEl = getRotatableIcon();
+
+                const notificationDropdown = this.querySelector("#notification-dropdown");
+                if (notificationDropdown && !notificationDropdown.classList.contains("hidden")) {
+                    notificationDropdown.classList.add("hidden");
+                }
 
                 if (isHidden) {
                     desktopUserDropdown.classList.remove("hidden");
@@ -398,21 +545,16 @@ class Navbar extends HTMLElement {
 
             document.addEventListener("click", (e) => {
                 const iconEl = getRotatableIcon();
-
                 if (!this.contains(e.target) && !desktopUserDropdown.classList.contains("hidden")) {
                     desktopUserDropdown.classList.add("hidden");
                     if (iconEl) iconEl.classList.remove("rotate-180");
                 }
             });
-
-            desktopUserDropdown.addEventListener("click", (e) => {
-                e.stopPropagation();
-            });
         }
 
         const notificationsBtn = this.querySelector("#notifications-btn");
         const notificationDropdown = this.querySelector("#notification-dropdown");
-        
+
         if (notificationsBtn && notificationDropdown) {
             notificationsBtn.addEventListener("click", (e) => {
                 e.preventDefault();
@@ -424,8 +566,13 @@ class Navbar extends HTMLElement {
                     const iconEl = this.querySelector('[data-lucide="chevron-down"]') || this.querySelector('svg[data-lucide="chevron-down"]');
                     if (iconEl) iconEl.classList.remove("rotate-180");
                 }
-                
+
+                const isHidden = notificationDropdown.classList.contains("hidden");
                 notificationDropdown.classList.toggle("hidden");
+
+                if (isHidden) {
+                    this.loadNotifications();
+                }
 
                 if (window.lucide) window.lucide.createIcons();
             });
