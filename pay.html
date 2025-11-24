@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,6 +8,7 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
+
 <body class="bg-gray-100 p-6">
   <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
     <h1 class="text-2xl font-bold mb-4 text-center">ชำระเงิน</h1>
@@ -51,20 +53,23 @@
       <div class="space-y-3">
         <label class="flex items-center p-3 border rounded-xl cursor-pointer bg-white hover:bg-green-50">
           <input type="radio" name="bank" value="kbank" class="mr-3" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Kasikorn_Bank_logo.svg/1200px-Kasikorn_Bank_logo.svg.png"
-               class="w-8 h-8 mr-3 rounded" />
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Kasikorn_Bank_logo.svg/1200px-Kasikorn_Bank_logo.svg.png"
+            class="w-8 h-8 mr-3 rounded" />
           <span class="font-medium">กสิกรไทย (KBank)</span>
         </label>
         <label class="flex items-center p-3 border rounded-xl cursor-pointer bg-white hover:bg-green-50">
           <input type="radio" name="bank" value="scb" class="mr-3" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Siam_Commercial_Bank_logo.svg/1024px-Siam_Commercial_Bank_logo.svg.png"
-               class="w-8 h-8 mr-3 rounded" />
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Siam_Commercial_Bank_logo.svg/1024px-Siam_Commercial_Bank_logo.svg.png"
+            class="w-8 h-8 mr-3 rounded" />
           <span class="font-medium">ไทยพาณิชย์ (SCB)</span>
         </label>
         <label class="flex items-center p-3 border rounded-xl cursor-pointer bg-white hover:bg-green-50">
           <input type="radio" name="bank" value="ktb" class="mr-3" />
-          <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Krung_Thai_Bank_logo.svg/1024px-Krung_Thai_Bank_logo.svg.png"
-               class="w-8 h-8 mr-3 rounded" />
+          <img
+            src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Krung_Thai_Bank_logo.svg/1024px-Krung_Thai_Bank_logo.svg.png"
+            class="w-8 h-8 mr-3 rounded" />
           <span class="font-medium">กรุงไทย (KTB)</span>
         </label>
       </div>
@@ -74,9 +79,7 @@
     <!-- PromptPay QR Box -->
     <div id="promptpay-qr-box" class="hidden mt-4 p-4 border rounded-xl bg-gray-50">
       <p class="font-semibold mb-2 text-center">สแกนเพื่อชำระเงินผ่านพร้อมเพย์</p>
-      <img src="https://promptpay.io/0891234567.png"
-           alt="QR PromptPay"
-           class="w-56 mx-auto rounded-lg shadow">
+      <img src="https://promptpay.io/0891234567.png" alt="QR PromptPay" class="w-56 mx-auto rounded-lg shadow">
       <p class="text-center text-sm text-gray-600 mt-2">เบอร์: 089-123-4567</p>
     </div>
 
@@ -88,67 +91,91 @@
 
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // โหลดข้อมูลยอดเงินจาก localStorage
-        const data = JSON.parse(localStorage.getItem("checkout_data"));
-        if (data) {
-            document.getElementById("subtotal-price").textContent = data.subtotal.toLocaleString() + " บาท";
-            document.getElementById("fee-price").textContent = data.fee.toLocaleString() + " บาท";
-            document.getElementById("total-price").textContent = data.total.toLocaleString() + " บาท";
+      // โหลดข้อมูลยอดเงินจาก localStorage
+      const data = JSON.parse(localStorage.getItem("checkout_data"));
+      if (data) {
+        document.getElementById("subtotal-price").textContent = data.subtotal.toLocaleString() + " บาท";
+        document.getElementById("fee-price").textContent = data.fee.toLocaleString() + " บาท";
+        document.getElementById("total-price").textContent = data.total.toLocaleString() + " บาท";
+      }
+
+      const qrBox = document.getElementById("promptpay-qr-box");
+      const bankBox = document.getElementById("bank-box");
+      const paymentOptions = document.querySelectorAll(".payment-option");
+
+      paymentOptions.forEach(option => {
+        option.addEventListener("change", () => {
+          if (option.value === "promptpay") {
+            qrBox.classList.remove("hidden");
+            bankBox.classList.add("hidden");
+          }
+          else if (option.value === "bank") {
+            bankBox.classList.remove("hidden");
+            qrBox.classList.add("hidden");
+          }
+          else {
+            qrBox.classList.add("hidden");
+            bankBox.classList.add("hidden");
+          }
+        });
+      });
+      document.getElementById("confirm-payment").addEventListener("click", async () => {
+        const selectedPayment = document.querySelector('input[name="payment"]:checked')?.value;
+
+        if (!selectedPayment) {
+          Swal.fire({ icon: 'warning', title: 'กรุณาเลือกวิธีการชำระเงิน' });
+          return;
         }
 
-        // แสดง/ซ่อนช่องชำระเงิน
-        const qrBox = document.getElementById("promptpay-qr-box");
-        const bankBox = document.getElementById("bank-box");
-        const paymentOptions = document.querySelectorAll(".payment-option");
+        if (selectedPayment === 'bank' && !document.querySelector('input[name="bank"]:checked')) {
+          Swal.fire({ icon: 'warning', title: 'กรุณาเลือกธนาคาร' });
+          return;
+        }
 
-        paymentOptions.forEach(option => {
-            option.addEventListener("change", () => {
-                if (option.value === "promptpay") {
-                    qrBox.classList.remove("hidden");
-                    bankBox.classList.add("hidden");
-                } 
-                else if (option.value === "bank") {
-                    bankBox.classList.remove("hidden");
-                    qrBox.classList.add("hidden");
-                } 
-                else {
-                    qrBox.classList.add("hidden");
-                    bankBox.classList.add("hidden");
-                }
-            });
-        });
+        try {
+          Swal.fire({ title: 'กำลังดำเนินการ...', didOpen: () => Swal.showLoading() });
 
-        // ยืนยันการชำระเงิน
-        document.getElementById("confirm-payment").addEventListener("click", () => {
-            const selectedPayment = document.querySelector('input[name="payment"]:checked')?.value;
+          const cartRes = await CartManager.getCart();
+          const cartItems = cartRes.data;
 
-            if (!selectedPayment) {
-                Swal.fire({ icon: 'warning', title: 'กรุณาเลือกวิธีการชำระเงิน' });
-                return;
-            }
+          if (cartItems.length === 0) {
+            throw new Error("ไม่พบสินค้าในตะกร้า");
+          }
 
-            // ตรวจสอบถ้าเลือกธนาคาร ต้องเลือกธนาคารด้วย
-            let bankName = '';
-            if (selectedPayment === 'bank') {
-                const bank = document.querySelector('input[name="bank"]:checked');
-                if (!bank) {
-                    Swal.fire({ icon: 'warning', title: 'กรุณาเลือกธนาคาร' });
-                    return;
-                }
-                bankName = bank.nextElementSibling.textContent;
-            }
-
-            Swal.fire({
-                icon: 'success',
-                title: 'ชำระเงินสำเร็จ!',
-                html: bankName ? `ธนาคารที่เลือก: ${bankName}` : '',
-                timer: 2000,
-                showConfirmButton: false
+          for (const item of cartItems) {
+            await OrderManager.createOrder({
+              vendorProductId: item.vendorProductId,
+              quantity: item.quantity,
             });
 
-            setTimeout(() => { window.location.href = "index.html"; }, 2000);
-        });
+            await CartManager.removeItem(item.vendorProductId);
+          }
+
+          localStorage.removeItem("checkout_data");
+
+          await Swal.fire({
+            icon: 'success',
+            title: 'สั่งซื้อสำเร็จ!',
+            text: 'ขอบคุณที่ใช้บริการ',
+            timer: 2000,
+            showConfirmButton: false
+          });
+
+          window.location.href = "orders.html";
+
+        } catch (error) {
+          Swal.fire({
+            icon: 'error',
+            title: 'เกิดข้อผิดพลาด',
+            text: error.message
+          });
+        }
+      });
     });
   </script>
+  <script src="js/config.js"></script>
+  <script src="js/services/CartManager.js"></script>
+  <script src="js/services/OrderManager.js"></script>
 </body>
+
 </html>
