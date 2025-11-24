@@ -4,7 +4,6 @@ class ShopManager {
         this.currentUserId = null;
         this.isShopOwner = false;
         
-        // Ensure Services exist before instantiating
         this.auth = typeof AuthManager !== 'undefined' ? new AuthManager() : null; 
         this.navbarEl = document.querySelector('navbar-eiei');
 
@@ -14,7 +13,6 @@ class ShopManager {
             shopContainer: document.getElementById('shop-container'),
             errorMessage: document.getElementById('error-message'),
             
-            // Buttons/Controls
             followBtn: document.getElementById('follow-btn'),
             addProductBtn: document.getElementById('add-product-btn'),
             wishlistRequestBtn: document.getElementById('wishlist-request-btn'),
@@ -23,7 +21,6 @@ class ShopManager {
             addProductModal: document.getElementById('add-product-modal'),
             addProductForm: document.getElementById('add-product-form'),
 
-            // Display Elements
             shopAvatar: document.getElementById('shop-avatar'),
             shopName: document.getElementById('shop-name'),
             shopDetail: document.getElementById('shop-detail'),
@@ -41,8 +38,6 @@ class ShopManager {
 
         document.addEventListener("DOMContentLoaded", () => this.init());
     }
-
-    // --- Core Initialization & Data Fetching ---
 
     async init() {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
@@ -71,7 +66,7 @@ class ShopManager {
             this.renderProducts(shopData.vendorProduct);
             await this.updateUIBasedOnUserRole(shopData);
 
-            this.toggleDisplay('shop'); // SUCCESS: Show shop page
+            this.toggleDisplay('shop');
             document.getElementById('page-title').textContent = shopData.shopName + ' - HiewHub';
 
             if (this.navbarEl && this.navbarEl.refreshCart) {
@@ -82,12 +77,6 @@ class ShopManager {
             this.showError(error.message || 'ไม่สามารถเชื่อมต่อกับร้านค้าได้');
             console.error("Shop Load Error:", error);
         }
-    }
-
-    // --- UI Logic & Event Setup ---
-
-    setupGeneralEventListeners() {
-        // No explicit DOM binding needed here as HTML uses inline `onclick="shopManager.methodName()"`
     }
 
     async updateUIBasedOnUserRole(shopData) {
@@ -103,7 +92,6 @@ class ShopManager {
 
             await this.updateWishlistRequestCount();
         } else {
-            // Customer/Guest view
             getEl('addProductBtn')?.classList.add('hidden');
             getEl('viewWishlistRequestsBtn')?.classList.add('hidden');
 
@@ -121,7 +109,6 @@ class ShopManager {
                 followBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
                 followBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
                 
-                // FIX: Safely update the icon by searching for the element with the data-lucide attribute (either <i> or <svg>)
                 const iconEl = followBtn.querySelector('[data-lucide]') || followBtn.querySelector('svg');
                 followBtn.querySelector('.follow-text').textContent = 'ติดตาม';
                 if (iconEl) {
@@ -150,8 +137,6 @@ class ShopManager {
         }
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
-
-    // --- Rendering Methods ---
 
     renderShopProfile(data) {
         const user = data.user || {};
@@ -232,8 +217,6 @@ class ShopManager {
 
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
-
-    // --- Action Handlers ---
 
     toggleFollow() {
         const btn = this.elements.followBtn;
@@ -454,8 +437,6 @@ class ShopManager {
         }
     }
 
-    // --- Utility Methods ---
-
     toggleDisplay(state) {
         this.elements.loadingState?.classList.add('hidden');
         this.elements.shopContainer?.classList.add('hidden');
@@ -483,6 +464,5 @@ class ShopManager {
     }
 }
 
-// Global binding and initialization
 const shopManager = new ShopManager();
 window.shopManager = shopManager;

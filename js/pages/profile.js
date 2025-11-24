@@ -1,5 +1,3 @@
-// js/pages/profile.js
-
 class ProfilePage {
     constructor() {
         this.auth = new AuthManager();
@@ -163,55 +161,52 @@ class ProfilePage {
         const getShopLink = (u) => u.vendorProfile?.id ? `/shop.html?id=${u.vendorProfile.id}` : '/shop.html';
         const isVendor = user.role === 'VENDOR';
 
-        // 1. Set default state: Apply for Vendor
+        const baseClass = 'w-full flex items-center justify-center gap-2 mt-6 px-5 py-2.5 rounded-xl transition-all duration-300 font-medium text-white';
+        
         const resetToRegister = () => {
             button.removeAttribute('disabled');
             button.setAttribute('onclick', 'window.profilePage.checkVendorRequirements(event)');
             button.setAttribute('href', '#');
-            button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
+            button.className = `${baseClass} bg-gradient-to-r from-purple-600 to-indigo-600 hover:shadow-lg hover:scale-[1.03] hover:-translate-y-[2px]`;
             button.innerHTML = '<i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว';
         };
 
         actionArea.classList.remove('hidden');
 
         if (isVendor) {
-            // User is already a VENDOR
             button.removeAttribute('onclick');
             button.setAttribute('href', getShopLink(user));
-            button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
+            button.className = `${baseClass} bg-green-600 hover:shadow-lg hover:scale-[1.03] hover:-translate-y-[2px]`;
             button.innerHTML = '<i data-lucide="package" class="w-5 h-5"></i> เยี่ยมชมร้านค้าของคุณ';
         } else {
             try {
-                // Assuming VendorManager.getRequestStatus() returns { status: "PENDING" | "APPROVED" | "REJECTED" }
                 const statusData = await VendorManager.getRequestStatus();
-                const status = statusData.status;
+                const status = statusData && statusData.data ? statusData.data.status : null; 
 
                 if (status === 'APPROVED') {
                     button.removeAttribute('onclick');
                     button.setAttribute('href', getShopLink(user));
-                    button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
+                    button.className = `${baseClass} bg-green-600 hover:shadow-lg hover:scale-[1.03] hover:-translate-y-[2px]`;
                     button.innerHTML = '<i data-lucide="package" class="w-5 h-5"></i> เยี่ยมชมร้านค้าของคุณ';
 
                 } else if (status === 'PENDING') {
                     button.removeAttribute('href');
                     button.setAttribute('disabled', 'true');
                     button.removeAttribute('onclick');
-                    button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-amber-500 text-white px-5 py-2.5 rounded-xl shadow-md cursor-not-allowed font-medium';
+                    button.className = `${baseClass} bg-amber-500 shadow-md cursor-not-allowed`;
                     button.innerHTML = '<i data-lucide="clock" class="w-5 h-5"></i> รอการอนุมัติ';
 
                 } else if (status === 'REJECTED') {
                     button.removeAttribute('href');
                     button.setAttribute('disabled', 'true');
                     button.removeAttribute('onclick');
-                    button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-gray-400 text-white px-5 py-2.5 rounded-xl shadow-md cursor-not-allowed font-medium';
+                    button.className = `${baseClass} bg-gray-400 shadow-md cursor-not-allowed`;
                     button.innerHTML = '<i data-lucide="x-circle" class="w-5 h-5"></i> ถูกปฏิเสธ';
                     
                 } else {
-                    // Default: Ready to apply (if status is unrecognized or empty)
                     resetToRegister();
                 }
             } catch (e) {
-                // Status not found / error -> Assume not applied yet
                 resetToRegister();
             }
         }
@@ -394,13 +389,10 @@ class ProfilePage {
             Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
 
             if (id) { 
-                // FIX: 1. Update existing address - Sanitize payload for PATCH request
-                // This resolves the "Silent Failure" on edit
                 Object.keys(payload).forEach(key => (payload[key] === null || payload[key] === '') && delete payload[key]);
                 
                 await this.userManger.updateAddress(id, payload); 
             } else {
-                // 2. Create new address (using nested object update, which is correct for this backend contract)
                 await this.userManger.update(this.currentUser.id, { address: payload }); 
             }
 
@@ -429,6 +421,5 @@ class ProfilePage {
     }
 }
 
-// Global binding
 const profilePage = new ProfilePage();
 window.profilePage = profilePage;
