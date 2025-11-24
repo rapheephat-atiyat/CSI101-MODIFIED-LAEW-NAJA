@@ -19,7 +19,7 @@
         <span id="subtotal-price">0 บาท</span>
       </div>
       <div class="flex justify-between border-b pb-2 mt-2">
-        <span>ค่าภาษี/ค่าธรรมเนียม</span>
+        <span>ค่าธรรมเนียม</span>
         <span id="fee-price">0 บาท</span>
       </div>
       <div class="flex justify-between text-xl font-bold mt-3">
@@ -47,22 +47,22 @@
 
     <!-- Bank Transfer Box -->
     <div id="bank-box" class="hidden mt-4 p-4 border border-green-300 rounded-xl bg-green-50">
-      <p class="font-semibold mb-3 text-green-700">เลือกธนาคารสำหรับการโอน (เลือกได้ 1 ธนาคาร)</p>
+      <p class="font-semibold mb-3 text-green-700">เลือกธนาคารสำหรับการโอน (เลือกได้ครั้งละ 1 ธนาคาร)</p>
       <div class="space-y-3">
         <label class="flex items-center p-3 border rounded-xl cursor-pointer bg-white hover:bg-green-50">
-          <input type="radio" name="bank" value="กสิกรไทย (KBank)" class="mr-3" />
+          <input type="radio" name="bank" value="kbank" class="mr-3" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/09/Kasikorn_Bank_logo.svg/1200px-Kasikorn_Bank_logo.svg.png"
                class="w-8 h-8 mr-3 rounded" />
           <span class="font-medium">กสิกรไทย (KBank)</span>
         </label>
         <label class="flex items-center p-3 border rounded-xl cursor-pointer bg-white hover:bg-green-50">
-          <input type="radio" name="bank" value="ไทยพาณิชย์ (SCB)" class="mr-3" />
+          <input type="radio" name="bank" value="scb" class="mr-3" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Siam_Commercial_Bank_logo.svg/1024px-Siam_Commercial_Bank_logo.svg.png"
                class="w-8 h-8 mr-3 rounded" />
           <span class="font-medium">ไทยพาณิชย์ (SCB)</span>
         </label>
         <label class="flex items-center p-3 border rounded-xl cursor-pointer bg-white hover:bg-green-50">
-          <input type="radio" name="bank" value="กรุงไทย (KTB)" class="mr-3" />
+          <input type="radio" name="bank" value="ktb" class="mr-3" />
           <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Krung_Thai_Bank_logo.svg/1024px-Krung_Thai_Bank_logo.svg.png"
                class="w-8 h-8 mr-3 rounded" />
           <span class="font-medium">กรุงไทย (KTB)</span>
@@ -86,10 +86,9 @@
     </button>
   </div>
 
-  <!-- Script -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // โหลดข้อมูลราคา
+        // โหลดข้อมูลยอดเงินจาก localStorage
         const data = JSON.parse(localStorage.getItem("checkout_data"));
         if (data) {
             document.getElementById("subtotal-price").textContent = data.subtotal.toLocaleString() + " บาท";
@@ -97,7 +96,7 @@
             document.getElementById("total-price").textContent = data.total.toLocaleString() + " บาท";
         }
 
-        // แสดง/ซ่อนวิธีชำระเงิน
+        // แสดง/ซ่อนช่องชำระเงิน
         const qrBox = document.getElementById("promptpay-qr-box");
         const bankBox = document.getElementById("bank-box");
         const paymentOptions = document.querySelectorAll(".payment-option");
@@ -119,35 +118,35 @@
             });
         });
 
-        // กดปุ่มยืนยันการชำระเงิน
+        // ยืนยันการชำระเงิน
         document.getElementById("confirm-payment").addEventListener("click", () => {
             const selectedPayment = document.querySelector('input[name="payment"]:checked')?.value;
-            const selectedBank = document.querySelector('input[name="bank"]:checked')?.value;
 
             if (!selectedPayment) {
-                Swal.fire({ icon: "warning", title: "กรุณาเลือกวิธีชำระเงิน" });
+                Swal.fire({ icon: 'warning', title: 'กรุณาเลือกวิธีการชำระเงิน' });
                 return;
             }
 
-            if (selectedPayment === "bank" && !selectedBank) {
-                Swal.fire({ icon: "warning", title: "กรุณาเลือกธนาคาร" });
-                return;
+            // ตรวจสอบถ้าเลือกธนาคาร ต้องเลือกธนาคารด้วย
+            let bankName = '';
+            if (selectedPayment === 'bank') {
+                const bank = document.querySelector('input[name="bank"]:checked');
+                if (!bank) {
+                    Swal.fire({ icon: 'warning', title: 'กรุณาเลือกธนาคาร' });
+                    return;
+                }
+                bankName = bank.nextElementSibling.textContent;
             }
-
-            let message = "ชำระเงินสำเร็จ!";
-            if (selectedPayment === "bank") message += "<br>ธนาคาร: " + selectedBank;
 
             Swal.fire({
-                icon: "success",
-                title: "สำเร็จ!",
-                html: message,
+                icon: 'success',
+                title: 'ชำระเงินสำเร็จ!',
+                html: bankName ? `ธนาคารที่เลือก: ${bankName}` : '',
                 timer: 2000,
                 showConfirmButton: false
             });
 
-            setTimeout(() => {
-                window.location.href = "index.html"; // กลับไปหน้าหลัก
-            }, 2000);
+            setTimeout(() => { window.location.href = "index.html"; }, 2000);
         });
     });
   </script>

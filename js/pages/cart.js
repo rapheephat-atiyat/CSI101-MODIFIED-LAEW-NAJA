@@ -121,6 +121,26 @@ class CartPage {
         });
     }
 
+    handleCheckout() {
+    // ดึงยอดเงินจาก element
+    const subtotalText = this.subtotalPriceElement.textContent.replace(/[^0-9.-]+/g,"");
+    const feeText = this.freePriceElement.textContent.replace(/[^0-9.-]+/g,"");
+    const totalText = this.totalPriceElement.textContent.replace(/[^0-9.-]+/g,"");
+
+    const checkoutData = {
+        subtotal: parseFloat(subtotalText),
+        fee: parseFloat(feeText),
+        total: parseFloat(totalText)
+    };
+
+    // เก็บยอดเงินลง localStorage
+    localStorage.setItem("checkout_data", JSON.stringify(checkoutData));
+
+    // ไปยังหน้าชำระเงิน
+    window.location.href = "pay.html";
+}
+
+
     getLoadingHTML(message) {
         return `<div class="text-center py-10 text-gray-500">
             <i data-lucide="loader-circle" class="w-8 h-8 mx-auto animate-spin"></i>
