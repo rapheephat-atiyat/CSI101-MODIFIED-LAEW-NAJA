@@ -60,81 +60,55 @@
     <script src="js/pages/wishlist.js"></script>
 
     <script>
-        class WishlistPage {
-    constructor() {
-        this.wishlistGrid = document.getElementById('wishlist-grid');
-        this.loadingState = document.getElementById('loading-state');
-        this.emptyState = document.getElementById('wishlist-empty');
-        this.errorState = document.getElementById('error-state');
+        class ProductManager {
+    static toggleWishlist(productId) {
+        let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+        const btn = document.getElementById('wishlist-btn');
 
-        this.init();
-    }
-
-    async init() {
-        try {
-            this.showLoading();
-            await this.loadWishlist();
-        } catch (error) {
-            this.showError(error.message);
+        if (!wishlist.includes(productId)) {
+            wishlist.push(productId);
+            Swal.fire('เพิ่มเรียบร้อย!', 'สินค้านี้ถูกเพิ่มไปยังรายการโปรด', 'success');
+            btn.classList.add('bg-red-100');
+            btn.querySelector('span').textContent = 'ถูกใจแล้ว';
+        } else {
+            wishlist = wishlist.filter(id => id !== productId);
+            Swal.fire('ลบเรียบร้อย!', 'สินค้านี้ถูกลบจากรายการโปรด', 'success');
+            btn.classList.remove('bg-red-100');
+            btn.querySelector('span').textContent = 'ถูกใจ';
         }
+
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+
+        // Trigger event ให้ Wishlist หน้าอื่นอัปเดต
+        window.dispatchEvent(new Event('storage'));
     }
 
-    showLoading() {
-        this.loadingState.classList.remove('hidden');
-        this.wishlistGrid.classList.add('hidden');
-        this.emptyState.classList.add('hidden');
-        this.errorState.classList.add('hidden');
+    static async getProductById(productId) {
+        return {
+            id: productId,
+            title: 'ตัวอย่างสินค้า',
+            price: 299,
+            images: ['/images/assets/default-product.png']
+        };
     }
 
-    showError(message) {
-        this.loadingState.classList.add('hidden');
-        this.wishlistGrid.classList.add('hidden');
-        this.emptyState.classList.add('hidden');
-        this.errorState.classList.remove('hidden');
-        document.getElementById('error-message').textContent = message;
-    }
+    static initWishlistButton(productId) {
+        const btn = document.getElementById('wishlist-btn');
+        btn.onclick = () => ProductManager.toggleWishlist(productId);
 
-    async loadWishlist() {
+        // ตรวจสอบตอนโหลดว่ามีใน Wishlist หรือยัง
         const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-
-        if (wishlist.length === 0) {
-            this.loadingState.classList.add('hidden');
-            this.emptyState.classList.remove('hidden');
-            return;
-        }
-
-        this.wishlistGrid.innerHTML = '';
-        this.wishlistGrid.classList.remove('hidden');
-        this.loadingState.classList.add('hidden');
-        this.emptyState.classList.add('hidden');
-
-        for (let productId of wishlist) {
-            try {
-                const product = await ProductManager.getProductById(productId);
-                const card = document.createElement('div');
-                card.className = "p-4 border rounded-lg shadow-sm";
-
-                card.innerHTML = `
-                    <img src="${product.images[0] || '/images/assets/default-product.png'}" class="w-full h-32 object-cover rounded" />
-                    <h3 class="mt-2 font-semibold text-gray-800">${product.title}</h3>
-                    <p class="text-red-600 font-bold mt-1">${window.formatCurrency(product.price)}</p>
-                    <a href="/product.html?id=${product.id}" class="text-blue-600 mt-2 inline-block hover:underline">ดูสินค้า</a>
-                `;
-                this.wishlistGrid.appendChild(card);
-            } catch (err) {
-                console.error(`ไม่สามารถโหลดสินค้า ID ${productId}:`, err);
-            }
+        if (wishlist.includes(productId)) {
+            btn.classList.add('bg-red-100');
+            btn.querySelector('span').textContent = 'ถูกใจแล้ว';
         }
     }
 }
 
-// เรียกใช้งานเมื่อ DOM โหลดเสร็จ
-document.addEventListener("DOMContentLoaded", () => {
-    if (typeof ProductManager !== 'undefined') {
-        new WishlistPage();
-    } else {
-        console.error("ProductManager ไม่ถูกโหลด");
-    }
+
+document.addEventListener('DOMContentLoaded', () => {
+    const productId = '6a561435-b3e1-43a9-b170-9366b4415a79'; // ใช้ ID สินค้าจริงของคุณ
+    ProductManager.initWishlistButton(productId);
 });
 
     </script>

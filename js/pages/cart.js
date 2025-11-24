@@ -89,6 +89,7 @@ class CartPage {
 
     updateTotalPrice(total) {
         if (this.totalPriceElement && this.subtotalPriceElement) {
+
             this.subtotalPriceElement.textContent = window.formatCurrency(total);
             this.freePriceElement.textContent = window.formatCurrency(total * 0.05);
             this.totalPriceElement.textContent = window.formatCurrency(total * 1.05);
