@@ -1,6 +1,7 @@
+// js/pages/profile.js
+
 class ProfilePage {
     constructor() {
-
         this.auth = new AuthManager();
         this.userManger = UserManager;
         this.currentUser = null;
@@ -20,7 +21,7 @@ class ProfilePage {
             this.addresses = profileResponse.addresses || [];
 
             this.renderProfileData();
-            this.renderAddresses();
+            this.renderAddresses(); 
             await this.loadThailandData(); 
             this.bindEvents();
             this.updateVendorActionButton(); 
@@ -30,6 +31,7 @@ class ProfilePage {
         }
     }
     
+    // --- Render Methods (Omitted for brevity) ---
     renderProfileData() {
         const u = this.currentUser;
         if (!u) return;
@@ -41,15 +43,17 @@ class ProfilePage {
         document.getElementById('display-email').textContent = u.email;
 
         const roleBadge = document.getElementById('role-badge');
-        roleBadge.textContent = u.role;
+        // Tailwind class management
         roleBadge.className = "inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold";
         if (u.role === 'VENDOR') roleBadge.classList.add("bg-purple-100", "text-purple-700");
         else if (u.role === 'ADMIN') roleBadge.classList.add("bg-red-100", "text-red-700");
         else roleBadge.classList.add("bg-gray-100", "text-gray-600");
+
         
         if (u.createdAt) document.getElementById('created-at').textContent = new Date(u.createdAt).toLocaleDateString('th-TH');
         if (u.updatedAt) document.getElementById('updated-at').textContent = new Date(u.updatedAt).toLocaleDateString('th-TH');
         
+        // Populate Form
         document.getElementById('firstname').value = u.firstname || '';
         document.getElementById('lastname').value = u.lastname || '';
         document.getElementById('username').value = u.username || '';
@@ -102,6 +106,7 @@ class ProfilePage {
         if (window.lucide) window.lucide.createIcons();
     }
 
+    // --- Data and Event Handlers (Omitted for brevity) ---
     async loadThailandData() { 
         try {
             const res = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district_with_district_and_province.json');
@@ -149,7 +154,7 @@ class ProfilePage {
             button.innerHTML = '<i data-lucide="package" class="w-5 h-5"></i> เยี่ยมชมร้านค้าของคุณ';
         } else if (user.role === 'CUSTOMER') {
             actionArea.classList.remove('hidden');
-            button.setAttribute('href', '#');
+            button.setAttribute('href', '#'); 
             try {
                 const statusData = await VendorManager.getRequestStatus();
                 const status = statusData.status;
@@ -158,7 +163,7 @@ class ProfilePage {
                     button.removeAttribute('onclick');
                     button.className = 'flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl shadow-md cursor-not-allowed font-medium';
                     button.innerHTML = '<i data-lucide="clock" class="w-5 h-5"></i> รอการอนุมัติ';
-                } else {
+                } else { 
                     button.className = 'flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
                     button.setAttribute('onclick', 'window.profilePage.checkVendorRequirements(event)');
                     button.innerHTML = '<i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว';
@@ -172,14 +177,18 @@ class ProfilePage {
         if (window.lucide) window.lucide.createIcons();
     }
 
+
+    // --- Event Handlers (Omitted for brevity) ---
     bindEvents() {
         document.getElementById('profile-form')?.addEventListener('submit', this.handleProfileUpdate.bind(this));
         document.getElementById('preview-btn')?.addEventListener('click', this.handlePreviewImage.bind(this));
         
+        // Thai address dropdown change handlers
         document.getElementById('addr-province')?.addEventListener('change', this.handleProvinceChange.bind(this));
         document.getElementById('addr-district')?.addEventListener('change', this.handleDistrictChange.bind(this));
         document.getElementById('addr-subdistrict')?.addEventListener('change', this.handleSubdistrictChange.bind(this));
         
+        // Global functions mapped to instance methods
         window.openAddressModal = (addr = null) => this.showAddressModal(addr);
         window.closeAddressModal = () => this.closeAddressModal();
         window.saveAddress = () => this.handleSaveAddressModal();
@@ -259,22 +268,48 @@ class ProfilePage {
              return;
         }
 
-        const personalData = {
+        const personalDataToSave = {
+            // Include first/last name, as these are mandatory for creation/update in PersonalData model
+            firstname: firstnameEl.value.trim(), 
+            lastname: lastnameEl.value.trim(),
             phone: phoneEl.value.trim(),
             nationalId: nationalIdEl.value.trim(),
         };
+
+        // 1. Determine the correct nested write operation (create or update) for personalData
+        const personalDataPayload = this.currentUser.personalData 
+            ? { update: personalDataToSave } // Record exists, so update it.
+            : { create: personalDataToSave }; // Record is missing, so create it.
+
+        // 2. Ensure the mandatory singular 'address' field on the User model is handled.
+        let addressPayload = undefined;
+        if (this.addresses.length > 0) {
+            // Use 'connect' to satisfy the required singular relationship field by linking the first address
+            const primaryAddressId = this.addresses[0].id;
+            addressPayload = {
+                connect: { id: primaryAddressId } 
+            };
+        } else {
+             // If addresses are required but missing, the backend will likely fail anyway, 
+             // but we must not send 'connect' if addresses is empty.
+             addressPayload = undefined;
+        }
+
 
         const payload = {
             firstname: firstnameEl.value.trim(),
             lastname: lastnameEl.value.trim(),
             image: imageUrlEl.value.trim() || null,
             birthdate: birthdateEl.value ? new Date(birthdateEl.value).toISOString() : null,
-            personalData: personalData 
+            personalData: personalDataPayload,
+            // Pass the primary address connection to the top-level User update if an address exists.
+            address: addressPayload
         };
         
         try {
             Swal.fire({ title: 'กำลังบันทึก...', didOpen: () => Swal.showLoading() });
-            await this.userManger.update(this.currentUser.id, payload); // Assume userManager is global
+            // Assume userManager is global and has an update method
+            await this.userManger.update(this.currentUser.id, payload); 
             
             Swal.fire('สำเร็จ', 'บันทึกข้อมูลเรียบร้อย', 'success').then(() => location.reload());
         } catch (error) {
@@ -297,29 +332,31 @@ class ProfilePage {
         const modal = document.getElementById('address-modal');
         if (!modal) return;
         
-        modal.classList.remove('hidden');
+        modal.classList.remove('hidden'); 
         
         const isEdit = !!addr;
         
+        // Reset form controls and populate data
         document.getElementById('modal-title').innerText = isEdit ? "แก้ไขที่อยู่" : "เพิ่มที่อยู่ใหม่";
         document.getElementById('addr-id').value = addr?.id || "";
         document.getElementById('addr-title').value = addr?.title || "";
         document.getElementById('addr-home').value = addr?.homeNumero || "";
         document.getElementById('addr-province').value = addr?.city || "";
         
+        // Trigger change events to populate dropdowns if editing
         if (isEdit) {
             document.getElementById('addr-district').value = addr?.district || "";
             document.getElementById('addr-subdistrict').value = addr?.subdistrict || "";
-            document.getElementById('addr-zipcode').value = addr?.zipcode || "";
+            document.getElementById('addr-zipcode').value = addr?.zipcode || ""; 
 
             document.getElementById('addr-province').dispatchEvent(new Event('change'));
             
             setTimeout(() => {
-                document.getElementById('addr-district').value = addr?.district || "";
+                document.getElementById('addr-district').value = addr?.district || ""; 
                 document.getElementById('addr-district').dispatchEvent(new Event('change'));
                 
                 setTimeout(() => {
-                    document.getElementById('addr-subdistrict').value = addr?.subdistrict || "";
+                    document.getElementById('addr-subdistrict').value = addr?.subdistrict || ""; 
                 }, 50);
             }, 50);
 
@@ -336,7 +373,7 @@ class ProfilePage {
     }
 
     closeAddressModal() {
-        document.getElementById('address-modal')?.classList.add('hidden');
+        document.getElementById('address-modal')?.classList.add('hidden'); 
     }
 
     async handleSaveAddressModal() {
@@ -360,7 +397,10 @@ class ProfilePage {
             if (id) { 
                 await this.userManger.updateAddress(id, payload); 
             } else {
-                 await this.userManger.addAddress(payload); 
+                if (typeof this.userManger.createAddress !== 'function') {
+                    throw new Error("ฟังก์ชัน this.userManger.createAddress (สำหรับเพิ่มที่อยู่) ไม่ได้ถูกกำหนดไว้ใน UserManager.js");
+                }
+                await this.userManger.createAddress(this.currentUser.id, payload); 
             }
 
             this.closeAddressModal();
@@ -388,5 +428,6 @@ class ProfilePage {
     }
 }
 
+// Global binding
 const profilePage = new ProfilePage();
 window.profilePage = profilePage;
