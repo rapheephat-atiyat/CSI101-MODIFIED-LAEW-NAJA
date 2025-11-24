@@ -562,4 +562,5 @@ window.productManager = productManager;
 
 document.addEventListener("DOMContentLoaded", () => {
     productManager.init();
-});
+}); 
+
