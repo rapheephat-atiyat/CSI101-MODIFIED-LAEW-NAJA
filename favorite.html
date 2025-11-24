@@ -1,118 +1,51 @@
 <!DOCTYPE html>
 <html lang="th">
 
-<!-- ออกแบบหน้านี้ให้หน่อย -->
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>รายการโปรด - HiewHub</title>
-
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap">
 </head>
 
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-['Prompt',sans-serif]">
-
+<body class="bg-gray-50 font-sans min-h-screen flex flex-col">
     <navbar-eiei></navbar-eiei>
 
     <div class="max-w-7xl mx-auto px-4 py-8 flex-grow w-full">
-        <header class="mb-6 border-b border-gray-200 pb-4">
-            <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
-                <i data-lucide="heart" class="w-8 h-8 text-red-600 fill-red-600"></i>
-                รายการสินค้าโปรดของคุณ
+        <header class="mb-8">
+            <h1 class="text-2xl font-bold text-gray-800 flex items-center gap-2">
+                <i data-lucide="heart" class="w-7 h-7 text-pink-500 fill-pink-500"></i>
+                สินค้าที่ถูกใจ
             </h1>
-            <p class="text-gray-500 mt-1">สินค้าทั้งหมดที่คุณบันทึกไว้</p>
+            <p class="text-gray-500 mt-1">รายการสินค้าที่คุณบันทึกเก็บไว้</p>
         </header>
 
-        <main id="wishlist-container" class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
-            <div id="loading-state" class="text-center py-16 text-gray-500">
-                <i data-lucide="loader-circle" class="w-12 h-12 animate-spin mx-auto mb-3 text-red-600"></i>
-                <p class="text-xl font-medium">กำลังโหลดรายการโปรด...</p>
-            </div>
+        <div id="favorites-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+        </div>
 
-            <div id="wishlist-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 hidden">
-            </div>
+        <div id="loading-state" class="text-center py-20 text-gray-500">
+            <i data-lucide="loader-circle" class="w-8 h-8 animate-spin mx-auto mb-3"></i>
+            <p>กำลังโหลด...</p>
+        </div>
 
-            <div id="wishlist-empty" class="hidden text-center py-20 text-gray-500">
-                <i data-lucide="heart-crack" class="w-12 h-12 mx-auto mb-3"></i>
-                <p class="text-xl font-medium">ไม่พบสินค้าในรายการโปรด</p>
-                <a href="/shop.html" class="mt-4 inline-block text-blue-600 hover:underline">เลือกซื้อสินค้าเพิ่ม</a>
-            </div>
-
-            <div id="error-state" class="hidden text-center py-20 text-red-600">
-                <i data-lucide="alert-triangle" class="w-12 h-12 mx-auto mb-3"></i>
-                <p id="error-message" class="text-xl font-medium">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
-            </div>
-        </main>
+        <div id="empty-state" class="hidden text-center py-20 text-gray-400">
+            <i data-lucide="heart-off" class="w-12 h-12 mx-auto mb-3 opacity-50"></i>
+            <p class="text-lg">ยังไม่มีรายการโปรด</p>
+            <a href="/index.html" class="text-blue-600 hover:underline mt-2 inline-block">ไปเลือกซื้อสินค้า</a>
+        </div>
     </div>
 
     <footer-eiei></footer-eiei>
 
     <script src="js/config.js"></script>
     <script src="js/services/AuthManager.js"></script>
-    <script src="js/services/ProductManager.js"></script>
+    <script src="js/services/CartManager.js"></script>
+    <script src="js/services/FavoriteManager.js"></script>
     <script src="js/components/Navbar.js"></script>
     <script src="js/components/Footer.js"></script>
-    <script src="js/pages/wishlist.js"></script>
-
-    <script>
-        class ProductManager {
-    static toggleWishlist(productId) {
-        let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-        const btn = document.getElementById('wishlist-btn');
-
-        if (!wishlist.includes(productId)) {
-            wishlist.push(productId);
-            Swal.fire('เพิ่มเรียบร้อย!', 'สินค้านี้ถูกเพิ่มไปยังรายการโปรด', 'success');
-            btn.classList.add('bg-red-100');
-            btn.querySelector('span').textContent = 'ถูกใจแล้ว';
-        } else {
-            wishlist = wishlist.filter(id => id !== productId);
-            Swal.fire('ลบเรียบร้อย!', 'สินค้านี้ถูกลบจากรายการโปรด', 'success');
-            btn.classList.remove('bg-red-100');
-            btn.querySelector('span').textContent = 'ถูกใจ';
-        }
-
-        localStorage.setItem('wishlist', JSON.stringify(wishlist));
-
-        // Trigger event ให้ Wishlist หน้าอื่นอัปเดต
-        window.dispatchEvent(new Event('storage'));
-    }
-
-    static async getProductById(productId) {
-        return {
-            id: productId,
-            title: 'ตัวอย่างสินค้า',
-            price: 299,
-            images: ['/images/assets/default-product.png']
-        };
-    }
-
-    static initWishlistButton(productId) {
-        const btn = document.getElementById('wishlist-btn');
-        btn.onclick = () => ProductManager.toggleWishlist(productId);
-
-        // ตรวจสอบตอนโหลดว่ามีใน Wishlist หรือยัง
-        const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
-        if (wishlist.includes(productId)) {
-            btn.classList.add('bg-red-100');
-            btn.querySelector('span').textContent = 'ถูกใจแล้ว';
-        }
-    }
-}
-
-
-document.addEventListener('DOMContentLoaded', () => {
-    const productId = '6a561435-b3e1-43a9-b170-9366b4415a79'; // ใช้ ID สินค้าจริงของคุณ
-    ProductManager.initWishlistButton(productId);
-});
-
-    </script>
-    
+    <script src="js/pages/favorite.js"></script>
 </body>
 
 </html>

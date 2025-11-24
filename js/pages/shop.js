@@ -17,14 +17,15 @@ class ShopManager {
             addProductBtn: document.getElementById('add-product-btn'),
             wishlistRequestBtn: document.getElementById('wishlist-request-btn'),
             viewWishlistRequestsBtn: document.getElementById('view-wishlist-requests-btn'),
+            viewOrdersBtn: document.getElementById('view-orders-btn'),
             chatBtn: document.getElementById('chat-btn'),
-            
+
             addProductModal: document.getElementById('add-product-modal'),
             addProductForm: document.getElementById('add-product-form'),
             modalTitle: document.getElementById('modal-title'),
             modalSubmitBtn: document.getElementById('modal-submit-btn'),
             productIdToEdit: document.getElementById('product-id-to-edit'),
-            
+
             shopAvatar: document.getElementById('shop-avatar'),
             shopName: document.getElementById('shop-name'),
             shopDetail: document.getElementById('shop-detail'),
@@ -97,6 +98,7 @@ class ShopManager {
         if (this.isShopOwner) {
             getEl('addProductBtn')?.classList.remove('hidden');
             getEl('viewWishlistRequestsBtn')?.classList.remove('hidden');
+            getEl('viewOrdersBtn')?.classList.remove('hidden');
 
             getEl('followBtn')?.classList.add('hidden');
             getEl('chatBtn')?.classList.add('hidden');
@@ -106,6 +108,7 @@ class ShopManager {
         } else {
             getEl('addProductBtn')?.classList.add('hidden');
             getEl('viewWishlistRequestsBtn')?.classList.add('hidden');
+            getEl('viewOrdersBtn')?.classList.add('hidden');
 
             getEl('followBtn')?.classList.remove('hidden');
             getEl('chatBtn')?.classList.remove('hidden');
@@ -227,35 +230,35 @@ class ShopManager {
     }
 
     openAddProductModal() {
-        this.closeAddProductModal(); 
+        this.closeAddProductModal();
         this.elements.addProductModal?.classList.remove('hidden');
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
 
     async openEditProductModal(productId) {
         const form = this.elements.addProductForm;
-        
+
         try {
             const response = await ProductManager.getProduct(productId);
             const product = response.data;
-            
+
             this.elements.modalTitle.innerHTML = `<i data-lucide="square-pen" class="w-6 h-6 text-blue-600"></i> แก้ไขสินค้า: ${product.title}`;
             this.elements.modalSubmitBtn.textContent = 'บันทึกการแก้ไข';
             this.elements.modalSubmitBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'shadow-green-600/30');
             this.elements.modalSubmitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'shadow-blue-600/30');
-            
+
             this.elements.productIdToEdit.value = product.id;
-            
+
             form.elements['title'].value = product.title || '';
             form.elements['detail'].value = product.detail || '';
             form.elements['notes'].value = product.notes || '';
             form.elements['price'].value = parseFloat(product.price).toFixed(2);
             form.elements['discountPrice'].value = product.discountPrice ? parseFloat(product.discountPrice).toFixed(2) : '';
             form.elements['category'].value = product.category || '';
-            
+
             const hashtagArray = Array.isArray(product.hashtag) ? product.hashtag : (product.hashtag ? [product.hashtag] : []);
             form.elements['hashtag'].value = hashtagArray.join('\n');
-            
+
             const imagesArray = this.parseImages(product.images) || [];
             form.elements['images'].value = imagesArray.join('\n');
 
@@ -270,7 +273,7 @@ class ShopManager {
     closeAddProductModal() {
         this.elements.addProductForm?.reset();
         this.elements.productIdToEdit.value = '';
-        
+
         this.elements.modalTitle.innerHTML = `<i data-lucide="plus-circle" class="w-6 h-6 text-green-600"></i> เพิ่มสินค้าใหม่`;
         this.elements.modalSubmitBtn.textContent = 'บันทึกสินค้า';
         this.elements.modalSubmitBtn.classList.remove('bg-blue-600', 'hover:bg-blue-700', 'shadow-blue-600/30');
@@ -364,11 +367,11 @@ class ShopManager {
                 showConfirmButton: false,
                 didOpen: () => { Swal.showLoading(); }
             });
-            
+
             try {
                 if (typeof ProductManager === 'undefined') throw new Error("ProductManager is not loaded.");
                 await ProductManager.deleteProduct(productId);
-                
+
                 Swal.fire('ลบสำเร็จ!', 'สินค้าถูกลบออกจากร้านค้าแล้ว', 'success');
                 this.fetchShopData();
             } catch (error) {
@@ -415,6 +418,10 @@ class ShopManager {
 
     viewWishlistRequests() {
         window.location.href = `/shop/product-request.html?id=${this.shopId}`;
+    }
+
+    viewOrders() {
+        window.location.href = "/vendor-orders.html";
     }
 
     openWishlistRequestModal() {

@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>จัดการออเดอร์ (ร้านค้า) - HiewHub</title>
+    <title>Shop Orders</title>
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -15,7 +15,7 @@
 
     <div class="max-w-6xl mx-auto px-4 py-8">
         <h1 class="text-2xl font-bold mb-6 flex items-center gap-2">
-            <i data-lucide="clipboard-list" class="text-blue-600"></i> รายการสั่งซื้อของลูกค้า
+            <i data-lucide="clipboard-list" class="text-blue-600"></i> Customer Orders
         </h1>
 
         <div class="bg-white rounded-xl shadow overflow-hidden">
@@ -23,18 +23,18 @@
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead class="bg-gray-50">
                         <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สินค้า</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ลูกค้า</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">ยอดรวม</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">สถานะ</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">จัดการ</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Total</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Action</th>
                         </tr>
                     </thead>
                     <tbody id="vendor-orders-tbody" class="bg-white divide-y divide-gray-200">
                     </tbody>
                 </table>
             </div>
-            <div id="loading-msg" class="text-center py-10 text-gray-500">กำลังโหลด...</div>
+            <div id="loading-msg" class="text-center py-10 text-gray-500">Loading...</div>
         </div>
     </div>
 
@@ -54,7 +54,7 @@
                 const orders = res.data;
 
                 if (!orders || orders.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-500">ยังไม่มีรายการสั่งซื้อ</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" class="text-center py-8 text-gray-500">No orders found</td></tr>`;
                     return;
                 }
 
@@ -76,7 +76,7 @@
                             <div class="text-sm text-gray-500">${order.user?.email}</div>
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            ${order.totalPrice.toLocaleString()} บ.
+                            ${order.totalPrice.toLocaleString()} THB
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap">
                             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -86,11 +86,11 @@
                         </td>
                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                             <select onchange="updateStatus('${order.id}', this.value)" class="border rounded p-1 text-sm">
-                                <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>รอรับเรื่อง</option>
-                                <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>กำลังเตรียม</option>
-                                <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>กำลังส่ง</option>
-                                <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>ส่งสำเร็จ</option>
-                                <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>ยกเลิก</option>
+                                <option value="PENDING" ${order.status === 'PENDING' ? 'selected' : ''}>PENDING</option>
+                                <option value="PROCESSING" ${order.status === 'PROCESSING' ? 'selected' : ''}>PROCESSING</option>
+                                <option value="SHIPPED" ${order.status === 'SHIPPED' ? 'selected' : ''}>SHIPPED</option>
+                                <option value="DELIVERED" ${order.status === 'DELIVERED' ? 'selected' : ''}>DELIVERED</option>
+                                <option value="CANCELLED" ${order.status === 'CANCELLED' ? 'selected' : ''}>CANCELLED</option>
                             </select>
                         </td>
                     </tr>
@@ -118,7 +118,7 @@
                 const Toast = Swal.mixin({
                     toast: true, position: 'top-end', showConfirmButton: false, timer: 3000
                 });
-                Toast.fire({ icon: 'success', title: 'อัปเดตสถานะแล้ว' });
+                Toast.fire({ icon: 'success', title: 'Status Updated' });
                 setTimeout(() => location.reload(), 1000);
             } catch (err) {
                 Swal.fire('Error', err.message, 'error');

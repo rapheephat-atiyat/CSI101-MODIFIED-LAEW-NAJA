@@ -30,6 +30,11 @@ class ProductDetailManager {
         }
 
         await this.fetchProductData(productId);
+
+        // เช็คสถานะ Favorite เริ่มต้น (ถ้าล็อกอินอยู่)
+        if (this.auth.isLoggedIn() && this.productData) {
+            this.checkFavoriteStatus(this.productData.id);
+        }
     }
 
     async fetchProductData(productId) {
@@ -79,23 +84,24 @@ class ProductDetailManager {
         const validImageArray = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray.filter(url => url && url.length > 0) : [];
         const primaryImage = validImageArray.length > 0 ? validImageArray[0] : this.DEFAULT_IMAGE;
         const primaryIsVideo = this.isVideoUrl(primaryImage);
-        const res = await VendorProfileManager.getShopProfile(product.vendorId);
-        const shop = res.data;
-        console.log(shop);
-        
+
+        let shop = { rating: 0, shopName: 'Unknown Shop' };
+        try {
+            const res = await VendorProfileManager.getShopProfile(product.vendorId);
+            shop = res.data;
+        } catch (e) { console.warn("Shop profile not found"); }
+
         const Tags = product.hashtag && Array.isArray(product.hashtag) ? product.hashtag : ["#สินค้าใหม่", `#${product.category || 'ทั่วไป'}`];
-        const mockRating = 4.5;
         const mockReviewsCount = 32;
         const productUrl = `${this.BASE_FRONTEND_URL}/product.html?id=${product.id}`;
         const creationDate = this.formatDate(product.createdAt);
-        console.log(product);
-        
+
         this.elements.mainGrid.innerHTML = `
             <section class="bg-white rounded-[14px] p-[22px] shadow-[0_8px_28px_rgba(18,30,45,0.06)]" aria-labelledby="product-gallery">
                 <div class="w-full h-[600px] bg-white rounded-xl flex items-center justify-center overflow-hidden relative" id="hero">
                     ${primaryIsVideo
-                        ? `<video id="mainImg" src="${primaryImage}" autoplay muted loop class="w-full h-full object-cover block transition-transform duration-300"></video>`
-                        : `<img id="mainImg" src="${primaryImage}" alt="${product.title}" class="w-full h-full object-cover block transition-transform duration-300">`}
+                ? `<video id="mainImg" src="${primaryImage}" autoplay muted loop class="w-full h-full object-cover block transition-transform duration-300"></video>`
+                : `<img id="mainImg" src="${primaryImage}" alt="${product.title}" class="w-full h-full object-cover block transition-transform duration-300">`}
                 </div>
 
                 <div class="flex gap-3 mt-[18px] items-center flex-wrap" aria-hidden="false">
@@ -114,7 +120,7 @@ class ProductDetailManager {
                                     </div>
                                 </button>
                             `;
-                    }).join('')}
+                }).join('')}
                 </div>
 
                 <hr class="border-none h-[1px] bg-[#f1f5f8] -mx-[22px] my-[14px]">
@@ -147,8 +153,8 @@ class ProductDetailManager {
                 </div>
 
                 <div class="flex gap-3 mt-3 items-center flex-wrap">
-                    <button id="wishlist-btn" class="bg-white border border-gray-300 p-3 px-[18px] rounded-lg cursor-pointer font-bold text-red-700 flex items-center gap-1.5 hover:bg-gray-50 transition" title="เพิ่มในรายการโปรด" onclick="productManager.toggleWishlist('${product.id}')">
-                        <i data-lucide="heart" class="w-5 h-5"></i> ถูกใจ
+                    <button id="wishlist-btn" class="bg-white border border-gray-300 p-3 px-[18px] rounded-lg cursor-pointer font-bold text-red-700 flex items-center gap-1.5 hover:bg-gray-50 transition group" title="เพิ่มในรายการโปรด" onclick="productManager.toggleWishlist('${product.id}')">
+                        <i data-lucide="heart" class="w-5 h-5 transition-colors"></i> ถูกใจ
                     </button>
                     <div class="flex items-center gap-2.5 bg-white rounded-lg p-1.5 border border-gray-200" aria-label="จำนวนสินค้า">
                         <button id="qty-decr" aria-label="ลด" class="w-9 h-9 rounded-lg border border-gray-200 bg-white cursor-pointer font-extrabold text-lg flex items-center justify-center hover:bg-gray-50">−</button>
@@ -184,10 +190,9 @@ class ProductDetailManager {
                 </div>
             </aside>
             
-                 <div class="bg-white rounded-[14px] p-[22px] shadow-[0_8px_28px_rgba(18,30,45,0.06)] mt-7 col-span-full">
-                    <h2 class="text-xl font-bold mb-3 border-l-4 border-blue-600 pl-2.5">สินค้าที่คุณอาจสนใจ</h2>
-                    <div id="related-products-container">
-                </div>
+            <div class="bg-white rounded-[14px] p-[22px] shadow-[0_8px_28px_rgba(18,30,45,0.06)] mt-7 col-span-full">
+                <h2 class="text-xl font-bold mb-3 border-l-4 border-blue-600 pl-2.5">สินค้าที่คุณอาจสนใจ</h2>
+                <div id="related-products-container"></div>
             </div>
         `;
 
@@ -198,6 +203,74 @@ class ProductDetailManager {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
 
+    // ---- จัดการสถานะ Favorite ----
+
+    async checkFavoriteStatus(productId) {
+        try {
+            const res = await FavoriteManager.checkIsFavorite(productId);
+            if (res.isFavorite) {
+                this.setWishlistButtonState(true);
+            }
+        } catch (e) {
+            console.error("Check favorite failed", e);
+        }
+    }
+
+    setWishlistButtonState(isActive) {
+        const btn = document.getElementById('wishlist-btn');
+        if (!btn) return;
+
+        const icon = btn.querySelector('svg') || btn.querySelector('i');
+
+        if (isActive) {
+            btn.classList.add('active');
+            // เปลี่ยนสีปุ่มหรือไอคอนเมื่อกดถูกใจ
+            btn.classList.remove('text-red-700', 'bg-white');
+            btn.classList.add('text-white', 'bg-red-600', 'border-red-600');
+
+            if (icon) {
+                icon.setAttribute('fill', 'currentColor'); // ถมสีไอคอน
+            }
+        } else {
+            btn.classList.remove('active');
+            // คืนค่าเดิม
+            btn.classList.add('text-red-700', 'bg-white');
+            btn.classList.remove('text-white', 'bg-red-600', 'border-red-600');
+
+            if (icon) {
+                icon.setAttribute('fill', 'none'); // เอาสีถมออก
+            }
+        }
+    }
+
+    async toggleWishlist(productId) {
+        if (!this.auth.isLoggedIn()) {
+            window.location.href = "/signIn.html";
+            return;
+        }
+
+        const btn = document.getElementById('wishlist-btn');
+        const isActive = btn.classList.contains('active');
+
+        // อัปเดต UI ทันที (Optimistic UI)
+        this.setWishlistButtonState(!isActive);
+
+        try {
+            if (isActive) {
+                await FavoriteManager.removeFavorite(productId);
+            } else {
+                await FavoriteManager.addFavorite(productId);
+            }
+            // ไม่แสดง Alert หรือ Toast ตามที่ขอ
+        } catch (error) {
+            console.error("Toggle favorite error", error);
+            // หาก Error ให้คืนค่าปุ่มกลับ
+            this.setWishlistButtonState(isActive);
+        }
+    }
+
+    // ----------------------------
+
     renderFallbackPage(vendorData) {
         const container = document.getElementById('vendor-product-list');
         let html = '';
@@ -206,7 +279,6 @@ class ProductDetailManager {
             html = `<div class="bg-white rounded-[14px] shadow-sm p-4 flex flex-col gap-4"><div class="text-gray-600"><i data-lucide="package-x" class="w-5 h-5 inline mr-1"></i> ไม่พบสินค้าล่าสุดจากร้านค้าใดๆ</div></div>`;
         } else {
             vendorData.forEach(vendor => {
-                
                 html += `
                     <div class="bg-white rounded-[14px] shadow-sm p-4 flex flex-col gap-4 mb-5">
                         <a href="/shop.html?id=${vendor.vendorId}" class="no-underline text-inherit flex items-center gap-2">
@@ -215,11 +287,11 @@ class ProductDetailManager {
                         </a>
                         <div class="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 mt-0">
                             ${vendor.products.map(p => {
-                                const displayPrice = this.formatPrice(p.discountPrice || p.price);
-                                const imageArray = this.parseImages(p.images);
-                                const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
-                                const isVideo = this.isVideoUrl(image);
-                                return `
+                    const displayPrice = this.formatPrice(p.discountPrice || p.price);
+                    const imageArray = this.parseImages(p.images);
+                    const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
+                    const isVideo = this.isVideoUrl(image);
+                    return `
                                             <a href="/product.html?id=${p.id}" class="bg-white rounded-xl shadow-sm overflow-hidden transition-transform duration-200 hover:shadow-lg hover:-translate-y-[2px] flex flex-col h-full no-underline text-inherit">
                                                 <div class="w-full aspect-square relative overflow-hidden rounded-t-xl">
                                                     ${isVideo ? `<video src="${image}" preload="metadata" muted loop class="w-full h-full object-cover block" onmouseenter="this.play()" onmouseleave="this.pause()"></video>` : `<img src="${image}" class="w-full h-full object-cover block"/>`}
@@ -230,8 +302,8 @@ class ProductDetailManager {
                                                     <span class="text-red-700 font-extrabold text-base mt-auto">฿${this.formatNumber(displayPrice)}</span>
                                                 </div>
                                             </a>
-                                        `;
-                            }).join('')}
+                                `;
+                }).join('')}
                         </div>
                     </div>
                 `;
@@ -396,25 +468,6 @@ class ProductDetailManager {
         }
     }
 
-    toggleWishlist(productId) {
-        const btn = document.getElementById('wishlist-btn');
-        if (btn) {
-            btn.classList.toggle('active');
-        }
-
-        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-
-        Swal.fire({
-            title: 'รายการโปรด',
-            text: btn && btn.classList.contains('active') ? 'เพิ่มสินค้าลงในรายการโปรดแล้ว' : 'นำสินค้าออกจากรายการโปรดแล้ว',
-            icon: 'success',
-            toast: true,
-            position: 'bottom-end',
-            showConfirmButton: false,
-            timer: 1500
-        });
-    }
-
     isVideoUrl(url) {
         if (!url) return false;
         url = url.toLowerCase();
@@ -522,11 +575,11 @@ class ProductDetailManager {
                 content = `
                     <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 mt-5">
                         ${relatedProducts.map(p => {
-                                const displayPrice = this.formatPrice(p.discountPrice || p.price);
-                                const imageArray = this.parseImages(p.images);
-                                const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
-                                const isVideo = this.isVideoUrl(image);
-                                return `
+                    const displayPrice = this.formatPrice(p.discountPrice || p.price);
+                    const imageArray = this.parseImages(p.images);
+                    const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
+                    const isVideo = this.isVideoUrl(image);
+                    return `
                                     <a href="/product.html?id=${p.id}" class="bg-white rounded-xl shadow-sm overflow-hidden transition-transform duration-200 hover:shadow-lg hover:-translate-y-0.5 flex flex-col h-full no-underline text-inherit">
                                         <div class="w-full aspect-square relative overflow-hidden rounded-t-xl">
                                             ${isVideo ? `<video src="${image}" preload="metadata" muted loop class="w-full h-full object-cover block" onmouseenter="this.play()" onmouseleave="this.pause()"></video>` : `<img src="${image}" class="w-full h-full object-cover block"/>`}
@@ -538,7 +591,7 @@ class ProductDetailManager {
                                         </div>
                                     </a>
                                 `;
-                        }).join('')}
+                }).join('')}
                     </div>
                 `;
             }
@@ -562,5 +615,4 @@ window.productManager = productManager;
 
 document.addEventListener("DOMContentLoaded", () => {
     productManager.init();
-}); 
-
+});

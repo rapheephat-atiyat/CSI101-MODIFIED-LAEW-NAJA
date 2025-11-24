@@ -12,7 +12,7 @@ class OrderManager {
     static async _handleResponse(res) {
         if (!res.ok) {
             const data = await res.json().catch(() => ({}));
-            throw new Error(data.message || "เกิดข้อผิดพลาดในการเชื่อมต่อ");
+            throw new Error(data.message || "Connection error");
         }
         return res.json();
     }
@@ -52,9 +52,11 @@ class OrderManager {
     }
 
     static async deleteOrder(orderId) {
+        const headers = this._getHeaders();
+        delete headers["Content-Type"];
         const res = await fetch(`${this.BASE_API_URL}/api/orders/${orderId}`, {
             method: "DELETE",
-            headers: this._getHeaders()
+            headers: headers
         });
         return this._handleResponse(res);
     }

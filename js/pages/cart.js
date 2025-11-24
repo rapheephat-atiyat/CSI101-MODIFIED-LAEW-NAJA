@@ -92,7 +92,7 @@ class CartPage {
         
         if (this.totalPriceElement && this.subtotalPriceElement) {
 
-            const randomCarry = Math.floor(Math.random() * (600 - 300 + 1)) + 300;
+            const randomCarry = Math.floor(Math.random() * (400 - 300 + 1)) + 100;
 
             this.subtotalPriceElement.textContent = window.formatCurrency(total);
 
