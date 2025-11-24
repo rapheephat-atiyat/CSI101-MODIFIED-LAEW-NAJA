@@ -3,8 +3,8 @@ class ShopManager {
         this.shopId = new URLSearchParams(window.location.search).get('id');
         this.currentUserId = null;
         this.isShopOwner = false;
-        
-        this.auth = typeof AuthManager !== 'undefined' ? new AuthManager() : null; 
+
+        this.auth = typeof AuthManager !== 'undefined' ? new AuthManager() : null;
         this.navbarEl = document.querySelector('navbar-eiei');
 
         this.elements = {
@@ -12,7 +12,7 @@ class ShopManager {
             errorState: document.getElementById('error-state'),
             shopContainer: document.getElementById('shop-container'),
             errorMessage: document.getElementById('error-message'),
-            
+
             followBtn: document.getElementById('follow-btn'),
             addProductBtn: document.getElementById('add-product-btn'),
             wishlistRequestBtn: document.getElementById('wishlist-request-btn'),
@@ -39,6 +39,8 @@ class ShopManager {
         document.addEventListener("DOMContentLoaded", () => this.init());
     }
 
+    // --- Core Initialization & Data Fetching ---
+
     async init() {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
         this.setupGeneralEventListeners();
@@ -50,9 +52,9 @@ class ShopManager {
 
         try {
             if (typeof VendorProfileManager === 'undefined' || !this.auth) {
-                 throw new Error("ไม่สามารถโหลดไฟล์บริการหลัก (Service Manager files missing).");
+                throw new Error("ไม่สามารถโหลดไฟล์บริการหลัก (Service Manager files missing).");
             }
-            
+
             const [shopResponse, userResponse] = await Promise.all([
                 VendorProfileManager.getShopProfile(this.shopId),
                 this.auth.getProfile().catch(() => ({ user: { id: null } }))
@@ -79,9 +81,25 @@ class ShopManager {
         }
     }
 
+    // --- UI Logic & Event Setup ---
+
+    setupGeneralEventListeners() {
+        // No explicit DOM binding needed here as HTML uses inline `onclick="shopManager.methodName()"`
+    }
+
+    // Helper to safely update Lucide icon attribute
+    _setLucideIcon(btn, newIcon) {
+        if (!btn) return;
+        // Target the element that holds the data-lucide attribute (SVG or original <i>)
+        const iconEl = btn.querySelector('[data-lucide]') || btn.querySelector('svg') || btn.querySelector('i');
+        if (iconEl) {
+            iconEl.setAttribute('data-lucide', newIcon);
+        }
+    }
+
     async updateUIBasedOnUserRole(shopData) {
         const getEl = (key) => this.elements[key];
-        
+
         if (this.isShopOwner) {
             getEl('addProductBtn')?.classList.remove('hidden');
             getEl('viewWishlistRequestsBtn')?.classList.remove('hidden');
@@ -92,6 +110,7 @@ class ShopManager {
 
             await this.updateWishlistRequestCount();
         } else {
+            // Customer/Guest view
             getEl('addProductBtn')?.classList.add('hidden');
             getEl('viewWishlistRequestsBtn')?.classList.add('hidden');
 
@@ -102,18 +121,15 @@ class ShopManager {
             followBtn?.classList.remove('hidden');
             chatBtn?.classList.remove('hidden');
             wishlistRequestBtn?.classList.remove('hidden');
-            
+
             if (followBtn) {
                 followBtn.classList.remove('following');
-                
+
                 followBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
                 followBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
-                
-                const iconEl = followBtn.querySelector('[data-lucide]') || followBtn.querySelector('svg');
+
                 followBtn.querySelector('.follow-text').textContent = 'ติดตาม';
-                if (iconEl) {
-                    iconEl.setAttribute('data-lucide', 'user-plus');
-                }
+                this._setLucideIcon(followBtn, 'user-plus'); // Use safe helper
             }
         }
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
@@ -122,7 +138,7 @@ class ShopManager {
     async updateWishlistRequestCount() {
         const btn = this.elements.viewWishlistRequestsBtn;
         if (!btn || typeof ProductRequestManager === 'undefined') return;
-        
+
         if (ProductRequestManager.getRequestsByVendorId) {
             try {
                 const requestsResponse = await ProductRequestManager.getRequestsByVendorId(this.shopId);
@@ -137,6 +153,8 @@ class ShopManager {
         }
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
+
+    // --- Rendering Methods ---
 
     renderShopProfile(data) {
         const user = data.user || {};
@@ -154,7 +172,7 @@ class ShopManager {
 
     renderProducts(products) {
         const grid = this.elements.productsGrid;
-        if (!grid) return; 
+        if (!grid) return;
 
         grid.innerHTML = '';
 
@@ -183,7 +201,7 @@ class ShopManager {
             const primaryImage = Array.isArray(imageArray) && imageArray.length > 0
                 ? imageArray[0]
                 : 'https://dummyimage.com/400x400/e5e7eb/9ca3af.png&text=No+Image';
-            
+
             const card = document.createElement('div');
             card.className = 'bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 overflow-hidden group cursor-pointer transition-all duration-300 hover:-translate-y-1';
 
@@ -218,10 +236,12 @@ class ShopManager {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
 
+    // --- Action Handlers ---
+
     toggleFollow() {
         const btn = this.elements.followBtn;
         if (!btn) return;
-        
+
         btn.classList.toggle('following');
 
         const isFollowing = btn.classList.contains('following');
@@ -230,16 +250,14 @@ class ShopManager {
             btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
             btn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
             btn.querySelector('.follow-text').textContent = 'กำลังติดตาม';
-            
-            const iconEl = btn.querySelector('[data-lucide="user-plus"]') || btn.querySelector('[data-lucide="user-check"]');
-            if (iconEl) iconEl.setAttribute('data-lucide', 'user-check');
+
+            this._setLucideIcon(btn, 'user-check');
         } else {
             btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
             btn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
             btn.querySelector('.follow-text').textContent = 'ติดตาม';
-            
-            const iconEl = btn.querySelector('[data-lucide="user-plus"]') || btn.querySelector('[data-lucide="user-check"]');
-            if (iconEl) iconEl.setAttribute('data-lucide', 'user-plus');
+
+            this._setLucideIcon(btn, 'user-plus');
         }
 
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
@@ -280,7 +298,7 @@ class ShopManager {
             });
             return;
         }
-        
+
         const formInputStyles = "w-full p-2.5 rounded-lg border border-gray-300 text-[0.95rem] outline-none bg-white transition focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]";
         const formLabelStyles = "block text-sm font-medium text-gray-700 mb-1";
 
