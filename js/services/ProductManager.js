@@ -74,9 +74,11 @@ class ProductManager {
     }
 
     static async deleteProduct(productId) {
+        const headers = this._getHeaders();
+        delete headers["Content-Type"];
         const res = await fetch(`${this.BASE_API_URL}/api/products/${productId}`, {
             method: "DELETE",
-            headers: this._getHeaders(),
+            headers: headers,
         });
         return this._handleResponse(res);
     }
