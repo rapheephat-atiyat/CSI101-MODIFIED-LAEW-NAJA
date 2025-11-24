@@ -58,6 +58,28 @@
     <script src="js/components/Navbar.js"></script>
     <script src="js/components/Footer.js"></script>
     <script src="js/pages/wishlist.js"></script>
+
+
+    <main id="wishlist-container" class="bg-white rounded-xl shadow-lg p-6 border border-gray-100">
+    <div id="loading-state" class="text-center py-16 text-gray-500">
+        <i data-lucide="loader-circle" class="w-12 h-12 animate-spin mx-auto mb-3 text-red-600"></i>
+        <p class="text-xl font-medium">กำลังโหลดรายการโปรด...</p>
+    </div>
+
+    <div id="wishlist-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 hidden"></div>
+
+    <div id="wishlist-empty" class="hidden text-center py-20 text-gray-500">
+        <i data-lucide="heart-crack" class="w-12 h-12 mx-auto mb-3"></i>
+        <p class="text-xl font-medium">ไม่พบสินค้าในรายการโปรด</p>
+        <a href="/shop.html" class="mt-4 inline-block text-blue-600 hover:underline">เลือกซื้อสินค้าเพิ่ม</a>
+    </div>
+
+    <div id="error-state" class="hidden text-center py-20 text-red-600">
+        <i data-lucide="alert-triangle" class="w-12 h-12 mx-auto mb-3"></i>
+        <p id="error-message" class="text-xl font-medium">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
+    </div>
+</main>
+
 </body>
 
 </html>

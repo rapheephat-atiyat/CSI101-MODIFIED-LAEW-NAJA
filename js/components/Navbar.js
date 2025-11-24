@@ -202,7 +202,7 @@ class Navbar extends HTMLElement {
                                         <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-400"></i>
                                         <span>คำสั่งซื้อ</span>
                                     </a>
-                                    <a href="/wishlist.html" class="${dropdownItemClasses}">
+                                    <a href="/favorite.html" class="${dropdownItemClasses}">
                                         <i data-lucide="heart" class="w-4 h-4 text-gray-400"></i>
                                         <span>รายการโปรด</span>
                                     </a>
@@ -291,7 +291,7 @@ class Navbar extends HTMLElement {
                                 <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                                 <span>คำสั่งซื้อ</span>
                             </a>
-                            <a href="/wishlist.html" class="${mobileNavLinkClasses}">
+                            <a href="/favorite.html" class="${mobileNavLinkClasses}">
                                 <i data-lucide="heart" class="w-5 h-5"></i>
                                 <span>รายการโปรด</span>
                             </a>
