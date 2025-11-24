@@ -89,12 +89,9 @@ class CartPage {
 
     updateTotalPrice(total) {
         if (this.totalPriceElement && this.subtotalPriceElement) {
-
-            const randomFee = Math.floor(Math.random() * (600 - 300)) + 300
             this.subtotalPriceElement.textContent = window.formatCurrency(total);
-            this.freePriceElement.textContent = window.formatCurrency(randomFee);
-            this.totalPriceElement.textContent = window.formatCurrency(total + randomFee);
-            this.randomFeeValue = randomFee
+            this.freePriceElement.textContent = window.formatCurrency(total * 0.05);
+            this.totalPriceElement.textContent = window.formatCurrency(total * 1.05);
         }
     }
 

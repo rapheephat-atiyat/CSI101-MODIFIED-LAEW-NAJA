@@ -59,6 +59,85 @@
     <script src="js/components/Footer.js"></script>
     <script src="js/pages/wishlist.js"></script>
 
+    <script>
+        class WishlistPage {
+    constructor() {
+        this.wishlistGrid = document.getElementById('wishlist-grid');
+        this.loadingState = document.getElementById('loading-state');
+        this.emptyState = document.getElementById('wishlist-empty');
+        this.errorState = document.getElementById('error-state');
+
+        this.init();
+    }
+
+    async init() {
+        try {
+            this.showLoading();
+            await this.loadWishlist();
+        } catch (error) {
+            this.showError(error.message);
+        }
+    }
+
+    showLoading() {
+        this.loadingState.classList.remove('hidden');
+        this.wishlistGrid.classList.add('hidden');
+        this.emptyState.classList.add('hidden');
+        this.errorState.classList.add('hidden');
+    }
+
+    showError(message) {
+        this.loadingState.classList.add('hidden');
+        this.wishlistGrid.classList.add('hidden');
+        this.emptyState.classList.add('hidden');
+        this.errorState.classList.remove('hidden');
+        document.getElementById('error-message').textContent = message;
+    }
+
+    async loadWishlist() {
+        const wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
+
+        if (wishlist.length === 0) {
+            this.loadingState.classList.add('hidden');
+            this.emptyState.classList.remove('hidden');
+            return;
+        }
+
+        this.wishlistGrid.innerHTML = '';
+        this.wishlistGrid.classList.remove('hidden');
+        this.loadingState.classList.add('hidden');
+        this.emptyState.classList.add('hidden');
+
+        for (let productId of wishlist) {
+            try {
+                const product = await ProductManager.getProductById(productId);
+                const card = document.createElement('div');
+                card.className = "p-4 border rounded-lg shadow-sm";
+
+                card.innerHTML = `
+                    <img src="${product.images[0] || '/images/assets/default-product.png'}" class="w-full h-32 object-cover rounded" />
+                    <h3 class="mt-2 font-semibold text-gray-800">${product.title}</h3>
+                    <p class="text-red-600 font-bold mt-1">${window.formatCurrency(product.price)}</p>
+                    <a href="/product.html?id=${product.id}" class="text-blue-600 mt-2 inline-block hover:underline">ดูสินค้า</a>
+                `;
+                this.wishlistGrid.appendChild(card);
+            } catch (err) {
+                console.error(`ไม่สามารถโหลดสินค้า ID ${productId}:`, err);
+            }
+        }
+    }
+}
+
+// เรียกใช้งานเมื่อ DOM โหลดเสร็จ
+document.addEventListener("DOMContentLoaded", () => {
+    if (typeof ProductManager !== 'undefined') {
+        new WishlistPage();
+    } else {
+        console.error("ProductManager ไม่ถูกโหลด");
+    }
+});
+
+    </script>
     
 </body>
 
