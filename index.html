@@ -240,6 +240,34 @@
         </div>
     </section>
 
+    <div
+       style="
+         position:fixed;
+         bottom:20px;
+         right:20px;
+         background:linear-gradient(135deg,#0838bb,#3805c5);
+         color:white;
+         border-radius:50px;
+         padding:12px 18px;
+         display:flex;
+         align-items:center;
+         gap:8px;
+         box-shadow:0 8px 20px rgba(0,0,0,0.2);
+         cursor:pointer;
+         font-weight:bold;
+         font-size:14px;
+         z-index:9999;
+         transition:transform 0.2s, box-shadow 0.2s;
+       "
+       onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 12px 28px rgba(0,0,0,0.3)';"
+       onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 8px 20px rgba(0,0,0,0.2)';"
+  >
+    <i data-lucide="message-circle" style="width:20px; height:20px;"></i>
+    แชท
+    </div>
+
+    </div>
+
     <footer-eiei></footer-eiei>
 
     <script src="js/config.js"></script>

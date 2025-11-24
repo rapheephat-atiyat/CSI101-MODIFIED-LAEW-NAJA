@@ -198,7 +198,7 @@ class Navbar extends HTMLElement {
                                         <i data-lucide="user" class="w-4 h-4 text-gray-400"></i>
                                         <span>บัญชีของฉัน</span>
                                     </a>
-                                    <a href="#" class="${dropdownItemClasses}">
+                                    <a href="/order.html" class="${dropdownItemClasses}">
                                         <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-400"></i>
                                         <span>คำสั่งซื้อ</span>
                                     </a>
@@ -287,7 +287,7 @@ class Navbar extends HTMLElement {
                                 <i data-lucide="user" class="w-5 h-5"></i>
                                 <span>บัญชีของฉัน</span>
                             </a>
-                            <a href="#" class="${mobileNavLinkClasses}">
+                            <a href="/order.html" class="${mobileNavLinkClasses}">
                                 <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                                 <span>คำสั่งซื้อ</span>
                             </a>
