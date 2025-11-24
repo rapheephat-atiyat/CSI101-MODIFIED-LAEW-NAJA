@@ -114,7 +114,7 @@ class ProductDetailManager {
                                     </div>
                                 </button>
                             `;
-                }).join('')}
+                    }).join('')}
                 </div>
 
                 <hr class="border-none h-[1px] bg-[#f1f5f8] -mx-[22px] my-[14px]">
@@ -207,6 +207,7 @@ class ProductDetailManager {
             html = `<div class="bg-white rounded-[14px] shadow-sm p-4 flex flex-col gap-4"><div class="text-gray-600"><i data-lucide="package-x" class="w-5 h-5 inline mr-1"></i> ไม่พบสินค้าล่าสุดจากร้านค้าใดๆ</div></div>`;
         } else {
             vendorData.forEach(vendor => {
+                
                 html += `
                     <div class="bg-white rounded-[14px] shadow-sm p-4 flex flex-col gap-4 mb-5">
                         <a href="/shop.html?id=${vendor.vendorId}" class="no-underline text-inherit flex items-center gap-2">
@@ -215,11 +216,11 @@ class ProductDetailManager {
                         </a>
                         <div class="grid grid-cols-[repeat(auto-fill,minmax(150px,1fr))] gap-3 mt-0">
                             ${vendor.products.map(p => {
-                    const displayPrice = this.formatPrice(p.discountPrice || p.price);
-                    const imageArray = this.parseImages(p.images);
-                    const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
-                    const isVideo = this.isVideoUrl(image);
-                    return `
+                                const displayPrice = this.formatPrice(p.discountPrice || p.price);
+                                const imageArray = this.parseImages(p.images);
+                                const image = Array.isArray(imageArray) && imageArray.length > 0 ? imageArray[0] : this.DEFAULT_IMAGE;
+                                const isVideo = this.isVideoUrl(image);
+                                return `
                                             <a href="/product.html?id=${p.id}" class="bg-white rounded-xl shadow-sm overflow-hidden transition-transform duration-200 hover:shadow-lg hover:-translate-y-[2px] flex flex-col h-full no-underline text-inherit">
                                                 <div class="w-full aspect-square relative overflow-hidden rounded-t-xl">
                                                     ${isVideo ? `<video src="${image}" preload="metadata" muted loop class="w-full h-full object-cover block" onmouseenter="this.play()" onmouseleave="this.pause()"></video>` : `<img src="${image}" class="w-full h-full object-cover block"/>`}
@@ -231,7 +232,7 @@ class ProductDetailManager {
                                                 </div>
                                             </a>
                                         `;
-                }).join('')}
+                            }).join('')}
                         </div>
                     </div>
                 `;
@@ -434,7 +435,6 @@ class ProductDetailManager {
 
     groupProductsByVendor(products) {
         const groupedByVendor = {};
-        const productCount = {};
 
         products.forEach(product => {
             const vendorId = product.vendorId;
@@ -446,13 +446,9 @@ class ProductDetailManager {
                     vendorId: vendorId,
                     products: [],
                 };
-                productCount[vendorId] = 0;
             }
 
-            if (productCount[vendorId] < 5) {
-                groupedByVendor[vendorId].products.push(product);
-                productCount[vendorId]++;
-            }
+            groupedByVendor[vendorId].products.push(product);
         });
 
         return Object.values(groupedByVendor);
@@ -513,8 +509,6 @@ class ProductDetailManager {
         try {
             const response = await ProductManager.getRelatedProducts(productId);
             const relatedProducts = response.data || [];
-            console.log(relatedProducts);
-            
 
             let content;
             if (relatedProducts.length === 0) {
