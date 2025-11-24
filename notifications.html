@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการแจ้งเตือนทั้งหมด - HiewHub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap">
+</head>
+
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-['Prompt',sans-serif]">
+
+    <navbar-eiei></navbar-eiei>
+
+    <div class="max-w-4xl mx-auto px-4 py-10 flex-grow w-full">
+        <header class="mb-6 border-b border-gray-200 pb-4">
+            <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+                <i data-lucide="bell" class="w-8 h-8 text-blue-600"></i>
+                การแจ้งเตือนทั้งหมด
+            </h1>
+            <p class="text-gray-500 mt-1">รายการอัปเดตและข้อความสำคัญล่าสุด</p>
+        </header>
+
+        <div id="loading-state" class="text-center py-16 text-gray-500">
+            <i data-lucide="loader-circle" class="w-12 h-12 animate-spin mx-auto mb-3 text-blue-600"></i>
+            <p class="text-xl font-medium">กำลังโหลดรายการแจ้งเตือน...</p>
+        </div>
+
+        <div id="error-state" class="hidden text-center py-20 text-red-600">
+            <i data-lucide="alert-triangle" class="w-12 h-12 mx-auto mb-3"></i>
+            <p id="error-message" class="text-xl font-medium">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
+        </div>
+
+        <main id="main-content" class="hidden bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+            <div class="p-4 border-b border-gray-100 flex justify-between items-center">
+                <div class="flex gap-2">
+                    <button id="tab-all" data-filter="ALL"
+                        class="px-4 py-2 text-sm border-b-2 font-semibold border-blue-500 text-blue-600 transition-colors">
+                        ทั้งหมด
+                    </button>
+                    <button id="tab-unread" data-filter="UNREAD"
+                        class="px-4 py-2 text-sm border-b-2 font-medium border-transparent text-gray-600 hover:border-gray-300 transition-colors">
+                        ยังไม่ได้อ่าน <span id="unread-count-badge"></span>
+                    </button>
+                </div>
+                <button id="mark-all-btn" class="text-xs text-gray-600 hover:text-gray-900 flex items-center gap-1 transition-colors">
+                    <i data-lucide="check-square" class="w-4 h-4"></i>
+                    ทำเครื่องหมายว่าอ่านทั้งหมด
+                </button>
+            </div>
+            
+            <div id="notification-list" class="space-y-1 p-4">
+                </div>
+        </main>
+    </div>
+
+    <footer-eiei></footer-eiei>
+
+    <script src="js/config.js"></script>
+    <script src="js/services/AuthManager.js"></script>
+    <script src="js/services/NotificationManager.js"></script>
+    <script src="js/components/Navbar.js"></script>
+    <script src="js/components/Footer.js"></script>
+    <script src="js/pages/notifications.js"></script>
+</body>
+</html>

@@ -4,6 +4,7 @@ class Navbar extends HTMLElement {
         this.auth = null;
         this.profile = null;
         this.cartItemCount = 0;
+        this.notificationCount = 0;
     }
 
     async connectedCallback() {
@@ -16,6 +17,7 @@ class Navbar extends HTMLElement {
         this.handleTokenFromURL();
         await this.loadProfile();
         await this.fetchCartCount();
+        await this.fetchNotificationCount(); 
 
         this.render();
         this.bindEvents();
@@ -58,9 +60,24 @@ class Navbar extends HTMLElement {
             this.cartItemCount = 0;
         }
     }
+    
+    async fetchNotificationCount() { 
+        if (this.auth && this.auth.isLoggedIn() && typeof NotificationManager !== 'undefined') {
+            try {
+                const countResponse = await NotificationManager.getUnreadCount();
+                this.notificationCount = countResponse.count || 0;
+            } catch (e) {
+                this.notificationCount = 0;
+            }
+        } else {
+            this.notificationCount = 0;
+        }
+    }
 
-    async refreshCart() {
+
+    async refreshUI() { 
         await this.fetchCartCount();
+        await this.fetchNotificationCount();
         this.render();
         this.bindEvents();
         this.updateAuthUI();
@@ -77,6 +94,7 @@ class Navbar extends HTMLElement {
 
         const initial = firstname.charAt(0).toUpperCase();
         const cartCount = this.cartItemCount;
+        const notificationCount = this.notificationCount; 
 
         let shopLink = "/shop.html";
         if (user && user.role === 'VENDOR' && user.vendorProfile?.id) {
@@ -93,6 +111,8 @@ class Navbar extends HTMLElement {
                 <span>Admin Dashboard</span>
              </a>` : '';
 
+        const showNotificationBadge = notificationCount > 0;
+
 
         this.innerHTML = `
         <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-[100] border-b border-gray-100">
@@ -100,7 +120,7 @@ class Navbar extends HTMLElement {
                 <div class="flex items-center justify-between h-16">
                     <a href="/" id="navbar-logo-link" class="flex items-center gap-2.5 group">
                         <div class="w-20 flex-shrink-0">
-                            <img src="http://localhost:5500/public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
+                            <img src="./public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
                         </div>
                     </a>
 
@@ -137,11 +157,22 @@ class Navbar extends HTMLElement {
                             <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-blue-600 text-white text-[10px] rounded-full flex items-center justify-center font-semibold" style="${cartCount > 0 ? '' : 'display: none;'}">${cartCount}</span>
                         </a>
 
-                        <button id="notifications-btn" class="hidden md:flex relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors">
-                            <i data-lucide="bell" class="w-5 h-5"></i>
-                            <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-blue-600 rounded-full"></span>
-                        </button>
-
+                        <div id="desktop-notification-menu" class="hidden md:block relative">
+                            <button id="notifications-btn" class="relative p-2 text-gray-600 hover:text-blue-600 hover:bg-gray-50 rounded-lg transition-colors">
+                                <i data-lucide="bell" class="w-5 h-5"></i>
+                                <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-red-600 text-white text-[10px] rounded-full flex items-center justify-center font-semibold" style="${showNotificationBadge ? '' : 'display: none;'}">${notificationCount}</span>
+                            </button>
+                            
+                            <div id="notification-dropdown" class="hidden absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 py-1 overflow-hidden z-[1000]">
+                                <div class="px-4 py-3 border-b border-gray-100 flex justify-between items-center">
+                                    <h4 class="font-bold text-gray-900 text-sm">การแจ้งเตือน (${notificationCount})</h4>
+                                    <a href="/notifications.html" class="text-xs text-blue-600 hover:underline">ดูทั้งหมด</a>
+                                </div>
+                                <div id="notification-list" class="max-h-80 overflow-y-auto">
+                                    <div class="px-4 py-3 text-sm text-gray-500 text-center">ไม่มีรายการแจ้งเตือนใหม่</div>
+                                </div>
+                            </div>
+                        </div>
                         <a href="/signin.html" id="desktop-login-btn" class="hidden lg:flex items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition-colors">
                             <span>เข้าสู่ระบบ</span>
                         </a>
@@ -171,7 +202,7 @@ class Navbar extends HTMLElement {
                                         <i data-lucide="shopping-bag" class="w-4 h-4 text-gray-400"></i>
                                         <span>คำสั่งซื้อ</span>
                                     </a>
-                                    <a href="#" class="${dropdownItemClasses}">
+                                    <a href="/wishlist.html" class="${dropdownItemClasses}">
                                         <i data-lucide="heart" class="w-4 h-4 text-gray-400"></i>
                                         <span>รายการโปรด</span>
                                     </a>
@@ -192,7 +223,7 @@ class Navbar extends HTMLElement {
                 </div>
             </div>
 
-            <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-100 bg-white">
+            <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-100 bg-white z-50">
                 <div class="max-w-7xl mx-auto px-6 py-4">
                     <div class="mb-4">
                         <div class="relative">
@@ -227,11 +258,11 @@ class Navbar extends HTMLElement {
                             <span class="text-sm font-medium">ตะกร้า</span>
                             <span class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded-full font-semibold" style="${cartCount > 0 ? '' : 'display: none;'}">${cartCount}</span>
                         </a>
-                        <button id="mobile-notifications-btn" class="flex items-center justify-center gap-2 p-3 text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors relative">
+                        <a href="/notifications.html" id="mobile-notifications-btn" class="flex items-center justify-center gap-2 p-3 text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-lg transition-colors relative">
                             <i data-lucide="bell" class="w-5 h-5"></i>
                             <span class="text-sm font-medium">แจ้งเตือน</span>
-                            <span class="absolute top-2 right-2 w-2 h-2 bg-blue-600 rounded-full"></span>
-                        </button>
+                            <span class="absolute -top-1 -right-1 px-1.5 py-0.5 bg-red-600 text-white text-[10px] rounded-full font-semibold" style="${showNotificationBadge ? '' : 'display: none;'}">${notificationCount}</span>
+                        </a>
                     </div>
                     
                     <a href="/signIn.html" id="mobile-login-btn" class="flex items-center justify-center gap-2 px-4 py-3 bg-gray-900 text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors">
@@ -260,7 +291,7 @@ class Navbar extends HTMLElement {
                                 <i data-lucide="shopping-bag" class="w-5 h-5"></i>
                                 <span>คำสั่งซื้อ</span>
                             </a>
-                            <a href="#" class="${mobileNavLinkClasses}">
+                            <a href="/wishlist.html" class="${mobileNavLinkClasses}">
                                 <i data-lucide="heart" class="w-5 h-5"></i>
                                 <span>รายการโปรด</span>
                             </a>
@@ -290,7 +321,7 @@ class Navbar extends HTMLElement {
         if (desktopUserMenu) desktopUserMenu.style.display = loggedIn ? "block" : "none";
 
         if (mobileLoginBtn) mobileLoginBtn.style.display = loggedIn ? "none" : "flex";
-        if (mobileUserMenu) mobileUserMenu.style.display = loggedIn ? "none" : "block";
+        if (mobileUserMenu) mobileUserMenu.style.display = loggedIn ? "block" : "none";
     }
 
     loadDependencies() {
@@ -318,34 +349,38 @@ class Navbar extends HTMLElement {
     bindEvents() {
         const mobileMenuToggle = this.querySelector("#mobile-menu-toggle");
         const mobileMenu = this.querySelector("#mobile-menu");
-        const mobileMenuIcon = mobileMenuToggle?.querySelector("i");
-
+        
         if (mobileMenuToggle && mobileMenu) {
-            mobileMenuToggle.addEventListener("click", () => {
+            mobileMenuToggle.addEventListener("click", (e) => { 
+                e.preventDefault(); 
+                
                 mobileMenu.classList.toggle("hidden");
 
-                if (mobileMenuIcon) {
-                    const iconEl = mobileMenuToggle.querySelector('[data-lucide]') || mobileMenuToggle.querySelector('svg');
+                const iconContainer = mobileMenuToggle;
+                const iconEl = iconContainer.querySelector('[data-lucide]') || iconContainer.querySelector('svg');
 
-                    if (iconEl) {
-                        const currentIcon = iconEl.getAttribute("data-lucide");
-                        iconEl.setAttribute("data-lucide", currentIcon === "menu" ? "x" : "menu");
+                if (iconEl) {
+                    const currentIcon = iconEl.getAttribute("data-lucide");
+
+                    const targetEl = iconEl.tagName === 'SVG' ? iconEl : iconContainer.querySelector('i');
+                    
+                    if (targetEl) {
+                        const newIcon = currentIcon === "menu" ? "x" : "menu";
+                        targetEl.setAttribute("data-lucide", newIcon);
                     }
                 }
                 if (window.lucide) window.lucide.createIcons();
             });
         }
-
+        
         const desktopUserMenuBtn = this.querySelector("#desktop-user-menu-btn");
         const desktopUserDropdown = this.querySelector("#desktop-user-dropdown");
-        const desktopDropdownIcon = this.querySelector("#desktop-dropdown-icon");
-
+        
         if (desktopUserMenuBtn && desktopUserDropdown) {
-
             const getRotatableIcon = () => desktopUserMenuBtn.querySelector('[data-lucide="chevron-down"]') || desktopUserMenuBtn.querySelector('svg[data-lucide="chevron-down"]');
-
+            
             desktopUserMenuBtn.addEventListener("click", (e) => {
-                e.preventDefault();
+                e.preventDefault(); 
                 e.stopPropagation();
 
                 const isHidden = desktopUserDropdown.classList.contains("hidden");
@@ -372,6 +407,33 @@ class Navbar extends HTMLElement {
 
             desktopUserDropdown.addEventListener("click", (e) => {
                 e.stopPropagation();
+            });
+        }
+
+        const notificationsBtn = this.querySelector("#notifications-btn");
+        const notificationDropdown = this.querySelector("#notification-dropdown");
+        
+        if (notificationsBtn && notificationDropdown) {
+            notificationsBtn.addEventListener("click", (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const desktopUserDropdown = this.querySelector("#desktop-user-dropdown");
+                if (desktopUserDropdown && !desktopUserDropdown.classList.contains("hidden")) {
+                    desktopUserDropdown.classList.add("hidden");
+                    const iconEl = this.querySelector('[data-lucide="chevron-down"]') || this.querySelector('svg[data-lucide="chevron-down"]');
+                    if (iconEl) iconEl.classList.remove("rotate-180");
+                }
+                
+                notificationDropdown.classList.toggle("hidden");
+
+                if (window.lucide) window.lucide.createIcons();
+            });
+
+            document.addEventListener("click", (e) => {
+                if (!this.contains(e.target) && !notificationDropdown.classList.contains("hidden")) {
+                    notificationDropdown.classList.add("hidden");
+                }
             });
         }
 
