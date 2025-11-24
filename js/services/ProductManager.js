@@ -36,8 +36,6 @@ class ProductManager {
             return { data: [] };
         }
 
-        // NOTE: This endpoint behaves inconsistently (sometimes requires _handleResponse, sometimes returns plain JSON/empty array)
-        // Sticking to original logic for now:
         return res.json();
     }
 

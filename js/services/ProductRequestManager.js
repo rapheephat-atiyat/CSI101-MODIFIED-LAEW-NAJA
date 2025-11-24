@@ -29,11 +29,35 @@ class ProductRequestManager {
         return this._handleResponse(res);
     }
 
-
     static async getRequestsByVendorId(vendorId) {
         const res = await fetch(`${this.BASE_API_URL}/api/vendor/product-requests/${vendorId}`, {
             method: "GET",
             headers: this._getHeaders(),
+        });
+        return this._handleResponse(res);
+    }
+
+    static async updateRequestStatus(requestId, status) {
+        const res = await fetch(`${this.BASE_API_URL}/api/vendor/product-request/${requestId}/status`, {
+            method: "PATCH",
+            headers: this._getHeaders(),
+            body: JSON.stringify({ status })
+        });
+        return this._handleResponse(res);
+    }
+    
+    static async approveRequestAndAddToCart(requestId, requesterId, finalProductId) {
+        const payload = { 
+            status: 'APPROVED',
+            requesterId: requesterId,
+            finalProductId: finalProductId,
+            quantity: 1
+        };
+
+        const res = await fetch(`${this.BASE_API_URL}/api/vendor/product-requests/${requestId}/approve-cart`, {
+            method: "PATCH", 
+            headers: this._getHeaders(),
+            body: JSON.stringify(payload)
         });
         return this._handleResponse(res);
     }

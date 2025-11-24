@@ -100,7 +100,7 @@ class Navbar extends HTMLElement {
                 <div class="flex items-center justify-between h-16">
                     <a href="/" id="navbar-logo-link" class="flex items-center gap-2.5 group">
                         <div class="w-20 flex-shrink-0">
-                            <img src="./public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
+                            <img src="http://localhost:5500/public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
                         </div>
                     </a>
 
