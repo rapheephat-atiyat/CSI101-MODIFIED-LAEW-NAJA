@@ -31,9 +31,9 @@ class ProductDetailManager {
 
         await this.fetchProductData(productId);
 
-        // เช็คสถานะ Favorite เริ่มต้น (ถ้าล็อกอินอยู่)
+        // [สำคัญ] เช็คสถานะ Favorite เมื่อโหลดหน้าเสร็จ
         if (this.auth.isLoggedIn() && this.productData) {
-            this.checkFavoriteStatus(this.productData.id);
+            await this.checkFavoriteStatus(this.productData.id);
         }
     }
 
@@ -224,21 +224,21 @@ class ProductDetailManager {
 
         if (isActive) {
             btn.classList.add('active');
-            // เปลี่ยนสีปุ่มหรือไอคอนเมื่อกดถูกใจ
+            // เปลี่ยนสีปุ่มเป็นแดง (Active)
             btn.classList.remove('text-red-700', 'bg-white');
             btn.classList.add('text-white', 'bg-red-600', 'border-red-600');
 
             if (icon) {
-                icon.setAttribute('fill', 'currentColor'); // ถมสีไอคอน
+                icon.setAttribute('fill', 'currentColor');
             }
         } else {
             btn.classList.remove('active');
-            // คืนค่าเดิม
+            // คืนค่าเป็นขาว (Inactive)
             btn.classList.add('text-red-700', 'bg-white');
             btn.classList.remove('text-white', 'bg-red-600', 'border-red-600');
 
             if (icon) {
-                icon.setAttribute('fill', 'none'); // เอาสีถมออก
+                icon.setAttribute('fill', 'none');
             }
         }
     }
@@ -252,7 +252,7 @@ class ProductDetailManager {
         const btn = document.getElementById('wishlist-btn');
         const isActive = btn.classList.contains('active');
 
-        // อัปเดต UI ทันที (Optimistic UI)
+        // อัปเดต UI ทันทีเพื่อให้รู้ว่ากดแล้ว (Optimistic UI)
         this.setWishlistButtonState(!isActive);
 
         try {
@@ -261,7 +261,6 @@ class ProductDetailManager {
             } else {
                 await FavoriteManager.addFavorite(productId);
             }
-            // ไม่แสดง Alert หรือ Toast ตามที่ขอ
         } catch (error) {
             console.error("Toggle favorite error", error);
             // หาก Error ให้คืนค่าปุ่มกลับ
@@ -269,7 +268,7 @@ class ProductDetailManager {
         }
     }
 
-    // ----------------------------
+    // ... (ส่วนอื่นๆ ของคลาส เหมือนเดิมทั้งหมด) ...
 
     renderFallbackPage(vendorData) {
         const container = document.getElementById('vendor-product-list');
@@ -411,8 +410,8 @@ class ProductDetailManager {
                 qtyEl.textContent = 1;
             }
 
-            if (this.navbarEl && this.navbarEl.refreshCart) {
-                this.navbarEl.refreshCart();
+            if (this.navbarEl && this.navbarEl.refreshUI) {
+                this.navbarEl.refreshUI();
             }
 
         } catch (error) {
@@ -587,7 +586,7 @@ class ProductDetailManager {
                                         </div>
                                         <div class="p-2.5 flex flex-col gap-1 flex-grow">
                                             <span class="text-sm font-semibold text-gray-800 min-h-8 leading-snug overflow-hidden text-ellipsis block line-clamp-2">${p.title}</span>
-                                            <span class="text-red-700 font-extrabold text-base mt-auto">฿${displayPrice}</span>
+                                            <span class="text-red-700 font-extrabold text-base mt-auto">฿${this.formatPrice(displayPrice)}</span>
                                         </div>
                                     </a>
                                 `;

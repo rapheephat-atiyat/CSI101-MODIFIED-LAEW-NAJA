@@ -3,6 +3,7 @@ class ShopManager {
         this.shopId = new URLSearchParams(window.location.search).get('id');
         this.currentUserId = null;
         this.isShopOwner = false;
+        this.shopData = null;
 
         this.auth = typeof AuthManager !== 'undefined' ? new AuthManager() : null;
         this.navbarEl = document.querySelector('navbar-eiei');
@@ -64,6 +65,7 @@ class ShopManager {
             ]);
 
             const shopData = shopResponse.data;
+            this.shopData = shopData; // เก็บข้อมูลร้านค้าไว้ใช้
             this.currentUserId = userResponse?.user?.id;
             this.isShopOwner = (userResponse?.user?.role === 'VENDOR') && (this.currentUserId === shopData.userId);
 
@@ -80,7 +82,11 @@ class ShopManager {
         }
     }
 
-    setupGeneralEventListeners() { }
+    setupGeneralEventListeners() {
+        if (this.elements.chatBtn) {
+            this.elements.chatBtn.addEventListener('click', () => this.handleChatClick());
+        }
+    }
 
     _setLucideIcon(btn, newIcon) {
         if (!btn) return;
@@ -420,6 +426,29 @@ class ShopManager {
 
     viewOrders() {
         window.location.href = "/vendor-orders.html";
+    }
+
+    async handleChatClick() {
+        if (!this.auth.isLoggedIn()) {
+            window.location.href = "/signIn.html";
+            return;
+        }
+
+        if (!this.shopData && !this.shopId) return;
+
+        // ใช้ข้อมูลร้านค้าที่ดึงมาแล้ว
+        if (this.shopData && this.shopData.userId) {
+            try {
+                const res = await ChatManager.initiateChat(this.shopData.userId);
+                const room = res.data;
+                window.location.href = `/chat.html?roomId=${room.id}`;
+            } catch (error) {
+                console.error("Chat Error", error);
+                Swal.fire('Error', 'Failed to start chat', 'error');
+            }
+        } else {
+            Swal.fire('Error', 'Invalid shop data', 'error');
+        }
     }
 
     openWishlistRequestModal() {

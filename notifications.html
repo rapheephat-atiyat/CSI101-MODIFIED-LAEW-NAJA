@@ -9,7 +9,7 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
-    
+
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap">
 </head>
 
@@ -48,24 +48,28 @@
                         ยังไม่ได้อ่าน <span id="unread-count-badge"></span>
                     </button>
                 </div>
-                <button id="mark-all-btn" class="text-xs text-gray-600 hover:text-gray-900 flex items-center gap-1 transition-colors">
+                <button id="mark-all-btn"
+                    class="text-xs text-gray-600 hover:text-gray-900 flex items-center gap-1 transition-colors">
                     <i data-lucide="check-square" class="w-4 h-4"></i>
                     ทำเครื่องหมายว่าอ่านทั้งหมด
                 </button>
             </div>
-            
+
             <div id="notification-list" class="space-y-1 p-4">
-                </div>
+            </div>
         </main>
     </div>
-
+    <chat-widget></chat-widget>
     <footer-eiei></footer-eiei>
-
+    
     <script src="js/config.js"></script>
     <script src="js/services/AuthManager.js"></script>
     <script src="js/services/NotificationManager.js"></script>
+    <script src="js/services/ChatManager.js"></script>
+    <script src="js/components/ChatWidget.js"></script>
     <script src="js/components/Navbar.js"></script>
     <script src="js/components/Footer.js"></script>
     <script src="js/pages/notifications.js"></script>
 </body>
+
 </html>

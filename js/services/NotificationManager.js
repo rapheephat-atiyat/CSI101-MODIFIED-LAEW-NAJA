@@ -13,7 +13,7 @@ class NotificationManager {
         const data = await res.json();
         if (!res.ok) {
             if (res.status === 401 || res.status === 403) {
-                window.location.href = "/signIn.html"; 
+                window.location.href = "/signIn.html";
             }
             throw new Error(data.message || data.error || "เกิดข้อผิดพลาดในการเชื่อมต่อ");
         }
@@ -21,29 +21,38 @@ class NotificationManager {
     }
 
     static async getNotifications() {
+        const headers = this._getHeaders();
+        delete headers["Content-Type"];
+
         const res = await fetch(`${this.BASE_API_URL}/notifications`, {
             method: "GET",
-            headers: this._getHeaders(),
+            headers: headers,
         });
         return this._handleResponse(res);
     }
 
     static async getUnreadCount() {
+        const headers = this._getHeaders();
+        delete headers["Content-Type"];
+
         const res = await fetch(`${this.BASE_API_URL}/notifications/count`, {
             method: "GET",
-            headers: this._getHeaders(),
+            headers: headers,
         });
         return this._handleResponse(res);
     }
 
     static async markAsRead(notificationId) {
+        const headers = this._getHeaders();
+        delete headers["Content-Type"];
+
         const res = await fetch(`${this.BASE_API_URL}/notifications/${notificationId}/read`, {
             method: "PATCH",
-            headers: this._getHeaders(),
+            headers: headers,
         });
         return this._handleResponse(res);
     }
-    
+
     static async sendNotification(userId, type, content) {
         const payload = { userId, type, content };
         const res = await fetch(`${this.BASE_API_URL}/notifications`, {
