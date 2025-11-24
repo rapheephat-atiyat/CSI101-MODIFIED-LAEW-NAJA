@@ -9,9 +9,40 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <link rel="stylesheet" href="/css/global.css">
+    
+    <script src="js/config.js"></script>
+    <script src="js/services/AuthManager.js"></script>
+    <script src="js/services/UserManager.js"></script>
+    <script src="js/services/VendorManager.js"></script>
+    <script src="js/components/Navbar.js"></script>
+    <script src="js/components/Footer.js"></script>
+
+    <style>
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            transform: scale(0.95);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+    </style>
 </head>
 
-<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col font-['Prompt',sans-serif']">
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
 
     <navbar-eiei></navbar-eiei>
 
@@ -21,12 +52,6 @@
             <div>
                 <h1 class="text-3xl font-bold text-gray-900">บัญชีของฉัน</h1>
                 <p class="text-gray-500 mt-1">จัดการข้อมูลส่วนตัวและที่อยู่จัดส่ง</p>
-            </div>
-            <div id="vendor-action-area" class="hidden">
-                <a id="vendor-action-btn" href="#"
-                    class="flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium">
-                    <i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว
-                </a>
             </div>
         </div>
 
@@ -51,6 +76,12 @@
                         </svg>
                     </span>
 
+                    <div id="vendor-action-area" class="hidden">
+                        <a id="vendor-action-btn" href="#"
+                            class="w-full flex items-center justify-center gap-2 mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium">
+                            <i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว
+                        </a>
+                    </div>
                     <div class="mt-6 pt-6 border-t border-gray-100 text-sm text-left space-y-3">
                         <div class="flex justify-between text-gray-500"><span>วันที่สมัคร</span><span id="created-at"
                                 class="font-medium text-gray-700">-</span></div>
@@ -69,28 +100,28 @@
                     </h3>
                     <form id="profile-form" class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อจริง <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-0.5">ชื่อจริง <span class="text-red-500">*</span></label>
                             <input type="text" id="firstname" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">นามสกุล <span class="text-red-500">*</span></label>
+                            <label class="block text-sm font-medium text-gray-700 mb-0.5">นามสกุล <span class="text-red-500">*</span></label>
                             <input type="text" id="lastname" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">เบอร์โทรศัพท์</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-0.5">เบอร์โทรศัพท์</label>
                             <input type="tel" id="phone" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="08x-xxx-xxxx">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">เลขบัตรประชาชน</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-0.5">เลขบัตรประชาชน</label>
                             <input type="text" id="nationalId" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" maxlength="13">
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1">วันเกิด</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-0.5">วันเกิด</label>
                             <input type="date" id="birthdate" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 text-gray-600">
                         </div>
                         
                         <div class="md:col-span-2">
-                            <label class="block text-sm font-medium text-gray-700 mb-1">รูปโปรไฟล์ (URL)</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-0.5">รูปโปรไฟล์ (URL)</label>
                             <div class="flex gap-2">
                                 <input type="text" id="image-url" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200">
                                 <button type="button" id="preview-btn"
@@ -111,7 +142,7 @@
                         
                         <div class="md:col-span-2 flex justify-end mt-4">
                             <button type="submit"
-                                class="bg-[#367DE7] text-white px-6 py-2.5 rounded-xl font-medium 
+                                class="bg-gray-900 text-white px-6 py-2.5 rounded-xl font-medium 
                                 flex items-center gap-2
                                 hover:bg-gray-800 
                                 transition-all duration-200 
@@ -147,15 +178,15 @@
     </div>
 
     <div id="address-modal"
-        class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 hidden">
-        <div class="bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
+        class="modal fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+        <div class="modal-content bg-white w-full max-w-lg rounded-2xl shadow-2xl overflow-hidden">
 
             <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50">
                 <h3 class="text-lg font-bold text-gray-800 flex items-center gap-2">
                     <i data-lucide="map-pin" class="w-5 h-5 text-blue-600"></i>
                     <span id="modal-title">เพิ่มที่อยู่ใหม่</span>
                 </h3>
-                <button onclick="window.profilePage.closeAddressModal()" class="text-gray-400 hover:text-gray-600 transition">
+                <button onclick="window.profilePage.closeAddressModal()" class="text-gray-400 hover:text-gray-600 transition p-1">
                     <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
@@ -164,36 +195,36 @@
                 <input type="hidden" id="addr-id">
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">ชื่อสถานที่ (เช่น บ้าน, ที่ทำงาน)</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-0.5">ชื่อสถานที่ (เช่น บ้าน, ที่ทำงาน)</label>
                     <input type="text" id="addr-title" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="ระบุชื่อสถานที่">
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">บ้านเลขที่ / หมู่บ้าน / ซอย / ถนน</label>
+                    <label class="block text-sm font-medium text-gray-700 mb-0.5">บ้านเลขที่ / หมู่บ้าน / ซอย / ถนน</label>
                     <input type="text" id="addr-home" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200" placeholder="รายละเอียดที่อยู่">
                 </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="col-span-2 md:col-span-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">จังหวัด</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-0.5">จังหวัด</label>
                         <select id="addr-province" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer">
                             <option value="">เลือกจังหวัด</option>
                         </select>
                     </div>
                     <div class="col-span-2 md:col-span-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">อำเภอ/เขต</label>
-                        <select id="addr-district" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer" disabled>
+                        <label class="block text-sm font-medium text-gray-700 mb-0.5">อำเภอ/เขต</label>
+                        <select id="addr-district" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed" disabled>
                             <option value="">เลือกอำเภอ</option>
                         </select>
                     </div>
                     <div class="col-span-2 md:col-span-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">ตำบล/แขวง</label>
-                        <select id="addr-subdistrict" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer" disabled>
+                        <label class="block text-sm font-medium text-gray-700 mb-0.5">ตำบล/แขวง</label>
+                        <select id="addr-subdistrict" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-white transition focus:border-blue-500 focus:ring-2 focus:ring-blue-200 cursor-pointer disabled:bg-gray-100 disabled:cursor-not-allowed" disabled>
                             <option value="">เลือกตำบล</option>
                         </select>
                     </div>
                     <div class="col-span-2 md:col-span-1">
-                        <label class="block text-sm font-medium text-gray-700 mb-1">รหัสไปรษณีย์</label>
+                        <label class="block text-sm font-medium text-gray-700 mb-0.5">รหัสไปรษณีย์</label>
                         <input type="text" id="addr-zipcode" class="w-full px-3 py-2 border border-gray-300 rounded-lg text-base outline-none bg-gray-100 text-gray-600" readonly
                             placeholder="-">
                     </div>
@@ -208,15 +239,8 @@
             </div>
         </div>
     </div>
-    
-    <footer-eiei></footer-eiei>
 
-    <script src="js/config.js"></script>
-    <script src="js/services/AuthManager.js"></script>
-    <script src="js/services/UserManager.js"></script>
-    <script src="js/services/VendorManager.js"></script>
-    <script src="js/components/Navbar.js"></script>
-    <script src="js/components/Footer.js"></script>
     <script src="js/pages/profile.js"></script>
 </body>
+
 </html>

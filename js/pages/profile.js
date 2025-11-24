@@ -9,7 +9,6 @@ class ProfilePage {
         this.thaiHierarchy = {}; 
         this.editingAddressId = null; 
 
-        // FIX: Bind methods ที่จะถูกเรียกใช้โดยตรงจาก DOM/Global Scope
         this.handleProfileUpdate = this.handleProfileUpdate.bind(this);
         this.handlePreviewImage = this.handlePreviewImage.bind(this);
         this.handleSaveAddressModal = this.handleSaveAddressModal.bind(this);
@@ -17,8 +16,6 @@ class ProfilePage {
         this.checkVendorRequirements = this.checkVendorRequirements.bind(this);
         this.showAddressModal = this.showAddressModal.bind(this);
         this.closeAddressModal = this.closeAddressModal.bind(this);
-
-        // Bind methods for element event listeners (optional but cleaner)
         this.handleProvinceChange = this.handleProvinceChange.bind(this);
         this.handleDistrictChange = this.handleDistrictChange.bind(this);
         this.handleSubdistrictChange = this.handleSubdistrictChange.bind(this);
@@ -33,7 +30,6 @@ class ProfilePage {
             const profileResponse = await this.auth.getProfile(); 
             
             this.currentUser = profileResponse.user; 
-            // FIX: ดึง addresses จาก user object
             this.addresses = profileResponse.user.addresses || []; 
 
             this.renderProfileData();
@@ -49,7 +45,6 @@ class ProfilePage {
         }
     }
     
-    // --- Render Methods (ใช้โค้ดเดิม) ---
     renderProfileData() {
         const u = this.currentUser;
         if (!u) return;
@@ -72,7 +67,6 @@ class ProfilePage {
         if (u.createdAt) document.getElementById('created-at').textContent = new Date(u.createdAt).toLocaleDateString('th-TH');
         if (u.updatedAt) document.getElementById('updated-at').textContent = new Date(u.updatedAt).toLocaleDateString('th-TH');
         
-        // Populate Form
         document.getElementById('firstname').value = u.firstname || '';
         document.getElementById('lastname').value = u.lastname || '';
         document.getElementById('username').value = u.username || '';
@@ -129,7 +123,6 @@ class ProfilePage {
         if (window.lucide) window.lucide.createIcons();
     }
 
-    // --- Data Loaders & Other Logic (ใช้โค้ดเดิม) ---
     async loadThailandData() { 
         try {
             const res = await fetch('https://raw.githubusercontent.com/kongvut/thai-province-data/refs/heads/master/api/latest/sub_district_with_district_and_province.json');
@@ -168,40 +161,65 @@ class ProfilePage {
         if (!actionArea || !button || !user) return;
 
         const getShopLink = (u) => u.vendorProfile?.id ? `/shop.html?id=${u.vendorProfile.id}` : '/shop.html';
+        const isVendor = user.role === 'VENDOR';
 
-        if (user.role === 'VENDOR') {
-            actionArea.classList.remove('hidden');
+        // 1. Set default state: Apply for Vendor
+        const resetToRegister = () => {
+            button.removeAttribute('disabled');
+            button.setAttribute('onclick', 'window.profilePage.checkVendorRequirements(event)');
+            button.setAttribute('href', '#');
+            button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
+            button.innerHTML = '<i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว';
+        };
+
+        actionArea.classList.remove('hidden');
+
+        if (isVendor) {
+            // User is already a VENDOR
             button.removeAttribute('onclick');
             button.setAttribute('href', getShopLink(user));
-            button.className = 'flex items-center gap-2 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
+            button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
             button.innerHTML = '<i data-lucide="package" class="w-5 h-5"></i> เยี่ยมชมร้านค้าของคุณ';
-        } else if (user.role === 'CUSTOMER' || user.role === 'ADMIN') {
-            actionArea.classList.remove('hidden');
-            button.setAttribute('href', '#'); 
+        } else {
             try {
+                // Assuming VendorManager.getRequestStatus() returns { status: "PENDING" | "APPROVED" | "REJECTED" }
                 const statusData = await VendorManager.getRequestStatus();
                 const status = statusData.status;
 
-                if (status === 'PENDING') {
+                if (status === 'APPROVED') {
                     button.removeAttribute('onclick');
-                    button.className = 'flex items-center gap-2 bg-amber-500 text-white px-5 py-2.5 rounded-xl shadow-md cursor-not-allowed font-medium';
+                    button.setAttribute('href', getShopLink(user));
+                    button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-green-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
+                    button.innerHTML = '<i data-lucide="package" class="w-5 h-5"></i> เยี่ยมชมร้านค้าของคุณ';
+
+                } else if (status === 'PENDING') {
+                    button.removeAttribute('href');
+                    button.setAttribute('disabled', 'true');
+                    button.removeAttribute('onclick');
+                    button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-amber-500 text-white px-5 py-2.5 rounded-xl shadow-md cursor-not-allowed font-medium';
                     button.innerHTML = '<i data-lucide="clock" class="w-5 h-5"></i> รอการอนุมัติ';
-                } else { 
-                    button.className = 'flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
-                    button.setAttribute('onclick', 'window.profilePage.checkVendorRequirements(event)'); 
-                    button.innerHTML = '<i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว';
+
+                } else if (status === 'REJECTED') {
+                    button.removeAttribute('href');
+                    button.setAttribute('disabled', 'true');
+                    button.removeAttribute('onclick');
+                    button.className = 'w-full flex items-center justify-center gap-2 mt-6 bg-gray-400 text-white px-5 py-2.5 rounded-xl shadow-md cursor-not-allowed font-medium';
+                    button.innerHTML = '<i data-lucide="x-circle" class="w-5 h-5"></i> ถูกปฏิเสธ';
+                    
+                } else {
+                    // Default: Ready to apply (if status is unrecognized or empty)
+                    resetToRegister();
                 }
             } catch (e) {
-                button.className = 'flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:scale-105 transition-all duration-300 font-medium';
-                button.setAttribute('onclick', 'window.profilePage.checkVendorRequirements(event)');
-                button.innerHTML = '<i data-lucide="store" class="w-5 h-5"></i> สมัครเป็นผู้หิ้ว';
+                // Status not found / error -> Assume not applied yet
+                resetToRegister();
             }
         }
         if (window.lucide) window.lucide.createIcons();
     }
 
+
     bindEvents() {
-        // Event listeners (ใช้เมธอดที่ถูก bind ใน constructor)
         document.getElementById('profile-form')?.addEventListener('submit', this.handleProfileUpdate);
         document.getElementById('preview-btn')?.addEventListener('click', this.handlePreviewImage);
         
@@ -315,22 +333,20 @@ class ProfilePage {
         }
     }
     
-    // --- Address Modal Logic ---
     showAddressModal(addr = null) {
         const modal = document.getElementById('address-modal');
         if (!modal) return;
         
+        modal.classList.remove('hidden'); 
         modal.classList.add('active'); 
 
         const isEdit = !!addr;
         
-        // Reset form controls and populate data
         document.getElementById('modal-title').innerText = isEdit ? "แก้ไขที่อยู่" : "เพิ่มที่อยู่ใหม่";
         document.getElementById('addr-id').value = addr?.id || "";
         document.getElementById('addr-title').value = addr?.title || "";
         document.getElementById('addr-home').value = addr?.homeNumero || "";
         
-        // Trigger change events to populate dropdowns
         document.getElementById('addr-province').value = addr?.city || "";
         this.handleProvinceChange(); 
 
@@ -348,7 +364,11 @@ class ProfilePage {
     }
 
     closeAddressModal() {
-        document.getElementById('address-modal')?.classList.remove('active'); 
+        const modal = document.getElementById('address-modal');
+        if (!modal) return;
+        
+        modal.classList.remove('active');
+        modal.classList.add('hidden');
     }
 
     async handleSaveAddressModal() {
@@ -375,13 +395,12 @@ class ProfilePage {
 
             if (id) { 
                 // FIX: 1. Update existing address - Sanitize payload for PATCH request
-                
-                // กรองค่าว่าง/null ออกจาก Payload เพื่อให้ Server ประมวลผล PATCH ได้ถูกต้อง
+                // This resolves the "Silent Failure" on edit
                 Object.keys(payload).forEach(key => (payload[key] === null || payload[key] === '') && delete payload[key]);
                 
                 await this.userManger.updateAddress(id, payload); 
             } else {
-                // 2. Create new address (ใช้ nested object update)
+                // 2. Create new address (using nested object update, which is correct for this backend contract)
                 await this.userManger.update(this.currentUser.id, { address: payload }); 
             }
 
