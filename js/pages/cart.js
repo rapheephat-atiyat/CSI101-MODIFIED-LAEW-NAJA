@@ -15,6 +15,7 @@ class CartPage {
         this.totalPriceElement = document.getElementById('total-price');
         this.subtotalPriceElement = document.getElementById('subtotal-price');
         this.freePriceElement = document.getElementById('fee-price');
+        this.carryPriceElement = document.getElementById("carry-price")
 
         this.bindEvents();
         await this.loadCartData();
@@ -88,11 +89,16 @@ class CartPage {
     }
 
     updateTotalPrice(total) {
+        
         if (this.totalPriceElement && this.subtotalPriceElement) {
 
+            const randomCarry = Math.floor(Math.random() * (600 - 300 + 1)) + 300;
+
             this.subtotalPriceElement.textContent = window.formatCurrency(total);
-            this.freePriceElement.textContent = window.formatCurrency(total * 0.05);
-            this.totalPriceElement.textContent = window.formatCurrency(total * 1.05);
+
+            this.carryPriceElement.textContent = window.formatCurrency(randomCarry)
+            this.freePriceElement.textContent = window.formatCurrency(total * 0.025);
+            this.totalPriceElement.textContent = window.formatCurrency(total * 1.025 + randomCarry);
         }
     }
 

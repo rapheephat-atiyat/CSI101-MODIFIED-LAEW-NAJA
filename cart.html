@@ -41,7 +41,7 @@
                             </div>
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>ค่าหิ้ว :</span>
-                                <span>฿0.00</span>
+                                <span><span id="carry-price">฿0.00</span></span>
                             </div>
                             <div class="flex justify-between text-sm text-gray-600">
                                 <span>ค่าธรรมเนียม 5 %:</span>
@@ -74,45 +74,7 @@
     <script src="js/pages/cart.js"></script>
 
 
-    <script>
-// -------------------------
-//  ตั้งราคาสินค้าตรงนี้
-// -------------------------
-
-const subtotal = 1500;   // 💰 ราคาสินค้า
-const fee = 50;          // 💸 ค่าธรรมเนียม / ค่าส่ง
-const total = subtotal + fee;
-
-// แสดงราคาบนหน้า Cart (ถ้าคุณมี UI)
-document.getElementById("subtotal").textContent = subtotal.toLocaleString() + " บาท";
-document.getElementById("fee").textContent = fee.toLocaleString() + " บาท";
-document.getElementById("total").textContent = total.toLocaleString() + " บาท";
-
-// -----------------------------------
-//  ฟังก์ชันไปหน้าชำระเงิน
-// -----------------------------------
-function goToPayment() {
-
-    // เก็บข้อมูลลง localStorage
-    localStorage.setItem("checkout_data", JSON.stringify({
-        subtotal: subtotal,
-        fee: fee,
-        total: total
-    }));
-
-    // เด้งไปหน้าชำระเงิน
-    window.location.href = "payment.html";  
-}
-
-// -----------------------------------
-//  ปุ่มกดชำระเงิน
-// -----------------------------------
-document.getElementById("checkoutBtn").addEventListener("click", () => {
-    goToPayment();
-});
-
-</script>
-
+    
 
 
 </body>
