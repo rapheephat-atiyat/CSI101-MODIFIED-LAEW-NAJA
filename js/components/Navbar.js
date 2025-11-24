@@ -14,9 +14,6 @@ class Navbar extends HTMLElement {
             this.auth = new AuthManager();
         }
 
-        // Expose refreshCart method globally for other components (like CartManager or ProductDetailManager)
-        window.refreshNavbarCart = this.refreshUI.bind(this);
-
         this.handleTokenFromURL();
         await this.loadProfile();
         await this.fetchCartCount();
@@ -54,7 +51,6 @@ class Navbar extends HTMLElement {
     async fetchCartCount() {
         if (this.auth && this.auth.isLoggedIn() && typeof CartManager !== 'undefined') {
             try {
-                // Assuming CartManager.getCart returns { data: [] } where data is an array of cart items
                 const cartResponse = await CartManager.getCart();
                 this.cartItemCount = cartResponse.data.length;
             } catch (e) {
@@ -86,26 +82,6 @@ class Navbar extends HTMLElement {
         this.bindEvents();
         this.updateAuthUI();
         if (window.lucide) window.lucide.createIcons();
-    }
-    
-    // --- NEW: Search Handler ---
-    
-    handleSearch(event) {
-        // ตรวจสอบว่าผู้ใช้กด Enter หรือไม่
-        if (event.key === 'Enter') {
-            const searchInput = event.target;
-            const query = searchInput.value.trim();
-
-            if (query) {
-                // นำผู้ใช้ไปยังหน้า product.html พร้อม query parameter 'q'
-                window.location.href = `/product.html?q=${encodeURIComponent(query)}`;
-            } else {
-                // ถ้าค้นหาว่างเปล่า อาจจะนำไปหน้า product.html ปกติ หรืออยู่หน้าเดิม
-                window.location.href = "/product.html";
-            }
-            // ป้องกันการ submit form หรือ action อื่นๆ
-            event.preventDefault(); 
-        }
     }
 
     render() {
@@ -157,7 +133,7 @@ class Navbar extends HTMLElement {
                             <i data-lucide="shopping-bag" class="w-4 h-4"></i>
                             <span>สินค้า</span>
                         </a>
-                        <a href="${shopLink}" class="${navLinkClasses}">
+                         <a href="${shopLink}" class="${navLinkClasses}">
                             <i data-lucide="store" class="w-4 h-4"></i>
                             <span>ร้านค้า</span>
                         </a>
@@ -171,7 +147,7 @@ class Navbar extends HTMLElement {
                         <div id="desktop-search-bar" class="hidden md:block">
                             <div class="relative">
                                 <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none"></i>
-                                <input type="text" id="desktop-search-input" placeholder="ค้นหาชื่อสินค้า/ร้านค้า..." 
+                                <input type="text" placeholder="ค้นหา..." 
                                     class="w-56 lg:w-72 pl-9 pr-4 py-2 text-sm bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-gray-200 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all duration-200" />
                             </div>
                         </div>
@@ -252,7 +228,7 @@ class Navbar extends HTMLElement {
                     <div class="mb-4">
                         <div class="relative">
                             <i data-lucide="search" class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4 pointer-events-none"></i>
-                            <input type="text" id="mobile-search-input" placeholder="ค้นหาชื่อสินค้า/ร้านค้า..." 
+                            <input type="text" placeholder="ค้นหา..." 
                                 class="w-full pl-9 pr-4 py-2.5 text-sm bg-gray-50 border border-transparent rounded-lg focus:bg-white focus:border-gray-200 focus:ring-2 focus:ring-blue-500/20 outline-none transition-all" />
                         </div>
                     </div>
@@ -333,7 +309,6 @@ class Navbar extends HTMLElement {
     }
 
     updateAuthUI() {
-        // ... (โค้ดเดิม: จัดการแสดงผลปุ่ม Login/User Menu)
         const loggedIn = this.auth ? this.auth.isLoggedIn() : false;
 
         const desktopLoginBtn = this.querySelector("#desktop-login-btn");
@@ -350,7 +325,6 @@ class Navbar extends HTMLElement {
     }
 
     loadDependencies() {
-        // ... (โค้ดเดิม: โหลด dependencies)
         return new Promise((resolve) => {
             const load = (src) =>
                 new Promise((res) => {
@@ -373,7 +347,6 @@ class Navbar extends HTMLElement {
     }
 
     bindEvents() {
-        // ... (โค้ดเดิม: Mobile Menu, Desktop User Menu, Notifications)
         const mobileMenuToggle = this.querySelector("#mobile-menu-toggle");
         const mobileMenu = this.querySelector("#mobile-menu");
         
@@ -463,21 +436,6 @@ class Navbar extends HTMLElement {
                 }
             });
         }
-        
-        // --- NEW: Search Event Handlers ---
-        
-        const desktopSearchInput = this.querySelector("#desktop-search-input");
-        const mobileSearchInput = this.querySelector("#mobile-search-input");
-
-        if (desktopSearchInput) {
-            desktopSearchInput.addEventListener("keydown", (e) => this.handleSearch(e));
-        }
-
-        if (mobileSearchInput) {
-            mobileSearchInput.addEventListener("keydown", (e) => this.handleSearch(e));
-        }
-        
-        // --- End Search Event Handlers ---
 
         const handleLogout = (e) => {
             e.preventDefault();
