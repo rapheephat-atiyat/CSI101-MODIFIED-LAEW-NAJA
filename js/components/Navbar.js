@@ -62,6 +62,7 @@ class Navbar extends HTMLElement {
     async refreshCart() {
         await this.fetchCartCount();
         this.render();
+        this.bindEvents();
         this.updateAuthUI();
         if (window.lucide) window.lucide.createIcons();
     }
@@ -318,11 +319,11 @@ class Navbar extends HTMLElement {
         const mobileMenuToggle = this.querySelector("#mobile-menu-toggle");
         const mobileMenu = this.querySelector("#mobile-menu");
         const mobileMenuIcon = mobileMenuToggle?.querySelector("i");
-        
+
         if (mobileMenuToggle && mobileMenu) {
             mobileMenuToggle.addEventListener("click", () => {
                 mobileMenu.classList.toggle("hidden");
-                
+
                 if (mobileMenuIcon) {
                     const iconEl = mobileMenuToggle.querySelector('[data-lucide]') || mobileMenuToggle.querySelector('svg');
 
@@ -334,15 +335,15 @@ class Navbar extends HTMLElement {
                 if (window.lucide) window.lucide.createIcons();
             });
         }
-        
+
         const desktopUserMenuBtn = this.querySelector("#desktop-user-menu-btn");
         const desktopUserDropdown = this.querySelector("#desktop-user-dropdown");
         const desktopDropdownIcon = this.querySelector("#desktop-dropdown-icon");
 
         if (desktopUserMenuBtn && desktopUserDropdown) {
-            
+
             const getRotatableIcon = () => desktopUserMenuBtn.querySelector('[data-lucide="chevron-down"]') || desktopUserMenuBtn.querySelector('svg[data-lucide="chevron-down"]');
-            
+
             desktopUserMenuBtn.addEventListener("click", (e) => {
                 e.preventDefault();
                 e.stopPropagation();

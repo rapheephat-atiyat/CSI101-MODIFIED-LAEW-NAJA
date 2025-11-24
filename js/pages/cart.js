@@ -14,6 +14,7 @@ class CartPage {
         this.checkoutBtn = document.getElementById('checkout-button');
         this.totalPriceElement = document.getElementById('total-price');
         this.subtotalPriceElement = document.getElementById('subtotal-price');
+        this.freePriceElement = document.getElementById('fee-price');
 
         this.bindEvents();
         await this.loadCartData();
@@ -88,9 +89,9 @@ class CartPage {
 
     updateTotalPrice(total) {
         if (this.totalPriceElement && this.subtotalPriceElement) {
-            const formattedTotal = window.formatCurrency(total);
-            this.totalPriceElement.textContent = formattedTotal;
-            this.subtotalPriceElement.textContent = formattedTotal;
+            this.subtotalPriceElement.textContent = window.formatCurrency(total);
+            this.freePriceElement.textContent = window.formatCurrency(total * 0.05);
+            this.totalPriceElement.textContent = window.formatCurrency(total * 1.05);
         }
     }
 

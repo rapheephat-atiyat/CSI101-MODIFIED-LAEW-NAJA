@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">รายการคำขอสินค้า - HiewHub</title>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600&display=swap">
+</head>
+
+<body class="bg-gray-50 min-h-screen flex flex-col font-['Prompt',sans-serif] text-slate-700">
+
+    <navbar-eiei></navbar-eiei>
+
+    <div class="max-w-7xl mx-auto px-4 py-10 flex-grow w-full">
+        <h1 class="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-3">
+            <i data-lucide="list-checks" class="w-8 h-8 text-blue-600"></i> รายการคำขอสินค้าจากลูกค้า
+        </h1>
+        <p class="text-gray-500 mb-6" id="vendor-info-display"></p>
+
+        <div id="loading-state" class="text-center py-20 text-gray-500">
+            <i data-lucide="loader-circle" class="w-12 h-12 animate-spin mx-auto mb-3 text-blue-600"></i>
+            <p class="text-xl font-medium">กำลังโหลดรายการคำขอ...</p>
+        </div>
+
+        <div id="error-state" class="hidden text-center py-20 text-red-600">
+            <i data-lucide="alert-triangle" class="w-12 h-12 mx-auto mb-3"></i>
+            <p id="error-message" class="text-xl font-medium">เกิดข้อผิดพลาดในการโหลดข้อมูล</p>
+            <a href="/profile.html" class="mt-4 inline-block text-blue-600 hover:underline">กลับไปหน้าโปรไฟล์</a>
+        </div>
+
+        <div id="request-list-container" class="hidden">
+            <div id="request-list" class="space-y-4">
+            </div>
+            <div id="requests-empty" class="hidden text-center py-10 text-gray-500">
+                <i data-lucide="inbox" class="w-10 h-10 mx-auto mb-3"></i>
+                <p>ยังไม่มีคำขอเสนอสินค้าเข้ามา</p>
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <a href="/shop.html" class="text-blue-600 hover:underline">
+                <i data-lucide="store" class="w-4 h-4 inline mr-1"></i> กลับหน้าร้านค้า
+            </a>
+        </div>
+
+    </div>
+
+    <footer-eiei></footer-eiei>
+
+    <script src="../js/config.js"></script>
+    <script src="../js/services/AuthManager.js"></script>
+    <script src="../js/services/ProductRequestManager.js"></script>
+    <script src="../js/components/Navbar.js"></script>
+    <script src="../js/components/Footer.js"></script>
+    <script src="../js/pages/product-request.js"></script>
+</body>
+
+</html>

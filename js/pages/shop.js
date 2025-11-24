@@ -54,7 +54,6 @@ class ShopManager {
         this.toggleDisplay('loading');
 
         try {
-            // CRITICAL FIX: Check dependencies before executing the Promise.all
             if (typeof VendorProfileManager === 'undefined' || !this.auth) {
                  throw new Error("ไม่สามารถโหลดไฟล์บริการหลัก (Service Manager files missing).");
             }
@@ -122,8 +121,12 @@ class ShopManager {
                 followBtn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
                 followBtn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
                 
+                // FIX: Safely update the icon by searching for the element with the data-lucide attribute (either <i> or <svg>)
+                const iconEl = followBtn.querySelector('[data-lucide]') || followBtn.querySelector('svg');
                 followBtn.querySelector('.follow-text').textContent = 'ติดตาม';
-                followBtn.querySelector('i').setAttribute('data-lucide', 'user-plus');
+                if (iconEl) {
+                    iconEl.setAttribute('data-lucide', 'user-plus');
+                }
             }
         }
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
@@ -244,12 +247,16 @@ class ShopManager {
             btn.classList.remove('bg-blue-600', 'text-white', 'border-blue-600');
             btn.classList.add('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
             btn.querySelector('.follow-text').textContent = 'กำลังติดตาม';
-            btn.querySelector('i').setAttribute('data-lucide', 'user-check');
+            
+            const iconEl = btn.querySelector('[data-lucide="user-plus"]') || btn.querySelector('[data-lucide="user-check"]');
+            if (iconEl) iconEl.setAttribute('data-lucide', 'user-check');
         } else {
             btn.classList.add('bg-blue-600', 'text-white', 'border-blue-600');
             btn.classList.remove('bg-gray-100', 'text-gray-600', 'border-gray-300', 'border-2');
             btn.querySelector('.follow-text').textContent = 'ติดตาม';
-            btn.querySelector('i').setAttribute('data-lucide', 'user-plus');
+            
+            const iconEl = btn.querySelector('[data-lucide="user-plus"]') || btn.querySelector('[data-lucide="user-check"]');
+            if (iconEl) iconEl.setAttribute('data-lucide', 'user-plus');
         }
 
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
@@ -447,6 +454,7 @@ class ShopManager {
         }
     }
 
+    // --- Utility Methods ---
 
     toggleDisplay(state) {
         this.elements.loadingState?.classList.add('hidden');
@@ -475,5 +483,6 @@ class ShopManager {
     }
 }
 
+// Global binding and initialization
 const shopManager = new ShopManager();
 window.shopManager = shopManager;
