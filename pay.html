@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>หน้าชำระเงิน</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+  <div class="max-w-xl mx-auto bg-white p-6 rounded-2xl shadow-lg">
+    <h1 class="text-2xl font-bold mb-4 text-center">ชำระเงิน</h1>
+
+    <!-- Order Summary -->
+    <div class="mb-6">
+      <h2 class="text-lg font-semibold mb-2">รายการสั่งซื้อ</h2>
+
+      <div class="flex justify-between border-b pb-2">
+        <span>สินค้า</span>
+        <span id="subtotal-price">0 บาท</span>
+      </div>
+
+      <div class="flex justify-between border-b pb-2 mt-2">
+        <span>ค่าภาษี/ค่าธรรมเนียม</span>
+        <span id="fee-price">0 บาท</span>
+      </div>
+
+      <div class="flex justify-between text-xl font-bold mt-3">
+        <span>รวมทั้งสิ้น</span>
+        <span id="total-price">0 บาท</span>
+      </div>
+    </div>
+
+    <!-- Payment Methods -->
+    <h2 class="text-lg font-semibold mb-2">เลือกวิธีการชำระเงิน</h2>
+
+    <div class="space-y-3 mb-4">
+      <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
+        <input type="radio" name="payment" class="mr-3 payment-option" value="bank" />
+        โอนผ่านธนาคาร
+      </label>
+
+      <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
+        <input type="radio" name="payment" class="mr-3 payment-option" value="promptpay" />
+        พร้อมเพย์
+      </label>
+
+      <label class="flex items-center p-3 border rounded-xl cursor-pointer hover:bg-gray-50">
+        <input type="radio" name="payment" class="mr-3 payment-option" value="cod" />
+        เก็บเงินปลายทาง (COD)
+      </label>
+    </div>
+
+    <!-- Bank Transfer Box -->
+    <div id="bank-box" class="hidden mt-4 p-4 border rounded-xl bg-gray-50">
+      <p class="font-semibold mb-2">เลือกธนาคารสำหรับการโอน</p>
+
+      <select id="bank-select" class="w-full p-2 border rounded-lg">
+        <option value="">— กรุณาเลือกธนาคาร —</option>
+        <option value="kbank">กสิกรไทย (KBank)</option>
+        <option value="scb">ไทยพาณิชย์ (SCB)</option>
+        <option value="ktb">กรุงไทย (KTB)</option>
+        <option value="bbl">กรุงเทพ (BBL)</option>
+        <option value="ttb">ทีทีบี (TTB)</option>
+      </select>
+
+      <p class="text-sm text-gray-600 mt-2">** ระบบจะแสดงเลขบัญชีหลังจากเลือกธนาคาร **</p>
+    </div>
+
+    <!-- PromptPay QR Box -->
+    <div id="promptpay-qr-box" class="hidden mt-4 p-4 border rounded-xl bg-gray-50">
+      <p class="font-semibold mb-2 text-center">สแกนเพื่อชำระเงินผ่านพร้อมเพย์</p>
+      <img src="https://promptpay.io/0891234567.png"
+           alt="QR PromptPay"
+           class="w-56 mx-auto rounded-lg shadow">
+      <p class="text-center text-sm text-gray-600 mt-2">เบอร์: 089-123-4567</p>
+    </div>
+
+    <!-- Pay Button -->
+    <button class="mt-6 w-full bg-blue-600 text-white py-3 rounded-xl text-lg hover:bg-blue-700">
+      ยืนยันการชำระเงิน
+    </button>
+  </div>
+
+  <!-- Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // ดึงข้อมูลราคาจาก localStorage
+        const data = JSON.parse(localStorage.getItem("checkout_data"));
+        if (data) {
+            document.getElementById("subtotal-price").textContent = data.subtotal.toLocaleString() + " บาท";
+            document.getElementById("fee-price").textContent = data.fee.toLocaleString() + " บาท";
+            document.getElementById("total-price").textContent = data.total.toLocaleString() + " บาท";
+        }
+
+        // ระบบแสดงตัวเลือกธนาคาร & QR พร้อมเพย์
+        const qrBox = document.getElementById("promptpay-qr-box");
+        const bankBox = document.getElementById("bank-box");
+        const paymentOptions = document.querySelectorAll(".payment-option");
+
+        paymentOptions.forEach(option => {
+            option.addEventListener("change", () => {
+                if (option.value === "promptpay") {
+                    qrBox.classList.remove("hidden");
+                    bankBox.classList.add("hidden");
+                } 
+                else if (option.value === "bank") {
+                    bankBox.classList.remove("hidden");
+                    qrBox.classList.add("hidden");
+                } 
+                else {
+                    qrBox.classList.add("hidden");
+                    bankBox.classList.add("hidden");
+                }
+            });
+        });
+    });
+  </script>
+
+</body>
+</html>

@@ -157,8 +157,7 @@ class ProductDetailManager {
                     </div>
                 </div>
                 <div class="flex gap-3 mt-2.5">
-                    <button id="addCart" class="bg-white border border-gray-300 p-3 px-[18px] rounded-lg cursor-pointer font-bold flex-1 hover:bg-gray-50 transition" title="เพิ่มในตะกร้า">เพิ่มในตะกร้า</button>
-                    <button id="buyNow" class="bg-red-700 text-white p-3 px-[18px] rounded-lg border-none cursor-pointer font-extrabold min-w-[140px] hover:bg-red-800 transition">ซื้อเลย</button>
+                    <button id="addCart" class="bg-red-700 text-white p-3 px-[18px] rounded-lg cursor-pointer font-bold flex-1 hover:bg-red-800 transition" title="เพิ่มในตะกร้า">เพิ่มในตะกร้า</button>
                 </div>
 
                 <hr class="border-none h-[1px] bg-[#f1f5f8] -mx-[22px] my-[22px] mb-[14px]">

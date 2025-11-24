@@ -107,7 +107,7 @@ class CartPage {
                 await CartManager.removeItem(vendorProductId);
                 Swal.fire({ icon: 'success', title: 'ลบสำเร็จ!', text: 'สินค้านี้ถูกนำออกจากตะกร้าแล้ว', showConfirmButton: false, timer: 1000 });
                 await this.loadCartData();
-                document.querySelector('navbar-eiei')?.refreshCart();
+                // document.querySelector('navbar-eiei')?.refreshCart();
             } catch (error) {
                 Swal.fire('ลบไม่สำเร็จ', error.message, 'error');
             }
@@ -115,6 +115,7 @@ class CartPage {
     }
 
     handleCheckout() {
+        window.location.href = "pay.html"
         Swal.fire({
             icon: 'info', title: 'ยังไม่พร้อมใช้งาน', text: 'ระบบชำระเงินกำลังอยู่ในระหว่างการพัฒนา', confirmButtonText: 'ตกลง'
         });

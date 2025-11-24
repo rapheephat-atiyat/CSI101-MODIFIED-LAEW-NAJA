@@ -23,7 +23,7 @@ class ShopManager {
             addProductForm: document.getElementById('add-product-form'),
             modalTitle: document.getElementById('modal-title'),
             modalSubmitBtn: document.getElementById('modal-submit-btn'),
-            productIdToEdit: document.getElementById('product-id-to-edit'), // New Element
+            productIdToEdit: document.getElementById('product-id-to-edit'),
             
             shopAvatar: document.getElementById('shop-avatar'),
             shopName: document.getElementById('shop-name'),
@@ -59,12 +59,11 @@ class ShopManager {
 
             const [shopResponse, userResponse] = await Promise.all([
                 VendorProfileManager.getShopProfile(this.shopId),
-                this.auth.getProfile().catch(() => ({ user: { id: null, role: null } })) // Handle guest
+                this.auth.getProfile().catch(() => ({ user: { id: null, role: null } }))
             ]);
 
             const shopData = shopResponse.data;
             this.currentUserId = userResponse?.user?.id;
-            // ตรวจสอบว่าเป็นเจ้าของร้าน: Role VENDOR และ ID ตรงกัน
             this.isShopOwner = (userResponse?.user?.role === 'VENDOR') && (this.currentUserId === shopData.userId);
 
             this.renderShopProfile(shopData);
@@ -80,11 +79,8 @@ class ShopManager {
         }
     }
 
-    // --- UI Logic & Event Setup ---
-
     setupGeneralEventListeners() {
-        // Event listener เพื่อให้ปิด modal เมื่อกดปุ่ม X
-        // การจัดการฟอร์ม addProductOrUpdate ถูกผูกกับ onsubmit ใน HTML แล้ว
+
     }
 
     _setLucideIcon(btn, newIcon) {
@@ -108,7 +104,6 @@ class ShopManager {
 
             await this.updateWishlistRequestCount();
         } else {
-            // Customer/Guest view
             getEl('addProductBtn')?.classList.add('hidden');
             getEl('viewWishlistRequestsBtn')?.classList.add('hidden');
 
@@ -134,10 +129,7 @@ class ShopManager {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
 
-    // --- Rendering Methods ---
-
     renderShopProfile(data) {
-        // ... (โค้ดเดิม)
         const user = data.user || {};
         const avatarUrl = user.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(data.shopName)}&background=3b82f6&color=fff&size=256`;
 
@@ -182,7 +174,6 @@ class ShopManager {
             const card = document.createElement('div');
             card.className = 'bg-white rounded-xl shadow-sm hover:shadow-md border border-gray-100 overflow-hidden group cursor-pointer transition-all duration-300 hover:-translate-y-1 flex flex-col';
 
-            // ส่วนของปุ่ม แก้ไข/ลบ สำหรับเจ้าของร้าน
             let managementButtons = '';
             if (this.isShopOwner) {
                 managementButtons = `
@@ -200,7 +191,7 @@ class ShopManager {
                     </div>
                 `;
             } else {
-                managementButtons = `<div class="p-3 pt-0"></div>`; // Placeholder space for alignment
+                managementButtons = `<div class="p-3 pt-0"></div>`;
             }
 
             card.innerHTML = `
@@ -235,10 +226,7 @@ class ShopManager {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
     }
 
-    // --- Action Handlers: CRUD for Products ---
-
     openAddProductModal() {
-        // รีเซ็ตฟอร์มเป็นโหมดเพิ่มสินค้า
         this.closeAddProductModal(); 
         this.elements.addProductModal?.classList.remove('hidden');
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
@@ -251,13 +239,11 @@ class ShopManager {
             const response = await ProductManager.getProduct(productId);
             const product = response.data;
             
-            // 1. กำหนด UI ให้เป็นโหมดแก้ไข
             this.elements.modalTitle.innerHTML = `<i data-lucide="square-pen" class="w-6 h-6 text-blue-600"></i> แก้ไขสินค้า: ${product.title}`;
             this.elements.modalSubmitBtn.textContent = 'บันทึกการแก้ไข';
             this.elements.modalSubmitBtn.classList.remove('bg-green-600', 'hover:bg-green-700', 'shadow-green-600/30');
             this.elements.modalSubmitBtn.classList.add('bg-blue-600', 'hover:bg-blue-700', 'shadow-blue-600/30');
             
-            // 2. เติมข้อมูลลงในฟอร์ม
             this.elements.productIdToEdit.value = product.id;
             
             form.elements['title'].value = product.title || '';
@@ -282,9 +268,8 @@ class ShopManager {
     }
 
     closeAddProductModal() {
-        // รีเซ็ตฟอร์มและปุ่มเป็นโหมด "เพิ่มสินค้าใหม่"
         this.elements.addProductForm?.reset();
-        this.elements.productIdToEdit.value = ''; // เคลียร์ ID ที่ซ่อนไว้
+        this.elements.productIdToEdit.value = '';
         
         this.elements.modalTitle.innerHTML = `<i data-lucide="plus-circle" class="w-6 h-6 text-green-600"></i> เพิ่มสินค้าใหม่`;
         this.elements.modalSubmitBtn.textContent = 'บันทึกสินค้า';
@@ -306,7 +291,6 @@ class ShopManager {
         const hashtagString = formData.get('hashtag');
 
         const imagesPayload = imagesString ? imagesString.split('\n').map(url => url.trim()).filter(url => url.length > 0) : undefined;
-        // ลบ # ออกจาก hashtag และกรองค่าว่าง
         const hashtagPayload = hashtagString ? hashtagString.split('\n').map(tag => tag.trim().replace(/^#/, '')).filter(tag => tag.length > 0) : undefined;
 
         const payload = {
@@ -386,7 +370,7 @@ class ShopManager {
                 await ProductManager.deleteProduct(productId);
                 
                 Swal.fire('ลบสำเร็จ!', 'สินค้าถูกลบออกจากร้านค้าแล้ว', 'success');
-                this.fetchShopData(); // โหลดข้อมูลร้านค้าใหม่
+                this.fetchShopData();
             } catch (error) {
                 console.error("Delete Product Error:", error);
                 Swal.fire('ผิดพลาด', error.message || 'ไม่สามารถลบสินค้าได้', 'error');
@@ -394,10 +378,7 @@ class ShopManager {
         }
     }
 
-    // --- Utility Methods ---
-
     toggleFollow() {
-        // ... (โค้ดเดิม)
         const btn = this.elements.followBtn;
         if (!btn) return;
 
@@ -437,7 +418,6 @@ class ShopManager {
     }
 
     openWishlistRequestModal() {
-        // ... (โค้ดเดิม)
         if (!this.auth?.isLoggedIn()) {
             Swal.fire({
                 icon: 'warning',
