@@ -77,10 +77,17 @@ class AuthManager {
             const res = await fetch(`${this.BASE_URL}/api/profile`, {
                 headers: { "Authorization": `Bearer ${this.token}` }
             });
+
+            if (res.status === 401 || res.status === 403) {
+                this.clearToken();
+                return null;
+            }
+
             if (res.ok) return await res.json();
         } catch (e) {
             console.error(e);
         }
+
         const payload = this.getDecodedToken();
         return payload ? { user: payload } : null;
     }
@@ -107,10 +114,6 @@ class AuthManager {
         return data;
     }
 
-
-    /**
-     * * @param {string[]} allowedRoles
-     */
     async protect(allowedRoles = []) {
         if (!this.token) {
             window.location.href = "/signIn.html";

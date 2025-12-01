@@ -28,8 +28,6 @@ class Navbar extends HTMLElement {
         this.render();
         this.bindEvents();
         this.updateAuthUI();
-
-        // [เพิ่มใหม่] เริ่มระบบค้นหา
         this.bindSearchEvents();
 
         if (window.lucide) window.lucide.createIcons();
@@ -57,8 +55,16 @@ class Navbar extends HTMLElement {
         const prevNotifCount = this.notificationCount;
         const prevCartCount = this.cartItemCount;
 
-        await this.fetchCartCount();
-        await this.fetchNotificationCount();
+        if (this.auth && this.auth.isLoggedIn()) {
+            await this.fetchCartCount();
+            await this.fetchNotificationCount();
+
+            const currentImage = this.profile?.user?.image;
+            if (!currentImage || currentImage === 'null') {
+                await this.loadProfile();
+                this.updateUserInfo();
+            }
+        }
 
         if (prevNotifCount !== this.notificationCount || prevCartCount !== this.cartItemCount) {
             this.updateBadges();
@@ -67,6 +73,45 @@ class Navbar extends HTMLElement {
         if (!isPolling) {
             this.updateAuthUI();
         }
+    }
+
+    updateUserInfo() {
+        const user = this.profile?.user;
+        if (!user) return;
+
+        const firstname = user.firstname || 'ผู้ใช้';
+        const lastname = user.lastname || '';
+        const email = user.email || '';
+        const image = user.image && user.image !== 'null' && user.image !== 'undefined' ? user.image : null;
+        const initial = firstname.charAt(0).toUpperCase();
+
+        const desktopBtn = this.querySelector('#desktop-user-menu-btn');
+        if (desktopBtn) {
+            const chevronHtml = '<i data-lucide="chevron-down" id="desktop-dropdown-icon" class="w-4 h-4 text-gray-400 transition-transform"></i>';
+
+            const imgHtml = image
+                ? `<img src="${image}" alt="Profile" class="w-8 h-8 rounded-full object-cover ring-2 ring-gray-100" />`
+                : `<div class="w-8 h-8 rounded-full bg-gray-900 flex items-center justify-center text-white font-medium text-sm">${initial}</div>`;
+
+            desktopBtn.innerHTML = `${imgHtml}<span class="font-medium text-sm text-gray-900 max-w-[100px] truncate">${firstname}</span>${chevronHtml}`;
+        }
+
+        const mobileHeader = this.querySelector('#mobile-user-menu .flex.items-center.gap-3');
+        if (mobileHeader) {
+            const imgHtml = image
+                ? `<img src="${image}" alt="Profile" class="w-12 h-12 rounded-full object-cover ring-2 ring-white" />`
+                : `<div class="w-12 h-12 rounded-full bg-gray-900 flex items-center justify-center text-white font-medium text-lg">${initial}</div>`;
+
+            mobileHeader.innerHTML = `
+                ${imgHtml}
+                <div class="flex-1 min-w-0">
+                    <p class="font-medium text-sm text-gray-900 truncate">${firstname} ${lastname}</p>
+                    <p class="text-xs text-gray-500 truncate">${email}</p>
+                </div>
+             `;
+        }
+
+        if (window.lucide) window.lucide.createIcons();
     }
 
     updateBadges() {
@@ -83,14 +128,12 @@ class Navbar extends HTMLElement {
         });
     }
 
-    // [เพิ่มใหม่] ฟังก์ชันจัดการการค้นหา
     bindSearchEvents() {
         const desktopSearch = this.querySelector('#desktop-search-input');
         const mobileSearch = this.querySelector('#mobile-search-input');
 
         const handleSearch = (e) => {
             const query = e.target.value.trim();
-            // ส่ง Custom Event ชื่อ 'search-action' พร้อมข้อความที่พิมพ์
             window.dispatchEvent(new CustomEvent('search-action', { detail: query }));
         };
 

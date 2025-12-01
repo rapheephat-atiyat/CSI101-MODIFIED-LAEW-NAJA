@@ -436,7 +436,6 @@ class ShopManager {
 
         if (!this.shopData && !this.shopId) return;
 
-        // ใช้ข้อมูลร้านค้าที่ดึงมาแล้ว
         if (this.shopData && this.shopData.userId) {
             try {
                 const res = await ChatManager.initiateChat(this.shopData.userId);
@@ -451,7 +450,7 @@ class ShopManager {
         }
     }
 
-    openWishlistRequestModal() {
+    async openWishlistRequestModal() {
         if (!this.auth?.isLoggedIn()) {
             Swal.fire({
                 icon: 'warning',
@@ -466,7 +465,7 @@ class ShopManager {
         const formInputStyles = "w-full p-2.5 rounded-lg border border-gray-300 text-[0.95rem] outline-none bg-white transition focus:border-blue-600 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.15)]";
         const formLabelStyles = "block text-sm font-medium text-gray-700 mb-1";
 
-        const { value: formValues } = Swal.fire({
+        const { value: formValues } = await Swal.fire({
             title: 'Request a Product',
             html: `
                 <div class="text-left p-2.5">
@@ -532,7 +531,8 @@ class ShopManager {
                 if (typeof ProductRequestManager === 'undefined' || !window.ProductRequestManager.createRequest) {
                     throw new Error("ProductRequestManager is not loaded.");
                 }
-                ProductRequestManager.createRequest(formValues);
+
+                await ProductRequestManager.createRequest(formValues);
 
                 Swal.fire({
                     icon: 'success',
