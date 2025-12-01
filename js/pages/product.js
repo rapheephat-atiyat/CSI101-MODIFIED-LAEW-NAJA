@@ -612,7 +612,7 @@ class ProductDetailManager {
                                         </div>
                                         <div class="p-2.5 flex flex-col gap-1 flex-grow">
                                             <span class="text-sm font-semibold text-gray-800 min-h-8 leading-snug overflow-hidden text-ellipsis block line-clamp-2">${p.title}</span>
-                                            <span class="text-red-700 font-extrabold text-base mt-auto">฿${this.formatPrice(displayPrice)}</span>
+                                            <span class="text-red-700 font-extrabold text-base mt-auto">฿${displayPrice}</span>
                                         </div>
                                     </a>
                                 `;
