@@ -156,14 +156,16 @@ class ShopManager {
 
         grid.innerHTML = '';
 
-        if (!products || products.length === 0) {
+        const publicProducts = (products || []).filter(p => p.isPublic !== false);
+
+        if (publicProducts.length === 0) {
             this.elements.productsEmpty?.classList.remove('hidden');
             return;
         }
 
         this.elements.productsEmpty?.classList.add('hidden');
 
-        products.forEach(p => {
+        publicProducts.forEach(p => {
             const isDiscount = p.discountPrice && p.discountPrice < p.price;
             const displayPrice = isDiscount ? p.discountPrice : p.price;
             const oldPrice = isDiscount ? p.price : null;
@@ -185,18 +187,9 @@ class ShopManager {
             if (this.isShopOwner) {
                 managementButtons = `
                     <div class="flex gap-2 p-3 pt-0 mt-auto border-t border-gray-100">
-                        <button 
-                            onclick="shopManager.openEditProductModal('${p.id}')"
-                            class="flex-1 flex items-center justify-center gap-1.5 bg-blue-100 text-blue-700 py-2 rounded-lg text-sm font-semibold hover:bg-blue-200 transition">
-                            <i data-lucide="square-pen" class="w-4 h-4"></i> Edit
-                        </button>
-                        <button 
-                            onclick="shopManager.deleteProduct('${p.id}', '${p.title}')"
-                            class="flex-1 flex items-center justify-center gap-1.5 bg-red-100 text-red-700 py-2 rounded-lg text-sm font-semibold hover:bg-red-200 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i> Delete
-                        </button>
-                    </div>
-                `;
+                        <button onclick="shopManager.openEditProductModal('${p.id}')" class="flex-1 flex items-center justify-center gap-1.5 bg-blue-100 text-blue-700 py-2 rounded-lg text-sm font-semibold hover:bg-blue-200 transition"><i data-lucide="square-pen" class="w-4 h-4"></i> Edit</button>
+                        <button onclick="shopManager.deleteProduct('${p.id}', '${p.title}')" class="flex-1 flex items-center justify-center gap-1.5 bg-red-100 text-red-700 py-2 rounded-lg text-sm font-semibold hover:bg-red-200 transition"><i data-lucide="trash-2" class="w-4 h-4"></i> Delete</button>
+                    </div>`;
             } else {
                 managementButtons = `<div class="p-3 pt-0"></div>`;
             }
@@ -217,10 +210,7 @@ class ShopManager {
                             ${isDiscount ? `<span class="text-sm text-gray-400 line-through">฿${this.formatPrice(oldPrice)}</span>` : ''}
                         </div>
                         <div class="flex items-center justify-between text-xs text-gray-500">
-                            <span class="flex items-center gap-1">
-                                <i data-lucide="shopping-cart" class="w-3 h-3"></i>
-                                ${this.formatNumber(p.orderCount)} sold
-                            </span>
+                            <span class="flex items-center gap-1"><i data-lucide="shopping-cart" class="w-3 h-3"></i> ${this.formatNumber(p.orderCount)} sold</span>
                         </div>
                     </div>
                 </a>

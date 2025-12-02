@@ -12,14 +12,14 @@ class ProductRequestManagerPage {
             requestsEmpty: document.getElementById('requests-empty'),
         };
 
-        this.auth = typeof AuthManager !== 'undefined' ? new AuthManager() : null; 
-        
+        this.auth = typeof AuthManager !== 'undefined' ? new AuthManager() : null;
+
         document.addEventListener("DOMContentLoaded", () => this.init());
     }
 
     async init() {
         if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-        
+
         if (!this.shopId) {
             this.showErrorState("ไม่พบ ID ร้านค้าที่ต้องการตรวจสอบ (URL parameter 'id' หายไป)");
             document.getElementById('page-title').textContent = 'Error';
@@ -34,10 +34,10 @@ class ProductRequestManagerPage {
 
         try {
             if (typeof ProductRequestManager === 'undefined' || !this.auth) {
-                 throw new Error("ไม่สามารถโหลดไฟล์บริการหลัก (Service Manager files missing).");
+                throw new Error("ไม่สามารถโหลดไฟล์บริการหลัก (Service Manager files missing).");
             }
-            
-            const user = await this.auth.protect(); 
+
+            const user = await this.auth.protect();
 
             const response = await ProductRequestManager.getRequestsByVendorId(this.shopId);
 
@@ -50,14 +50,16 @@ class ProductRequestManagerPage {
             this.showErrorState(error.message || 'ไม่สามารถเชื่อมต่อกับระบบจัดการคำขอได้');
         }
     }
-    
+
     renderRequests(requests) {
         const container = this.elements.requestList;
         if (!container) return;
-        
+
         container.innerHTML = '';
 
-        if (!requests || requests.length === 0) {
+        const activeRequests = requests.filter(req => req.status !== 'APPROVED' && req.status !== 'REJECTED');
+
+        if (!activeRequests || activeRequests.length === 0) {
             this.elements.requestsEmpty.classList.remove('hidden');
             this.toggleDisplay('list');
             return;
@@ -65,12 +67,12 @@ class ProductRequestManagerPage {
 
         this.elements.requestsEmpty.classList.add('hidden');
 
-        requests.forEach(req => {
+        activeRequests.forEach(req => {
             const statusColor = this.getStatusColor(req.status);
             const statusText = this.getStatusText(req.status);
-            
+
             const userId = req.user?.id;
-            const productId = req.approvedProductId || 'MOCK_PRODUCT_ID_XYZ'; 
+            const productId = req.approvedProductId || 'MOCK_PRODUCT_ID_XYZ';
 
             const requesterName = req.user ? `${req.user.firstname} ${req.user.lastname}` : 'ผู้ใช้ไม่ระบุชื่อ';
             const createdAtDate = new Date(req.createdAt).toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
@@ -144,13 +146,13 @@ class ProductRequestManagerPage {
                     const btn = document.querySelector(`.status-update-btn[data-id="${requestId}"][data-status="APPROVED"]`);
                     const requesterId = btn.dataset.userId;
                     const finalProductId = btn.dataset.productId;
-                    
+
                     if (typeof ProductRequestManager.approveRequestAndAddToCart !== 'function') {
-                         throw new Error(`ฟังก์ชัน ProductRequestManager.approveRequestAndAddToCart() ที่จำเป็นสำหรับการเพิ่มสินค้าเข้าตะกร้าโดย Admin ยังไม่ได้ถูกกำหนดไว้`);
+                        throw new Error(`ฟังก์ชัน ProductRequestManager.approveRequestAndAddToCart() ที่จำเป็นสำหรับการเพิ่มสินค้าเข้าตะกร้าโดย Admin ยังไม่ได้ถูกกำหนดไว้`);
                     }
-                    
+
                     const response = await ProductRequestManager.approveRequestAndAddToCart(requestId, requesterId, finalProductId);
-                    
+
                     successMessage = `สถานะ APPROVED สำเร็จ! (เพิ่มสินค้าเข้าตะกร้าผู้ขอแล้ว)`;
 
                 } else {
