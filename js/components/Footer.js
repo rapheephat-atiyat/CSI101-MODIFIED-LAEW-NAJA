@@ -36,7 +36,7 @@ class Footer extends HTMLElement {
                     <div class="lg:col-span-3 space-y-4">
                         <div class="flex items-center gap-2.5 group">
                             <div class="w-20">
-                               <img src="http://localhost:5500/public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
+                               <img src="http://localhost:5501/public/images/logo.png" alt="Logo" class="w-full h-full object-contain transform group-hover:scale-105 transition-transform duration-200">
                             </div>
                             <span class="text-xl font-semibold text-gray-900 tracking-tight">HiewHub</span>
                         </div>
